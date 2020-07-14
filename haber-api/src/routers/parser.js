@@ -3,6 +3,7 @@ const router = new express.Router()
 const https = require('https');
 const { Server } = require("http");
 
+
 var parseString = require('xml2js').parseString;
 
 function xmlToJson(url, callback) {
@@ -39,10 +40,27 @@ router.get("/parser/sabah", async (req,res) => {
 
         const json = JSON.parse(JSON.stringify(data));
 
-        // log JSON string
-        console.log(json.rss.channel[0].title)
 
-        res.send(json.rss.channel[0].item)
+        var items = json.rss.channel[0].item
+
+        var data = []
+
+        items.forEach(item => {
+
+
+          if (item.enclosure == undefined)
+          {
+            return
+
+          }
+
+
+          data.push({"title" : item.title[0], "image" : item.enclosure[0]["$"].url})
+
+          
+        });
+
+        res.send(data)
     
       }
     )

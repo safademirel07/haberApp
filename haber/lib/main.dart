@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:haber/models/NewsTest.dart';
+import 'package:haber/widgets/news/news_slider.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+    title: 'haberApp',
+    initialRoute: '/news_slider',
+    routes: {
+      '/news_slider': (context) => NewsSlider(),
+    },
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -14,7 +23,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Scaffold( 
+      home: Scaffold(
         appBar: AppBar(
           title: Text("haberApp"),
         ),
