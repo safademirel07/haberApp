@@ -27,8 +27,9 @@ dependencies:
   carousel_slider: ^2.2.1
   webfeed: ^0.4.2
   http: ^0.12.1
+  url_launcher: ^5.5.0
   cached_network_image: ^2.2.0+1
-
+  webview_flutter: ^0.3.22+1
 
 
   # The following adds the Cupertino Icons font to your application.

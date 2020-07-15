@@ -1,11 +1,14 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:haber/models/NewsTest.dart';
 import 'package:http/http.dart' as http;
-import 'package:webfeed/domain/rss_feed.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'dart:async';
 
-import 'dart:convert';
+import 'package:webview_flutter/webview_flutter.dart';
 
 List<NewsTest> news = List<NewsTest>();
 
@@ -117,6 +120,7 @@ class _NewsSliderState extends State<NewsSlider> {
                   ),
                   Expanded(
                     child: ListView.builder(
+                      padding: EdgeInsets.zero,
                       itemCount: news.length,
                       itemBuilder: (context, index) {
                         return ListTile(
@@ -137,7 +141,27 @@ class _NewsSliderState extends State<NewsSlider> {
                             errorWidget: (context, url, error) =>
                                 Icon(Icons.error),
                           ),
-                          title: Text(news[index].title),
+                          title: Text(
+                            news[index].title,
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                          subtitle: Text(news[index].date),
+                          trailing: Wrap(
+                            children: <Widget>[
+                              IconButton(
+                                icon: Icon(Icons.chevron_right),
+                                onPressed: () async {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => WebViewLoad(
+                                            news[index].title,
+                                            news[index].link)),
+                                  );
+                                },
+                              )
+                            ],
+                          ),
                         );
                       },
                     ),
@@ -152,5 +176,26 @@ class _NewsSliderState extends State<NewsSlider> {
               ),
       ),
     );
+  }
+}
+
+class WebViewLoad extends StatefulWidget {
+  String title;
+  String url;
+
+  WebViewLoad(this.title, this.url);
+
+  WebViewLoadUI createState() => WebViewLoadUI();
+}
+
+class WebViewLoadUI extends State<WebViewLoad> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(title: Text(widget.title)),
+        body: WebView(
+          initialUrl: widget.url,
+          javascriptMode: JavascriptMode.unrestricted,
+        ));
   }
 }
