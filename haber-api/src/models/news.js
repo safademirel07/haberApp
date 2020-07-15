@@ -1,6 +1,11 @@
 const mongoose = require("mongoose")
 
 const newsSchema = new mongoose.Schema({
+    rss: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'RSS',
+        required : true,
+    },
     link: {
         type: String,
         required : true,
@@ -9,27 +14,22 @@ const newsSchema = new mongoose.Schema({
     title: {
         type: String,
         required : true,
-        unique : true
     },
     description: {
         type: String,
         required : true,
-        unique : true
     },
     body: {
         type: String,
         required : true,
-        unique : true
     },
     date: {
         type: String,
         required : true,
-        unique : true
     },
     image: {
         type: String,
         required : true,
-        unique : true
     },
 })
 
