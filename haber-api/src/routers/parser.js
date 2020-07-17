@@ -1,9 +1,6 @@
 const express = require("express")
 const router = new express.Router()
-const https = require('https');
-const { Server } = require("http");
 var striptags = require('striptags');
-const request = require('request');
 const fetch = require("node-fetch");
 
 const cheerio = require('cheerio');

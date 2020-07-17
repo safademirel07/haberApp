@@ -16,6 +16,6 @@ const newsSiteSchema = new mongoose.Schema({
     },
 })
 
-const NewsSite = mongoose.model("NewsSite",newsSiteSchema)
+const NewsSite = mongoose.model("News_Site",newsSiteSchema)
 
 module.exports = NewsSite

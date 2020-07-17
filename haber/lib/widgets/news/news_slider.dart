@@ -42,7 +42,7 @@ final List<Widget> imageSliders = news
                           item.title,
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 20.0,
+                            fontSize: 12.0,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -70,8 +70,7 @@ class _NewsSliderState extends State<NewsSlider> {
   }
 
   Future<http.Response> fetchNews() async {
-    return http
-        .get("http://10.0.3.2:3000/parser/sabah", headers: <String, String>{
+    return http.get("http://10.0.3.2:3000/news/get", headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     });
   }
