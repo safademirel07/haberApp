@@ -8,5 +8,6 @@ module.exports = {
     milliyetSiteID :   "5f1351c3c961bd0bb0ba82c0",
     cnnTURKSiteID :   "5f13521fc961bd0bb0ba82c1",
     haberTurkSiteID :   "5f13523dc961bd0bb0ba82c2",
+    ntvSiteID   : "5f1366bf58a4b8083428bee1",
     
 }

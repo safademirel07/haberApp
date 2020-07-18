@@ -12,6 +12,7 @@ const sabahParser = require("./parsers/sabah")
 const milliyetParser = require("./parsers/milliyet")
 const haberTurkParser = require("./parsers/haberturk")
 const cnnTurkParser = require("./parsers/cnnturk")
+const ntvParser = require("./parsers/ntv")
 
 var CronJob = require('cron').CronJob;
 
@@ -36,6 +37,7 @@ const job = new CronJob('0 */5 * * * *', function() {
     milliyetParser.parseMilliyetNews()
     haberTurkParser.parseHaberTurkNews()
     cnnTurkParser.parseCNNTurkNews()
+    ntvParser.parseNtvNews()
     const d = new Date();
     console.log('Cron worked.', d);
 });  
