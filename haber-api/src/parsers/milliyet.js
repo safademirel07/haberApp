@@ -7,16 +7,17 @@ const News = require("../models/news");
 const NewsSite = require('../models/news_site');
 const RSS = require('../models/rss');
 const FailedNews = require('../models/failed_news');
+
 const constants = require('../others/constants');
 
-async function parseSabahNews() {
+async function parseMilliyetNews() {
 
     const newsSite = await NewsSite.findOne({
-        "_id": constants.sabahSiteID
+        "_id": constants.milliyetSiteID
     })
 
     if (!newsSite) {
-        console.log("News Site (Sabah) doesn't exists in database.")
+        console.log("News Site (Milliyet) doesn't exists in database.")
         return
     }
 
@@ -25,7 +26,7 @@ async function parseSabahNews() {
     })
 
     if (rss.length == 0) {
-        console.log("News Site (Sabah) doesn't have RSS feeds.")
+        console.log("News Site (Milliyet) doesn't have RSS feeds.")
         return
     }
 
@@ -64,7 +65,7 @@ async function parseRSS(rssURL, rssID, rssCategory) {
     var failedNewsCount = 0
 
     for await (const item of allNews) {
-        const newsItemUrl = item.link[0]
+        const newsItemUrl = item["atom:link"][0]["$"]["href"]
         const isExists = await News.findOne({
             "link": newsItemUrl
         })
@@ -73,26 +74,31 @@ async function parseRSS(rssURL, rssID, rssCategory) {
         })
 
         if (!isExists && !isFailed) {
-            if (item.enclosure == undefined) {
-                continue
-            }
 
-            const responseHTML = await fetch(item.link[0]);
-            const dataHTML = await responseHTML.text();
-            const $ = cheerio.load(dataHTML, {
+
+
+            const responseHtml = await fetch(newsItemUrl);
+            const dataHtml = await responseHtml.text();
+            const $ = cheerio.load(dataHtml, {
                 xmlMode: true
             });
             const onlyJson = $('[type="application/ld+json"]')
+
+            const imageHtml = cheerio.load(item.description[0], {
+                xmlMode: true
+            })
+            const itemImage = imageHtml('img').attr('src')
+
 
             try {
                 const createNews = new News({
                     rss: rssID,
                     title: item.title[0],
-                    description: striptags(item.description[0], [], ' ').trim(),
+                    description: striptags(item.description[0], [], ' '),
                     body: JSON.parse(onlyJson.get()[0].children[0].data).articleBody.trim(),
                     date: item.pubDate[0],
                     link: newsItemUrl,
-                    image: item.enclosure[0]["$"].url,
+                    image: itemImage,
                 })
 
                 createNews.save()
@@ -114,5 +120,5 @@ async function parseRSS(rssURL, rssID, rssCategory) {
 
 
 module.exports = {
-    parseSabahNews,
+    parseMilliyetNews,
 }

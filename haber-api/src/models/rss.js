@@ -7,7 +7,8 @@ const rssSchema = new mongoose.Schema({
         required : true,
     },
     category: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
         required : true,
     },
     url: {

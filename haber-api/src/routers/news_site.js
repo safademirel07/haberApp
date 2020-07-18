@@ -2,9 +2,11 @@ const express = require("express")
 const router = new express.Router()
 
 const NewsSite = require('../models/news_site')
+const RSS = require("../models/rss")
 
 router.get("/news_site/all", async (req,res) => {
     const allNewsSites = await NewsSite.find({})
+
     res.send(allNewsSites)
 })
 

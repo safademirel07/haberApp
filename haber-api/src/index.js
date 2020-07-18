@@ -8,7 +8,13 @@ const newsSiteRouter = require("./routers/news_site")
 const rssRouter = require("./routers/rss")
 const newsRouter = require("./routers/news")
 
-const sabahParsers = require("./parsers/sabah")
+const sabahParser = require("./parsers/sabah")
+const milliyetParser = require("./parsers/milliyet")
+const haberTurkParser = require("./parsers/haberturk")
+const cnnTurkParser = require("./parsers/cnnturk")
+
+var CronJob = require('cron').CronJob;
+
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -24,7 +30,17 @@ app.use(newsRouter)
 
 app.use(express.static('public'))
 
-sabahParsers.parseSabahNews()
+
+const job = new CronJob('0 */5 * * * *', function() {
+    sabahParser.parseSabahNews()
+    milliyetParser.parseMilliyetNews()
+    haberTurkParser.parseHaberTurkNews()
+    cnnTurkParser.parseCNNTurkNews()
+    const d = new Date();
+    console.log('Cron worked.', d);
+});  
+
+job.start()
 
 
 app.listen(port, () => {
