@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:haber/models/NewsTest.dart';
+import 'package:haber/providers/news_provider.dart';
 import 'package:haber/widgets/news/news_slider.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    title: 'haberApp',
-    initialRoute: '/news_slider',
-    routes: {
-      '/news_slider': (context) => NewsSlider(),
-    },
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(
+        create: (_) => NewsProvider(),
+      ),
+    ],
+    child: MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'haberApp',
+      initialRoute: '/news_slider',
+      routes: {
+        '/news_slider': (context) => NewsSlider(),
+      },
+    ),
   ));
 }
 
