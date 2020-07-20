@@ -31,6 +31,14 @@ app.use(newsRouter)
 
 app.use(express.static('public'))
 
+/*
+sabahParser.parseSabahNews()
+milliyetParser.parseMilliyetNews()
+haberTurkParser.parseHaberTurkNews()
+cnnTurkParser.parseCNNTurkNews()
+ntvParser.parseNtvNews()
+*/
+
 
 const job = new CronJob('0 */5 * * * *', function() {
     sabahParser.parseSabahNews()

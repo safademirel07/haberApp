@@ -15,15 +15,18 @@ const newsSchema = new mongoose.Schema({
     },
     title: {
         type: String,
+        text : true,
         required : true,
     },
     description: {
         type: String,
+        text : true,
         required : true,
     },
     body: {
         type: String,
         required : true,
+        text : true,
     },
     date: {
         type: String,
