@@ -72,7 +72,7 @@ class _CareouselSliderState extends State<CareouselSlider> {
         : 0;
     if (length == 0) {
       return Container(
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
         child: Center(
           child: Column(
             children: <Widget>[
@@ -133,6 +133,7 @@ class _CareouselSliderState extends State<CareouselSlider> {
                                       vertical: 10.0, horizontal: 20.0),
                                   child: Text(
                                     item.title,
+                                    maxLines: 2,
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 12.0,

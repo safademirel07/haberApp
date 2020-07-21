@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:haber/data/sharedpref/shared_preference_helper.dart';
 import 'package:haber/models/NewsTest.dart';
 import 'package:haber/providers/news_provider.dart';
+import 'package:haber/widgets/news/news_detail.dart';
 import 'package:haber/widgets/news/news_home.dart';
 import 'package:haber/widgets/news/news_slider.dart';
 import 'package:provider/provider.dart';
@@ -56,9 +57,10 @@ void main() async {
       ),
       debugShowCheckedModeBanner: false,
       title: 'haberApp',
-      initialRoute: '/news_slider',
+      initialRoute: '/home',
       routes: {
-        '/news_slider': (context) => NewsHome(),
+        '/home': (context) => NewsHome(),
+        '/detail': (context) => NewsDetail(),
       },
     ),
   ));

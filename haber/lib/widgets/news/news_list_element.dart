@@ -18,7 +18,13 @@ class _NewsListElementState extends State<NewsListElement> {
     return Container(
       padding: EdgeInsets.all(8),
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          Navigator.pushNamed(
+            context,
+            "/detail",
+            arguments: widget.news,
+          );
+        },
         child: Row(
           children: <Widget>[
             Expanded(

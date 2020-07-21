@@ -10,7 +10,7 @@ const mongoose = require("mongoose")
 // to-do     Implement sort with date.
 router.get("/news/get", async (req,res) => {
 
-    let limit = 100000; //news per page
+    let limit = 10; //news per page
 
 
     const newsSites = req.query.news_sites
@@ -160,7 +160,7 @@ router.get("/news/get", async (req,res) => {
 
 router.get("/news/slider", async (req,res) => {
 
-  let limit = 10000; //news per page
+  let limit = 10; //news per page
 
 
   const newsSites = req.query.news_sites

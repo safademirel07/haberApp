@@ -48,7 +48,7 @@ class _NewsHomeState extends State<NewsHome> {
                 floating: false,
                 delegate: NewsSlider(
                   minExtent: 240.0,
-                  maxExtent: 250.0,
+                  maxExtent: 240.0,
                 ),
               ),
             ];

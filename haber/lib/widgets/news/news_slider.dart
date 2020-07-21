@@ -40,11 +40,15 @@ class NewsSlider implements SliverPersistentHeaderDelegate {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Container(
-          margin: EdgeInsets.only(left: 8, top: 8, bottom: 8),
+          margin: EdgeInsets.only(left: 8, top: 8),
           child: Text(
             "Son Dakika",
             style: AppTheme.headline,
           ),
+        ),
+        Divider(
+          color: Colors.black,
+          thickness: 2,
         ),
         CareouselSlider(),
       ],

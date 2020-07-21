@@ -30,7 +30,7 @@ class AppTheme {
     caption: caption,
   );
 
-  static final TextStyle display1 = GoogleFonts.montserrat(
+  static final TextStyle display1 = GoogleFonts.oswald(
     // h4 -> display1
     fontWeight: FontWeight.bold,
     fontSize: 36,
@@ -39,7 +39,7 @@ class AppTheme {
     color: darkerText,
   );
 
-  static final TextStyle headline = GoogleFonts.montserrat(
+  static final TextStyle headline = GoogleFonts.oswald(
     // h5 -> headline
     fontWeight: FontWeight.bold,
     fontSize: 24,
@@ -47,7 +47,7 @@ class AppTheme {
     color: darkerText,
   );
 
-  static final TextStyle title = GoogleFonts.montserrat(
+  static final TextStyle title = GoogleFonts.oswald(
     // h6 -> title
     fontWeight: FontWeight.bold,
     fontSize: 16,
@@ -55,14 +55,14 @@ class AppTheme {
     color: darkerText,
   );
 
-  static final TextStyle title2= GoogleFonts.montserrat(
+  static final TextStyle title2 = GoogleFonts.oswald(
     // h6 -> title
     fontSize: 16,
     letterSpacing: 0.18,
     color: darkerText,
   );
 
-  static final TextStyle subtitle = GoogleFonts.montserrat(
+  static final TextStyle subtitle = GoogleFonts.oswald(
     // subtitle2 -> subtitle
     fontWeight: FontWeight.w400,
     fontSize: 14,
@@ -70,7 +70,7 @@ class AppTheme {
     color: darkText,
   );
 
-  static final TextStyle body2 = GoogleFonts.montserrat(
+  static final TextStyle body2 = GoogleFonts.oswald(
     // body1 -> body2
     fontWeight: FontWeight.w400,
     fontSize: 14,
@@ -78,7 +78,7 @@ class AppTheme {
     color: darkText,
   );
 
-  static final TextStyle body1 = GoogleFonts.montserrat(
+  static final TextStyle body1 = GoogleFonts.oswald(
     // body2 -> body1
     fontWeight: FontWeight.w400,
     fontSize: 16,
@@ -86,10 +86,25 @@ class AppTheme {
     color: darkText,
   );
 
-  static final TextStyle caption = GoogleFonts.montserrat(
+  static final TextStyle caption = GoogleFonts.oswald(
     // Caption -> caption
     fontWeight: FontWeight.w400,
     fontSize: 12,
+    letterSpacing: 0.2,
+    color: lightText, // was lightText
+  );
+
+  static final TextStyle caption2 = GoogleFonts.oswald(
+    // Caption -> caption
+    fontWeight: FontWeight.bold,
+    fontSize: 9,
+    color: lightText, // was lightText
+  );
+
+  static final TextStyle captionMont = GoogleFonts.montserrat(
+    // Caption -> caption
+    fontWeight: FontWeight.w300,
+    fontSize: 11,
     letterSpacing: 0.2,
     color: lightText, // was lightText
   );
