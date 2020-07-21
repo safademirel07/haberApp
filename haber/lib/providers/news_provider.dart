@@ -1,10 +1,29 @@
 import 'package:flutter/foundation.dart';
+import 'package:haber/data/constants.dart';
 import 'dart:convert';
 
 import 'package:haber/models/News.dart';
 import 'package:haber/requests/news_request.dart';
 
 class NewsProvider with ChangeNotifier {
+  static List<String> _selectedNewsSites = List<String>();
+
+  NewsProvider() {
+    print("NewsProvider created");
+    _selectedNewsSites = Constants.selectedNewsSites;
+  }
+
+  void setSelectedNewsSites() {
+    _selectedNewsSites = Constants.selectedNewsSites;
+    print("setSelectedNewsSites calisti");
+    _requiredToFetchAgain = true;
+    notifyListeners();
+  }
+
+  List<String> getSelectedNewsSites() {
+    return _selectedNewsSites;
+  }
+
   List<News> _sliderNews;
   List<News> _listNews;
   String errorMessage;
@@ -14,13 +33,21 @@ class NewsProvider with ChangeNotifier {
   int sliderPage = 1;
   int listPage = 1;
 
+  bool _requiredToFetchAgain = false;
+
   bool _loadingSliderNews = false, _loadingSliderNewsMore = false;
-  bool _loadingListNews = false, _loadingSliderListMore = false;
+  bool _loadingListNews = false, _loadingListNewsMore = false;
 
   bool get loadingSliderNews => _loadingSliderNews;
   bool get loadingSliderNewsMore => _loadingSliderNewsMore;
   bool get loadingListNews => _loadingListNews;
-  bool get loadingSliderListMore => _loadingSliderListMore;
+  bool get loadingListNewsMore => _loadingListNewsMore;
+
+  bool get requiredToFetchAgain => _requiredToFetchAgain;
+
+  set setRequiredToFetchAgain(bool value) {
+    _requiredToFetchAgain = value;
+  }
 
   set setLoadingSliderNews(bool value) {
     _loadingSliderNews = value;
@@ -35,7 +62,7 @@ class NewsProvider with ChangeNotifier {
   }
 
   set setLoadingListNewsMore(bool value) {
-    _loadingSliderListMore = value;
+    _loadingListNewsMore = value;
   }
 
   //Slider News
@@ -100,6 +127,8 @@ class NewsProvider with ChangeNotifier {
 
   Future<void> fetchListNews(String search, List<String> categories,
       List<String> sites, bool isMore) async {
+    if (loadingListNews || loadingListNewsMore) return;
+
     print("fetchListNews" + categories.toString());
     if (isMore)
       setLoadingListNewsMore = true;
@@ -122,11 +151,14 @@ class NewsProvider with ChangeNotifier {
               ++listPage;
             }
             _listNews.addAll(news);
+            print("burasi??");
             setLoadingListNewsMore = false;
+            notifyListeners();
           } else {
             //first page
             setListNews(news);
             setLoadingListNews = false;
+            notifyListeners();
           }
         } else {
           Map<String, dynamic> result = json.decode(data.body);
@@ -135,7 +167,10 @@ class NewsProvider with ChangeNotifier {
           setLoadingListNewsMore = false;
         }
       });
-    } catch (e) {}
+    } catch (e) {
+      setLoadingListNews = false;
+      setLoadingListNewsMore = false;
+    }
   }
 
   void setListNews(value) {
