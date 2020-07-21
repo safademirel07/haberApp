@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:haber/data/sharedpref/shared_preference_helper.dart';
 import 'package:haber/models/NewsTest.dart';
 import 'package:haber/providers/news_provider.dart';
+import 'package:haber/widgets/news/news_home.dart';
 import 'package:haber/widgets/news/news_slider.dart';
 import 'package:provider/provider.dart';
 
@@ -57,7 +58,7 @@ void main() async {
       title: 'haberApp',
       initialRoute: '/news_slider',
       routes: {
-        '/news_slider': (context) => NewsSlider(),
+        '/news_slider': (context) => NewsHome(),
       },
     ),
   ));

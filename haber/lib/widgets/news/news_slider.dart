@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:haber/app_theme.dart';
 import 'package:haber/models/NewsTest.dart';
 import 'package:haber/providers/news_provider.dart';
+import 'package:haber/widgets/news/careousel_slider.dart';
 import 'package:haber/widgets/news/category_list.dart';
 import 'package:haber/widgets/news/news_detail.dart';
 import 'package:haber/widgets/news/news_list.dart';
@@ -16,52 +18,54 @@ import 'dart:async';
 
 import 'package:webview_flutter/webview_flutter.dart';
 
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+
 List<NewsTest> news = List<NewsTest>();
 
-class NewsSlider extends StatefulWidget {
-  @override
-  _NewsSliderState createState() => _NewsSliderState();
-}
-
-class _NewsSliderState extends State<NewsSlider> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
-  @override
-  void initState() {
-    List<String> categories = List<String>();
-    List<String> news_sites = List<String>();
-
-    super.initState();
-  }
+class NewsSlider implements SliverPersistentHeaderDelegate {
+  NewsSlider({
+    this.minExtent,
+    @required this.maxExtent,
+  });
+  final double minExtent;
+  final double maxExtent;
 
   @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        key: _scaffoldKey,
-        body: CategoryList(),
-      ),
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Container(
+          margin: EdgeInsets.only(left: 8, top: 8, bottom: 8),
+          child: Text(
+            "Son Dakika",
+            style: AppTheme.headline,
+          ),
+        ),
+        CareouselSlider(),
+      ],
     );
   }
-}
 
-class WebViewLoad extends StatefulWidget {
-  String title;
-  String url;
-
-  WebViewLoad(this.title, this.url);
-
-  WebViewLoadUI createState() => WebViewLoadUI();
-}
-
-class WebViewLoadUI extends State<WebViewLoad> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(title: Text(widget.title)),
-        body: WebView(
-          initialUrl: widget.url,
-          javascriptMode: JavascriptMode.unrestricted,
-        ));
+  double titleOpacity(double shrinkOffset) {
+    // simple formula: fade out text as soon as shrinkOffset > 0
+    return 1.0 - max(0.0, shrinkOffset) / maxExtent;
+    // more complex formula: starts fading out text when shrinkOffset > minExtent
+    //return 1.0 - max(0.0, (shrinkOffset - minExtent)) / (maxExtent - minExtent);
   }
+
+  @override
+  bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {
+    return true;
+  }
+
+  @override
+  FloatingHeaderSnapConfiguration get snapConfiguration => null;
+
+  @override
+  OverScrollHeaderStretchConfiguration get stretchConfiguration => null;
 }

@@ -45,7 +45,7 @@ class NewsProvider with ChangeNotifier {
 
   bool get requiredToFetchAgain => _requiredToFetchAgain;
 
-  set setRequiredToFetchAgain(bool value) {
+  set setrequiredToFetchAgain(bool value) {
     _requiredToFetchAgain = value;
   }
 
@@ -67,8 +67,7 @@ class NewsProvider with ChangeNotifier {
 
   //Slider News
 
-  Future<void> fetchSliderNews(String search, List<String> categories,
-      List<String> sites, bool isMore) async {
+  Future<void> fetchSliderNews(List<String> sites, bool isMore) async {
     if (isMore)
       setLoadingSliderNewsMore = true;
     else
@@ -77,8 +76,7 @@ class NewsProvider with ChangeNotifier {
     try {
       if (!isMore) sliderPage = 1;
       NewsRequest()
-          .fetchNewsAll((isMore ? (sliderPage + 1) : sliderPage), search,
-              categories, sites)
+          .fetchNewsSlider((isMore ? (sliderPage + 1) : sliderPage), sites)
           .then((data) {
         if (data.statusCode == 200) {
           List<News> news = (json.decode(data.body) as List)
@@ -138,7 +136,7 @@ class NewsProvider with ChangeNotifier {
     try {
       if (!isMore) listPage = 1;
       NewsRequest()
-          .fetchNewsAll(
+          .fetchNewsList(
               (isMore ? (listPage + 1) : listPage), search, categories, sites)
           .then((data) {
         if (data.statusCode == 200) {

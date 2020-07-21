@@ -10,7 +10,7 @@ const mongoose = require("mongoose")
 // to-do     Implement sort with date.
 router.get("/news/get", async (req,res) => {
 
-    let limit = 10; //news per page
+    let limit = 100000; //news per page
 
 
     const newsSites = req.query.news_sites
@@ -157,6 +157,151 @@ router.get("/news/get", async (req,res) => {
 
 
 })
+
+router.get("/news/slider", async (req,res) => {
+
+  let limit = 10000; //news per page
+
+
+  const newsSites = req.query.news_sites
+  const categories = req.query.categories
+  let page = (Math.abs(req.query.page) || 1) - 1;
+
+
+
+  console.log(newsSites)
+
+  var filterSites = []
+
+  if (newsSites != undefined && newsSites.length > 0) {
+      var splitNewsSites = newsSites.split(',')
+      splitNewsSites.forEach(newsSite => {
+          filterSites.push(mongoose.Types.ObjectId(newsSite))
+      });
+  }
+
+  console.log("filterSites" + filterSites)
+
+  var latestID = mongoose.Types.ObjectId("5f135127c961bd0bb0ba82b7")
+  var homeID = mongoose.Types.ObjectId("5f135136c961bd0bb0ba82b8")
+
+
+  var aggregateQuery =  [
+      { "$lookup": {
+          "let": { "rssObjID": { "$toObjectId": "$rss" } },
+          "from": "rsses",
+          "pipeline": [
+            { "$match": { "$expr": { "$eq": [ "$_id", "$$rssObjID" ] } } }
+          ],
+          "as": "rssDetails"
+        }
+      },
+      {
+          "$unwind": "$rssDetails"
+      },
+      { "$lookup": {
+          "let": { "siteObjID": { "$toObjectId": "$rssDetails.site" } },
+          "from": "news_sites",
+          "pipeline": [
+            { "$match": { "$expr": { "$eq": [ "$_id", "$$siteObjID" ] } } }
+          ],
+          "as": "siteDetails"
+        }
+      },
+      {
+          $unwind: "$siteDetails"
+      },
+      { "$lookup": {
+          "let": { "categoryObjID": { "$toObjectId": "$rssDetails.category" } },
+          "from": "categories",
+          "pipeline": [
+            { "$match": { "$expr": { "$eq": [ "$_id", "$$categoryObjID" ] } } }
+          ],
+          "as": "categoryDetails"
+        }
+      },
+      {
+          $unwind: "$categoryDetails"
+      },
+      { "$match" : { "rssDetails.category" : { "$in": [latestID,homeID] } }},
+      { "$skip": limit * page},  { "$limit": limit},
+  ]
+
+  if (filterSites.length > 0) {
+      aggregateQuery = [
+          { "$lookup": {
+              "let": { "rssObjID": { "$toObjectId": "$rss" } },
+              "from": "rsses",
+              "pipeline": [
+                { "$match": { "$expr": { "$eq": [ "$_id", "$$rssObjID" ] } } }
+              ],
+              "as": "rssDetails"
+            }
+          },
+          {
+              "$unwind": "$rssDetails"
+          },
+          { "$lookup": {
+              "let": { "siteObjID": { "$toObjectId": "$rssDetails.site" } },
+              "from": "news_sites",
+              "pipeline": [
+                { "$match": { "$expr": { "$eq": [ "$_id", "$$siteObjID" ] } } }
+              ],
+              "as": "siteDetails"
+            }
+          },
+          {
+              $unwind: "$siteDetails"
+          },
+          { "$lookup": {
+              "let": { "categoryObjID": { "$toObjectId": "$rssDetails.category" } },
+              "from": "categories",
+              "pipeline": [
+                { "$match": { "$expr": { "$eq": [ "$_id", "$$categoryObjID" ] } } }
+              ],
+              "as": "categoryDetails"
+            }
+          },
+          {
+              $unwind: "$categoryDetails"
+          },
+          { "$match" : {
+
+            "$and" : 
+            [ 
+                { "rssDetails.category" : { "$in": [latestID,homeID]}}, 
+                { "rssDetails.site" : { "$in": filterSites } }  
+            ]}   
+
+              },
+          { "$skip": limit * page},  { "$limit": limit},
+      ]
+  }
+
+  
+
+  const allNews = News.aggregate(aggregateQuery)
+      
+ 
+  const data = []
+
+  for await (const news of allNews)
+  {   
+
+      delete news.siteDetails.__v
+      delete news.rssDetails.__v
+      delete news.rssDetails.site
+      delete news.rssDetails.category
+      delete news.categoryDetails.__v
+      data.push(news)
+  
+  }
+  res.send(data)
+
+
+})
+
+
 
 
 module.exports = router
