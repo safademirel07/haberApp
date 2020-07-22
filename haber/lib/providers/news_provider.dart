@@ -89,10 +89,12 @@ class NewsProvider with ChangeNotifier {
             }
             _sliderNews.addAll(news);
             setLoadingSliderNewsMore = false;
+            notifyListeners();
           } else {
             //first page
             setSliderNews(news);
             setLoadingSliderNews = false;
+            notifyListeners();
           }
         } else {
           Map<String, dynamic> result = json.decode(data.body);

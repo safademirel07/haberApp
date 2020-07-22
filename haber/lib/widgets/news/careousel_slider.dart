@@ -67,9 +67,13 @@ class _CareouselSliderState extends State<CareouselSlider> {
 
   @override
   Widget build(BuildContext context) {
-    int length = (Provider.of<NewsProvider>(context).getSliderNews() != null)
-        ? Provider.of<NewsProvider>(context).getSliderNews().length
-        : 0;
+    int length =
+        (Provider.of<NewsProvider>(context, listen: true).getSliderNews() !=
+                null)
+            ? Provider.of<NewsProvider>(context, listen: true)
+                .getSliderNews()
+                .length
+            : 0;
     if (length == 0) {
       return Container(
         padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
@@ -96,54 +100,79 @@ class _CareouselSliderState extends State<CareouselSlider> {
     } else
       return CarouselSlider(
           options: CarouselOptions(
-            onPageChanged: (index, reason) =>
-                print("index ne " + index.toString()),
+            onPageChanged: (index, reason) {
+              int newsLength = Provider.of<NewsProvider>(context, listen: false)
+                  .getSliderNews()
+                  .length;
+              print("News index" +
+                  index.toString() +
+                  " length " +
+                  newsLength.toString());
+              if (index + 1 == newsLength) {
+                print("tekrar cek");
+                Provider.of<NewsProvider>(context, listen: false)
+                    .fetchSliderNews(
+                  news_sites,
+                  true,
+                );
+              }
+            },
             enableInfiniteScroll: false,
-            autoPlay: true,
+            autoPlay: false,
             aspectRatio: 2.0,
             enlargeCenterPage: true,
           ),
-          items: Provider.of<NewsProvider>(context)
+          items: Provider.of<NewsProvider>(context, listen: true)
               .getSliderNews()
-              .map((item) => Container(
+              .map((item) => InkWell(
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        "/detail",
+                        arguments: item,
+                      );
+                    },
                     child: Container(
-                      margin: EdgeInsets.all(5.0),
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                          child: Stack(
-                            children: <Widget>[
-                              Image.network(item.image,
-                                  fit: BoxFit.cover, width: 1000.0),
-                              Positioned(
-                                bottom: 0.0,
-                                left: 0.0,
-                                right: 0.0,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        Color.fromARGB(200, 0, 0, 0),
-                                        Color.fromARGB(0, 0, 0, 0)
-                                      ],
-                                      begin: Alignment.bottomCenter,
-                                      end: Alignment.topCenter,
+                      child: Container(
+                        margin: EdgeInsets.all(5.0),
+                        child: ClipRRect(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(5.0)),
+                            child: Stack(
+                              children: <Widget>[
+                                Image.network(item.image,
+                                    fit: BoxFit.cover, width: 1000.0),
+                                Positioned(
+                                  bottom: 0.0,
+                                  left: 0.0,
+                                  right: 0.0,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Color.fromARGB(200, 0, 0, 0),
+                                          Color.fromARGB(0, 0, 0, 0)
+                                        ],
+                                        begin: Alignment.bottomCenter,
+                                        end: Alignment.topCenter,
+                                      ),
                                     ),
-                                  ),
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 10.0, horizontal: 20.0),
-                                  child: Text(
-                                    item.title,
-                                    maxLines: 2,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12.0,
-                                      fontWeight: FontWeight.bold,
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 10.0, horizontal: 20.0),
+                                    child: Text(
+                                      item.title,
+                                      maxLines: 2,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          )),
+                              ],
+                            )),
+                      ),
                     ),
                   ))
               .toList());

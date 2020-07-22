@@ -6,36 +6,54 @@ const newsSchema = new mongoose.Schema({
     rss: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'RSS',
-        required : true,
+        required: true,
     },
     link: {
         type: String,
-        required : true,
-        unique : true
+        required: true,
+        unique: true
     },
     title: {
         type: String,
-        text : true,
-        required : true,
+        text: true,
+        required: true,
     },
     description: {
         type: String,
-        text : true,
-        required : true,
+        text: true,
+        required: true,
     },
     body: {
         type: String,
-        required : true,
-        text : true,
+        required: true,
+        text: true,
     },
     date: {
         type: String,
-        required : true,
+        required: true,
     },
     image: {
         type: String,
-        required : true,
+        required: true,
     },
+    likes: [{
+        profiles: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }
+    }],
+    dislikes: [{
+        profiles: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }
+    }],
+    viewers: [{
+        profiles: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }
+    }],
 })
 
 newsSchema.methods.toJSON = async function () {
@@ -45,14 +63,18 @@ newsSchema.methods.toJSON = async function () {
     delete newsObject.__v
     delete newsObject.rss
 
-    const rss = await RSS.findOne({_id: news.rss})
-        
+    const rss = await RSS.findOne({
+        _id: news.rss
+    })
+
     if (!rss) {
         console.log("RSS not found.")
         return undefined
     }
 
-    const newsSite = await NewsSite.findOne({_id : rss.site})
+    const newsSite = await NewsSite.findOne({
+        _id: rss.site
+    })
 
     if (!rss) {
         console.log("News Site not found.")
@@ -64,11 +86,15 @@ newsSchema.methods.toJSON = async function () {
     newsCategoryName = rss.category
 
 
-    const object = {...newsObject, newsSiteName, newsCategoryName}
+    const object = {
+        ...newsObject,
+        newsSiteName,
+        newsCategoryName
+    }
 
-    return object 
+    return object
 }
 
-const News = mongoose.model("News",newsSchema)
+const News = mongoose.model("News", newsSchema)
 
 module.exports = News

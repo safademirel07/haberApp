@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1081845450833",
+    "firebase_url": "https://haberapp-54a0c.firebaseio.com",
+    "project_id": "haberapp-54a0c",
+    "storage_bucket": "haberapp-54a0c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1081845450833:android:60d5cc11e2515b180b9070",
+        "android_client_info": {
+          "package_name": "com.example.haber"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1081845450833-ravmir1hi5o9ifvo4tao29u98jmpnqdr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3O2yS5KSYpM0pKYdi_F727W1Je1BKFa0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1081845450833-ravmir1hi5o9ifvo4tao29u98jmpnqdr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

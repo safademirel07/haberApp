@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:haber/app_theme.dart';
 import 'package:haber/data/constants.dart';
 import 'package:haber/data/sharedpref/shared_preference_helper.dart';
 import 'package:haber/models/NewsTest.dart';
@@ -47,8 +48,8 @@ class _NewsHomeState extends State<NewsHome> {
                 pinned: false,
                 floating: false,
                 delegate: NewsSlider(
-                  minExtent: 240.0,
-                  maxExtent: 240.0,
+                  minExtent: 255.0,
+                  maxExtent: 255.0,
                 ),
               ),
             ];

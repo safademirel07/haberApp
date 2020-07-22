@@ -41,14 +41,49 @@ class NewsSlider implements SliverPersistentHeaderDelegate {
       children: <Widget>[
         Container(
           margin: EdgeInsets.only(left: 8, top: 8),
-          child: Text(
-            "Son Dakika",
-            style: AppTheme.headline,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Container(
+                margin: EdgeInsets.only(left: 8, top: 8),
+                child: Text(
+                  "Son Dakika",
+                  style: AppTheme.headline,
+                ),
+              ),
+              Row(
+                children: <Widget>[
+                  IconButton(
+                    icon: Icon(
+                      Icons.search,
+                      color: Colors.black,
+                    ),
+                    onPressed: () {
+                      Navigator.pushNamed(
+                        context,
+                        "/search",
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.person,
+                      color: Colors.black,
+                    ),
+                    onPressed: () {
+                      Navigator.pushNamed(
+                        context,
+                        "/login",
+                      );
+                    },
+                  )
+                ],
+              )
+            ],
           ),
         ),
         Divider(
           color: Colors.black,
-          thickness: 2,
         ),
         CareouselSlider(),
       ],

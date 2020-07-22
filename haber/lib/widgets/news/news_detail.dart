@@ -16,9 +16,9 @@ class _NewsDetailState extends State<NewsDetail> {
   Widget build(BuildContext context) {
     final News news = ModalRoute.of(context).settings.arguments;
 
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
+    return SafeArea(
+      child: Scaffold(
+        body: SingleChildScrollView(
           child: Container(
             padding: EdgeInsets.only(left: 8, right: 8, top: 8),
             child: Column(
@@ -32,17 +32,20 @@ class _NewsDetailState extends State<NewsDetail> {
                 ),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
-                  child: CachedNetworkImage(
-                    placeholder: (context, url) => Container(
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          strokeWidth: 1.0,
+                  child: Hero(
+                    tag: news.image,
+                    child: CachedNetworkImage(
+                      placeholder: (context, url) => Container(
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 1.0,
+                          ),
                         ),
+                        padding: EdgeInsets.all(3.0),
                       ),
-                      padding: EdgeInsets.all(3.0),
+                      imageUrl: news.image,
+                      fit: BoxFit.cover,
                     ),
-                    imageUrl: news.image,
-                    fit: BoxFit.cover,
                   ),
                 ),
                 SizedBox(

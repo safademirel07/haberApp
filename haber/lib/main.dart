@@ -1,10 +1,14 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:haber/data/sharedpref/shared_preference_helper.dart';
 import 'package:haber/models/NewsTest.dart';
 import 'package:haber/providers/news_provider.dart';
 import 'package:haber/widgets/news/news_detail.dart';
 import 'package:haber/widgets/news/news_home.dart';
+import 'package:haber/widgets/news/news_search.dart';
 import 'package:haber/widgets/news/news_slider.dart';
+import 'package:haber/widgets/user/login.dart';
 import 'package:provider/provider.dart';
 
 import 'app_theme.dart';
@@ -43,6 +47,8 @@ void main() async {
   });
   print("newsSites init " + Constants.selectedNewsSites.toString());
 
+  FirebaseAnalytics analytics = FirebaseAnalytics();
+
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(
@@ -55,30 +61,18 @@ void main() async {
         textTheme: AppTheme.textTheme,
         platform: TargetPlatform.android,
       ),
+      navigatorObservers: [
+        FirebaseAnalyticsObserver(analytics: analytics),
+      ],
       debugShowCheckedModeBanner: false,
       title: 'haberApp',
       initialRoute: '/home',
       routes: {
         '/home': (context) => NewsHome(),
         '/detail': (context) => NewsDetail(),
+        '/login': (context) => Login(),
+        '/search': (context) => NewsSearch(),
       },
     ),
   ));
-}
-
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: Scaffold(
-        body: Text("test"),
-      ),
-    );
-  }
 }

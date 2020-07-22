@@ -30,17 +30,20 @@ class _NewsListElementState extends State<NewsListElement> {
             Expanded(
               flex: 40,
               child: Material(
-                child: CachedNetworkImage(
-                  placeholder: (context, url) => Container(
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        strokeWidth: 1.0,
+                child: Hero(
+                  tag: widget.news.image,
+                  child: CachedNetworkImage(
+                    placeholder: (context, url) => Container(
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 1.0,
+                        ),
                       ),
+                      padding: EdgeInsets.all(3.0),
                     ),
-                    padding: EdgeInsets.all(3.0),
+                    imageUrl: widget.news.image,
+                    fit: BoxFit.cover,
                   ),
-                  imageUrl: widget.news.image,
-                  fit: BoxFit.cover,
                 ),
                 borderRadius: BorderRadius.all(
                   Radius.circular(8.0),

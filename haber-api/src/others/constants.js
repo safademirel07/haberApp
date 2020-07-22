@@ -9,5 +9,7 @@ module.exports = {
     cnnTURKSiteID :   "5f13521fc961bd0bb0ba82c1",
     haberTurkSiteID :   "5f13523dc961bd0bb0ba82c2",
     ntvSiteID   : "5f1366bf58a4b8083428bee1",
+
+    secretKey   :"X0U7Y>!mVp2_u<:?>``]dy0vXV`CIH"
     
 }
