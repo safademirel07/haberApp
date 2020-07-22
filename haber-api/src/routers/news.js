@@ -4,161 +4,250 @@ const News = require("../models/news")
 const RSS = require("../models/rss")
 const NewsSite = require("../models/news_site")
 const mongoose = require("mongoose")
-
+const moment = require("moment")
 // @route    GET news/get?news_sites=(id1,id2)&categories=(id1,id2)&searchWord=xyz&page=1
 // @desc     Gets news specified News Sites, Categories, Search Word with pagination.
 // to-do     Implement sort with date.
-router.get("/news/get", async (req,res) => {
+router.get("/news/get", async (req, res) => {
 
-    let limit = 10; //news per page
-
-
-    const newsSites = req.query.news_sites
-    const categories = req.query.categories
-    const searchWord = req.query.search
-    let page = (Math.abs(req.query.page) || 1) - 1;
-
-    console.log("search" + searchWord)
+  let limit = 10; //news per page
 
 
-    console.log(newsSites)
+  const newsSites = req.query.news_sites
+  const categories = req.query.categories
+  const searchWord = req.query.search
+  let page = (Math.abs(req.query.page) || 1) - 1;
 
-    var filterSites = []
-    var filterCategories = []
-
-    if (newsSites != undefined && newsSites.length > 0) {
-        var splitNewsSites = newsSites.split(',')
-        splitNewsSites.forEach(newsSite => {
-            filterSites.push(mongoose.Types.ObjectId(newsSite))
-        });
-    }
-    if (categories != undefined && categories.length > 0) {
-        console.log("bu")
-        var splitCategories = categories.split(',')
-        splitCategories.forEach(category => {
-            filterCategories.push(mongoose.Types.ObjectId(category))
-        });
-    }
-    console.log("filterSites" + filterSites)
-    console.log("filterCategories" + filterCategories)
+  console.log("search" + searchWord)
 
 
-    var aggregateQuery =  [
-        { "$lookup": {
-            "let": { "rssObjID": { "$toObjectId": "$rss" } },
-            "from": "rsses",
-            "pipeline": [
-              { "$match": { "$expr": { "$eq": [ "$_id", "$$rssObjID" ] } } }
-            ],
-            "as": "rssDetails"
+  console.log(newsSites)
+
+  var filterSites = []
+  var filterCategories = []
+
+  if (newsSites != undefined && newsSites.length > 0) {
+    var splitNewsSites = newsSites.split(',')
+    splitNewsSites.forEach(newsSite => {
+      filterSites.push(mongoose.Types.ObjectId(newsSite))
+    });
+  }
+  if (categories != undefined && categories.length > 0) {
+    console.log("bu")
+    var splitCategories = categories.split(',')
+    splitCategories.forEach(category => {
+      filterCategories.push(mongoose.Types.ObjectId(category))
+    });
+  }
+  console.log("filterSites" + filterSites)
+  console.log("filterCategories" + filterCategories)
+
+
+  var aggregateQuery = [{
+      "$lookup": {
+        "let": {
+          "rssObjID": {
+            "$toObjectId": "$rss"
           }
         },
-        {
-            "$unwind": "$rssDetails"
-        },
-        { "$lookup": {
-            "let": { "siteObjID": { "$toObjectId": "$rssDetails.site" } },
-            "from": "news_sites",
-            "pipeline": [
-              { "$match": { "$expr": { "$eq": [ "$_id", "$$siteObjID" ] } } }
-            ],
-            "as": "siteDetails"
+        "from": "rsses",
+        "pipeline": [{
+          "$match": {
+            "$expr": {
+              "$eq": ["$_id", "$$rssObjID"]
+            }
+          }
+        }],
+        "as": "rssDetails"
+      }
+    },
+    {
+      "$unwind": "$rssDetails"
+    },
+    {
+      "$lookup": {
+        "let": {
+          "siteObjID": {
+            "$toObjectId": "$rssDetails.site"
           }
         },
-        {
-            $unwind: "$siteDetails"
-        },
-        { "$lookup": {
-            "let": { "categoryObjID": { "$toObjectId": "$rssDetails.category" } },
-            "from": "categories",
-            "pipeline": [
-              { "$match": { "$expr": { "$eq": [ "$_id", "$$categoryObjID" ] } } }
-            ],
-            "as": "categoryDetails"
+        "from": "news_sites",
+        "pipeline": [{
+          "$match": {
+            "$expr": {
+              "$eq": ["$_id", "$$siteObjID"]
+            }
+          }
+        }],
+        "as": "siteDetails"
+      }
+    },
+    {
+      $unwind: "$siteDetails"
+    },
+    {
+      "$lookup": {
+        "let": {
+          "categoryObjID": {
+            "$toObjectId": "$rssDetails.category"
           }
         },
-        {
-            $unwind: "$categoryDetails"
-        },
-        { "$skip": limit * page},  { "$limit": limit},
+        "from": "categories",
+        "pipeline": [{
+          "$match": {
+            "$expr": {
+              "$eq": ["$_id", "$$categoryObjID"]
+            }
+          }
+        }],
+        "as": "categoryDetails"
+      }
+    },
+    {
+      $unwind: "$categoryDetails"
+    },
+    {
+      "$sort": {
+        date: -1
+      }
+    },
+    {
+      "$skip": limit * page
+    }, {
+      "$limit": limit
+    },
+  ]
+
+  if (filterSites.length > 0 || filterCategories.length > 0) {
+    aggregateQuery = [{
+        "$lookup": {
+          "let": {
+            "rssObjID": {
+              "$toObjectId": "$rss"
+            }
+          },
+          "from": "rsses",
+          "pipeline": [{
+            "$match": {
+              "$expr": {
+                "$eq": ["$_id", "$$rssObjID"]
+              }
+            }
+          }],
+          "as": "rssDetails"
+        }
+      },
+      {
+        "$unwind": "$rssDetails"
+      },
+      {
+        "$lookup": {
+          "let": {
+            "siteObjID": {
+              "$toObjectId": "$rssDetails.site"
+            }
+          },
+          "from": "news_sites",
+          "pipeline": [{
+            "$match": {
+              "$expr": {
+                "$eq": ["$_id", "$$siteObjID"]
+              }
+            }
+          }],
+          "as": "siteDetails"
+        }
+      },
+      {
+        $unwind: "$siteDetails"
+      },
+      {
+        "$lookup": {
+          "let": {
+            "categoryObjID": {
+              "$toObjectId": "$rssDetails.category"
+            }
+          },
+          "from": "categories",
+          "pipeline": [{
+            "$match": {
+              "$expr": {
+                "$eq": ["$_id", "$$categoryObjID"]
+              }
+            }
+          }],
+          "as": "categoryDetails"
+        }
+      },
+      {
+        $unwind: "$categoryDetails"
+      },
+      {
+        "$match": {
+          "$and": [{
+              $or: [{
+                "title": new RegExp(searchWord, "i")
+              }, {
+                "description": new RegExp(searchWord, "i")
+              }, {
+                "body": new RegExp(searchWord, "i")
+              }]
+            },
+            {
+              "$and": [{
+                  "rssDetails.category": {
+                    "$in": filterCategories
+                  }
+                },
+                {
+                  "rssDetails.site": {
+                    "$in": filterSites
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "$sort": {
+          date: -1
+        }
+      },
+
+      {
+        "$skip": limit * page
+      }, {
+        "$limit": limit
+      },
     ]
+  }
 
-    if (filterSites.length > 0 || filterCategories.length > 0) {
-        aggregateQuery = [
-            { "$lookup": {
-                "let": { "rssObjID": { "$toObjectId": "$rss" } },
-                "from": "rsses",
-                "pipeline": [
-                  { "$match": { "$expr": { "$eq": [ "$_id", "$$rssObjID" ] } } }
-                ],
-                "as": "rssDetails"
-              }
-            },
-            {
-                "$unwind": "$rssDetails"
-            },
-            { "$lookup": {
-                "let": { "siteObjID": { "$toObjectId": "$rssDetails.site" } },
-                "from": "news_sites",
-                "pipeline": [
-                  { "$match": { "$expr": { "$eq": [ "$_id", "$$siteObjID" ] } } }
-                ],
-                "as": "siteDetails"
-              }
-            },
-            {
-                $unwind: "$siteDetails"
-            },
-            { "$lookup": {
-                "let": { "categoryObjID": { "$toObjectId": "$rssDetails.category" } },
-                "from": "categories",
-                "pipeline": [
-                  { "$match": { "$expr": { "$eq": [ "$_id", "$$categoryObjID" ] } } }
-                ],
-                "as": "categoryDetails"
-              }
-            },
-            {
-                $unwind: "$categoryDetails"
-            },
-            { "$match" : {
-                "$and" : [
-                    {$or : [{"title": new RegExp(searchWord, "i")},{"description": new RegExp(searchWord, "i")},{"body": new RegExp(searchWord, "i")}]},
-                    {
-                        "$and" : 
-                    [ 
-                        { "rssDetails.category" : { "$in": filterCategories } }, 
-                        { "rssDetails.site" : { "$in": filterSites } }  
-                    ]}   
-                ]}},
-            { "$skip": limit * page},  { "$limit": limit},
-        ]
-    }
 
-    
 
-    const allNews = News.aggregate(aggregateQuery)
-        
-   
-    const data = []
+  const allNews = News.aggregate(aggregateQuery)
 
-    for await (const news of allNews)
-    {   
 
-        delete news.siteDetails.__v
-        delete news.rssDetails.__v
-        delete news.rssDetails.site
-        delete news.rssDetails.category
-        delete news.categoryDetails.__v
-        data.push(news)
-    
-    }
-    res.send(data)
+  const data = []
+
+  for await (const news of allNews) {
+
+    delete news.siteDetails.__v
+    delete news.rssDetails.__v
+    delete news.rssDetails.site
+    delete news.rssDetails.category
+    delete news.categoryDetails.__v
+    moment.locale("tr")
+    news.date = moment.unix(news.date).format("LLLL")
+    data.push(news)
+
+  }
+  res.send(data)
 
 
 })
 
-router.get("/news/slider", async (req,res) => {
+router.get("/news/slider", async (req, res) => {
 
   let limit = 10; //news per page
 
@@ -174,10 +263,10 @@ router.get("/news/slider", async (req,res) => {
   var filterSites = []
 
   if (newsSites != undefined && newsSites.length > 0) {
-      var splitNewsSites = newsSites.split(',')
-      splitNewsSites.forEach(newsSite => {
-          filterSites.push(mongoose.Types.ObjectId(newsSite))
-      });
+    var splitNewsSites = newsSites.split(',')
+    splitNewsSites.forEach(newsSite => {
+      filterSites.push(mongoose.Types.ObjectId(newsSite))
+    });
   }
 
   console.log("filterSites" + filterSites)
@@ -186,115 +275,199 @@ router.get("/news/slider", async (req,res) => {
   var homeID = mongoose.Types.ObjectId("5f135136c961bd0bb0ba82b8")
 
 
-  var aggregateQuery =  [
-      { "$lookup": {
-          "let": { "rssObjID": { "$toObjectId": "$rss" } },
+  var aggregateQuery = [{
+      "$lookup": {
+        "let": {
+          "rssObjID": {
+            "$toObjectId": "$rss"
+          }
+        },
+        "from": "rsses",
+        "pipeline": [{
+          "$match": {
+            "$expr": {
+              "$eq": ["$_id", "$$rssObjID"]
+            }
+          }
+        }],
+        "as": "rssDetails"
+      }
+    },
+    {
+      "$unwind": "$rssDetails"
+    },
+    {
+      "$lookup": {
+        "let": {
+          "siteObjID": {
+            "$toObjectId": "$rssDetails.site"
+          }
+        },
+        "from": "news_sites",
+        "pipeline": [{
+          "$match": {
+            "$expr": {
+              "$eq": ["$_id", "$$siteObjID"]
+            }
+          }
+        }],
+        "as": "siteDetails"
+      }
+    },
+    {
+      $unwind: "$siteDetails"
+    },
+    {
+      "$lookup": {
+        "let": {
+          "categoryObjID": {
+            "$toObjectId": "$rssDetails.category"
+          }
+        },
+        "from": "categories",
+        "pipeline": [{
+          "$match": {
+            "$expr": {
+              "$eq": ["$_id", "$$categoryObjID"]
+            }
+          }
+        }],
+        "as": "categoryDetails"
+      }
+    },
+    {
+      $unwind: "$categoryDetails"
+    },
+    {
+      "$match": {
+        "rssDetails.category": {
+          "$in": [latestID, homeID]
+        }
+      }
+    },
+    {
+      "$sort": {
+        date: -1 //date by Descending
+      }
+    },
+    {
+      "$skip": limit * page
+    }, {
+      "$limit": limit
+    },
+  ]
+
+  if (filterSites.length > 0) {
+    aggregateQuery = [{
+        "$lookup": {
+          "let": {
+            "rssObjID": {
+              "$toObjectId": "$rss"
+            }
+          },
           "from": "rsses",
-          "pipeline": [
-            { "$match": { "$expr": { "$eq": [ "$_id", "$$rssObjID" ] } } }
-          ],
+          "pipeline": [{
+            "$match": {
+              "$expr": {
+                "$eq": ["$_id", "$$rssObjID"]
+              }
+            }
+          }],
           "as": "rssDetails"
         }
       },
       {
-          "$unwind": "$rssDetails"
+        "$unwind": "$rssDetails"
       },
-      { "$lookup": {
-          "let": { "siteObjID": { "$toObjectId": "$rssDetails.site" } },
+      {
+        "$lookup": {
+          "let": {
+            "siteObjID": {
+              "$toObjectId": "$rssDetails.site"
+            }
+          },
           "from": "news_sites",
-          "pipeline": [
-            { "$match": { "$expr": { "$eq": [ "$_id", "$$siteObjID" ] } } }
-          ],
+          "pipeline": [{
+            "$match": {
+              "$expr": {
+                "$eq": ["$_id", "$$siteObjID"]
+              }
+            }
+          }],
           "as": "siteDetails"
         }
       },
       {
-          $unwind: "$siteDetails"
+        $unwind: "$siteDetails"
       },
-      { "$lookup": {
-          "let": { "categoryObjID": { "$toObjectId": "$rssDetails.category" } },
+      {
+        "$lookup": {
+          "let": {
+            "categoryObjID": {
+              "$toObjectId": "$rssDetails.category"
+            }
+          },
           "from": "categories",
-          "pipeline": [
-            { "$match": { "$expr": { "$eq": [ "$_id", "$$categoryObjID" ] } } }
-          ],
+          "pipeline": [{
+            "$match": {
+              "$expr": {
+                "$eq": ["$_id", "$$categoryObjID"]
+              }
+            }
+          }],
           "as": "categoryDetails"
         }
       },
       {
-          $unwind: "$categoryDetails"
+        $unwind: "$categoryDetails"
       },
-      { "$match" : { "rssDetails.category" : { "$in": [latestID,homeID] } }},
-      { "$skip": limit * page},  { "$limit": limit},
-  ]
+      {
+        "$match": {
 
-  if (filterSites.length > 0) {
-      aggregateQuery = [
-          { "$lookup": {
-              "let": { "rssObjID": { "$toObjectId": "$rss" } },
-              "from": "rsses",
-              "pipeline": [
-                { "$match": { "$expr": { "$eq": [ "$_id", "$$rssObjID" ] } } }
-              ],
-              "as": "rssDetails"
+          "$and": [{
+              "rssDetails.category": {
+                "$in": [latestID, homeID]
+              }
+            },
+            {
+              "rssDetails.site": {
+                "$in": filterSites
+              }
             }
-          },
-          {
-              "$unwind": "$rssDetails"
-          },
-          { "$lookup": {
-              "let": { "siteObjID": { "$toObjectId": "$rssDetails.site" } },
-              "from": "news_sites",
-              "pipeline": [
-                { "$match": { "$expr": { "$eq": [ "$_id", "$$siteObjID" ] } } }
-              ],
-              "as": "siteDetails"
-            }
-          },
-          {
-              $unwind: "$siteDetails"
-          },
-          { "$lookup": {
-              "let": { "categoryObjID": { "$toObjectId": "$rssDetails.category" } },
-              "from": "categories",
-              "pipeline": [
-                { "$match": { "$expr": { "$eq": [ "$_id", "$$categoryObjID" ] } } }
-              ],
-              "as": "categoryDetails"
-            }
-          },
-          {
-              $unwind: "$categoryDetails"
-          },
-          { "$match" : {
+          ]
+        }
 
-            "$and" : 
-            [ 
-                { "rssDetails.category" : { "$in": [latestID,homeID]}}, 
-                { "rssDetails.site" : { "$in": filterSites } }  
-            ]}   
+      },
+      {
+        "$sort": {
+          date: -1 //date by Descending
+        }
+      },
 
-              },
-          { "$skip": limit * page},  { "$limit": limit},
-      ]
+      {
+        "$skip": limit * page
+      }, {
+        "$limit": limit
+      },
+    ]
   }
 
-  
+
 
   const allNews = News.aggregate(aggregateQuery)
-      
- 
+
+
   const data = []
 
-  for await (const news of allNews)
-  {   
+  for await (const news of allNews) {
 
-      delete news.siteDetails.__v
-      delete news.rssDetails.__v
-      delete news.rssDetails.site
-      delete news.rssDetails.category
-      delete news.categoryDetails.__v
-      data.push(news)
-  
+    delete news.siteDetails.__v
+    delete news.rssDetails.__v
+    delete news.rssDetails.site
+    delete news.rssDetails.category
+    delete news.categoryDetails.__v
+    data.push(news)
+
   }
   res.send(data)
 

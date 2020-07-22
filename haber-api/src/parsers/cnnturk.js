@@ -8,6 +8,7 @@ const NewsSite = require('../models/news_site');
 const FailedNews = require('../models/failed_news');
 const RSS = require('../models/rss');
 const constants = require('../others/constants');
+const moment = require("moment")
 
 async function parseCNNTurkNews() {
 
@@ -35,6 +36,7 @@ async function parseCNNTurkNews() {
         const rssCategory = rssSource.category
         await parseRSS(rssURL, rssID, rssCategory)
         console.log(rssSource)
+        return
     }
 
     console.log("CNNTürk parsing finished.")
@@ -94,7 +96,7 @@ async function parseRSS(rssURL, rssID, rssCategory) {
                 });
                 const onlyJson = $('[type="application/ld+json"]')
 
-
+                var unixTimeStamp = (moment(item.pubDate[0]).unix())-10800;
 
                 try {
                     const createNews = new News({
@@ -102,7 +104,7 @@ async function parseRSS(rssURL, rssID, rssCategory) {
                         title : item.title[0],
                         description : striptags(item.description[0],[], ' '),
                         body : JSON.parse(onlyJson.get()[1].children[0].data).articleBody.trim(),
-                        date : item.pubDate[0],
+                        date : unixTimeStamp,
                         link : item.link[0],
                         image : item.image[0],
                     })

@@ -2,13 +2,12 @@ var striptags = require('striptags');
 const cheerio = require('cheerio');
 const fetch = require("node-fetch");
 var parseString = require('xml2js').parseString;
-
 const News = require("../models/news");
 const NewsSite = require('../models/news_site');
 const RSS = require('../models/rss');
 const FailedNews = require('../models/failed_news');
-
 const constants = require('../others/constants');
+const moment = require("moment")
 
 async function parseMilliyetNews() {
 
@@ -89,14 +88,16 @@ async function parseRSS(rssURL, rssID, rssCategory) {
             })
             const itemImage = imageHtml('img').attr('src')
 
-
+            //3 saat ileri gosteriyor. -10800
+            var unixTimeStamp = (moment(item.pubDate[0]).unix())-10800;
+            
             try {
                 const createNews = new News({
                     rss: rssID,
                     title: item.title[0],
                     description: striptags(item.description[0], [], ' '),
                     body: JSON.parse(onlyJson.get()[0].children[0].data).articleBody.trim(),
-                    date: item.pubDate[0],
+                    date: unixTimeStamp,
                     link: newsItemUrl,
                     image: itemImage,
                 })

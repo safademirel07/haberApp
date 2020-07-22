@@ -8,6 +8,7 @@ const NewsSite = require('../models/news_site');
 const RSS = require('../models/rss');
 const FailedNews = require('../models/failed_news');
 const constants = require('../others/constants');
+const moment = require("moment")
 
 async function parseSabahNews() {
 
@@ -35,6 +36,7 @@ async function parseSabahNews() {
         const rssCategory = rssSource.category
         await parseRSS(rssURL, rssID, rssCategory)
         console.log(rssSource)
+        
     }
 
 
@@ -84,16 +86,22 @@ async function parseRSS(rssURL, rssID, rssCategory) {
             });
             const onlyJson = $('[type="application/ld+json"]')
 
+            console.log("date " + item.pubDate[0]);
+            var unixTimeStamp = moment(item.pubDate[0]).unix();
+            console.log("moment format " + unixTimeStamp)
+            
             try {
                 const createNews = new News({
                     rss: rssID,
                     title: item.title[0],
                     description: striptags(item.description[0], [], ' ').trim(),
                     body: JSON.parse(onlyJson.get()[0].children[0].data).articleBody.trim(),
-                    date: item.pubDate[0],
+                    date: unixTimeStamp,
                     link: newsItemUrl,
                     image: item.enclosure[0]["$"].url,
                 })
+
+                
 
                 createNews.save()
                     ++createdNewsCount

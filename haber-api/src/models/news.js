@@ -29,7 +29,7 @@ const newsSchema = new mongoose.Schema({
         text: true,
     },
     date: {
-        type: String,
+        type: Number,
         required: true,
     },
     image: {

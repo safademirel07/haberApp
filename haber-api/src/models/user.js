@@ -1,7 +1,6 @@
 const mongoose = require("mongoose")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
-const Profile = require("./profile")
 const validator = require("validator")
 const Constants = require("../others/constants")
 const userSchema = new mongoose.Schema({
@@ -28,11 +27,26 @@ const userSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
+    profilePhoto: {
+        type: String,
+    },
     date: {
         type: Date,
         default: Date.now
     },
     favorites: [{
+        news: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'News'
+        }
+    }],
+    likes: [{
+        news: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'News'
+        }
+    }],
+    dislikes: [{
         news: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'News'

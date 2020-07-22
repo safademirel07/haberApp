@@ -7,6 +7,7 @@ var bodyParser = require('body-parser')
 const newsSiteRouter = require("./routers/news_site")
 const rssRouter = require("./routers/rss")
 const newsRouter = require("./routers/news")
+const userRouter = require("./routers/user")
 
 const sabahParser = require("./parsers/sabah")
 const milliyetParser = require("./parsers/milliyet")
@@ -15,6 +16,7 @@ const cnnTurkParser = require("./parsers/cnnturk")
 const ntvParser = require("./parsers/ntv")
 
 var CronJob = require('cron').CronJob;
+const moment = require("moment")
 
 
 const app = express()
@@ -28,33 +30,31 @@ app.use(express.json())
 app.use(newsSiteRouter)
 app.use(rssRouter)
 app.use(newsRouter)
+app.use(userRouter)
+
+
+moment.locale("tr")
 
 app.use(express.static('public'))
 
 sabahParser.parseSabahNews()
-
-
-/*
 milliyetParser.parseMilliyetNews()
 haberTurkParser.parseHaberTurkNews()
 cnnTurkParser.parseCNNTurkNews()
 ntvParser.parseNtvNews()
-*/
 
 
+const job = new CronJob('0 */5 * * * *', function() {
+    sabahParser.parseSabahNews()
+    milliyetParser.parseMilliyetNews()
+    haberTurkParser.parseHaberTurkNews()
+    cnnTurkParser.parseCNNTurkNews()
+    ntvParser.parseNtvNews()
+    const d = new Date();
+    console.log('Cron worked at date : ', d);
+});  
 
-//const job = new CronJob('0 */5 * * * *', function() {
-  //  sabahParser.parseSabahNews()
-  //  milliyetParser.parseMilliyetNews()
-  //  haberTurkParser.parseHaberTurkNews()
-  // cnnTurkParser.parseCNNTurkNews()
-  //  ntvParser.parseNtvNews()
-   // const d = new Date();
-   // console.log('Cron worked.', d);
-//});  
-
-
-//job.start()
+job.start()
 
 
 

@@ -9,11 +9,15 @@
   "author": "Safa Demirel",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "cheerio": "^1.0.0-rc.3",
     "cron": "^1.8.2",
     "express": "^4.17.1",
+    "firebase": "^7.16.1",
+    "firebase-admin": "^9.0.0",
     "htmlparser2": "^4.1.0",
+    "moment": "^2.27.0",
     "mongoose": "^5.9.23",
     "node-fetch": "^2.6.0",
     "node-html-parser": "^1.2.20",
@@ -22,6 +26,7 @@
     "request": "^2.88.2",
     "rss-combiner": "0.0.5",
     "striptags": "^3.1.1",
+    "validator": "^13.1.1",
     "xml2js": "^0.4.23"
   }
 }

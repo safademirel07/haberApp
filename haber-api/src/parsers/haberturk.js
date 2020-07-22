@@ -8,6 +8,7 @@ const NewsSite = require('../models/news_site');
 const FailedNews = require('../models/failed_news');
 const RSS = require('../models/rss');
 const constants = require('../others/constants');
+const moment = require("moment")
 
 async function parseHaberTurkNews() {
 
@@ -97,7 +98,7 @@ async function parseRSS(rssURL, rssID, rssCategory) {
                 });
                 const onlyJson = $('[type="application/ld+json"]')
 
-
+                var unixTimeStamp = moment(item.pubDate[0]).unix();
 
                 try {
                     const createNews = new News({
@@ -105,7 +106,7 @@ async function parseRSS(rssURL, rssID, rssCategory) {
                         title: item.title[0],
                         description: striptags(item.description[0], [], ' '),
                         body: JSON.parse(onlyJson.get()[2].children[0].data).articleBody.trim(),
-                        date: item.pubDate[0],
+                        date: unixTimeStamp,
                         link: item.link[0],
                         image: item.enclosure[0]["$"].url,
                     })
