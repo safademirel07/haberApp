@@ -14,6 +14,9 @@ class _ProfileState extends State<Profile> {
           child: Column(
             children: <Widget>[
               Text("Profile"),
+              Text("Favoriler"),
+              Text("Beğendiğim Haberler"),
+              Text("Beğenmediğim Haberler"),
             ],
           ),
         ),

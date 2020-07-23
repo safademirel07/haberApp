@@ -37,23 +37,21 @@ const newsSchema = new mongoose.Schema({
         required: true,
     },
     likes: [{
-        profiles: {
+        users: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
         }
     }],
     dislikes: [{
-        profiles: {
+        users: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
         }
     }],
-    viewers: [{
-        profiles: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
-        }
-    }],
+    viewers: {
+        type: Number,
+        default : 0,
+    },
 })
 
 newsSchema.methods.toJSON = async function () {

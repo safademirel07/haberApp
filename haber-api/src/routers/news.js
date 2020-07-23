@@ -5,6 +5,9 @@ const RSS = require("../models/rss")
 const NewsSite = require("../models/news_site")
 const mongoose = require("mongoose")
 const moment = require("moment")
+
+const auth = require("../middleware/auth")
+
 // @route    GET news/get?news_sites=(id1,id2)&categories=(id1,id2)&searchWord=xyz&page=1
 // @desc     Gets news specified News Sites, Categories, Search Word with pagination.
 // to-do     Implement sort with date.
@@ -469,10 +472,134 @@ router.get("/news/slider", async (req, res) => {
 
   }
   res.send(data)
+})
 
+router.post("/news/like", auth, async (req, res) => {
+  try {
+    const user = req.user
+    const newsID = mongoose.Types.ObjectId(req.query.news)
+    const news = await News.findOne({
+      _id: newsID
+    }).populate("rss")
+
+    if (news) {
+      //If user clicks like, check before if it's disliked it?
+      const dislikeResult = news.dislikes.filter(dislike => dislike.users.toString() == user._id.toString());
+      if (dislikeResult.length > 0) {
+        const removeIndexDislike = news.dislikes.map(item => item.users.toString()).indexOf(user._id.toString());
+        news.dislikes.splice(removeIndexDislike, 1);
+      }
+
+      const likeResult = news.likes.filter(like => like.users.toString() == user._id.toString());
+      if (likeResult.length > 0) {
+        const removeIndex = news.likes.map(item => item.users.toString()).indexOf(user._id.toString());
+        news.likes.splice(removeIndex, 1);
+      } else {
+        news.likes.unshift({
+          users: user._id
+        });
+      }
+    }
+
+    await news.save()
+
+
+    const newsObject = await news.toObject()
+
+    delete newsObject.rss
+    delete newsObject.title
+    delete newsObject.description
+    delete newsObject.body
+    delete newsObject.date
+    delete newsObject.link
+    delete newsObject.image
+    delete newsObject.__v
+
+    const likesLength = newsObject.likes.length
+    const disLikesLength = newsObject.dislikes.length
+
+    delete newsObject.likes
+    delete newsObject.dislikes
+
+    const isDisliked = news.dislikes.filter(dislike => dislike.users.toString() == user._id.toString()).length;
+    const isLiked = news.likes.filter(like => like.users.toString() == user._id.toString()).length;
+
+    newsObject["isDisliked"] = isDisliked ? true : false
+    newsObject["isLiked"] = isLiked ? true : false
+    newsObject["likes"] = likesLength
+    newsObject["dislikes"] = disLikesLength
+    console.log(newsObject)
+
+    res.send(newsObject)
+  } catch (e) {
+    res.status(400).send({"error" : e.toString()})
+  }
 
 })
 
+
+router.post("/news/dislike", auth, async (req, res) => {
+  try {
+    const user = req.user
+    const newsID = mongoose.Types.ObjectId(req.query.news)
+    const news = await News.findOne({
+      _id: newsID
+    }).populate("rss")
+
+    if (news) {
+      //If user clicks like, check before if it's disliked it?
+      const likeResult = news.likes.filter(like => like.users.toString() == user._id.toString());
+      if (likeResult.length > 0) {
+          const removeIndex = news.likes.map(item => item.users.toString()).indexOf(user._id.toString());
+          news.likes.splice(removeIndex, 1);
+      } 
+
+      const dislikeResult = news.dislikes.filter(dislike => dislike.users.toString() == user._id.toString());
+      if (dislikeResult.length > 0) {
+          const removeIndexDislike = news.dislikes.map(item => item.users.toString()).indexOf(user._id.toString());
+          news.dislikes.splice(removeIndexDislike, 1);
+      }else {
+          news.dislikes.unshift({ users: user._id });
+      }
+
+
+    }
+
+    await news.save()
+
+
+    const newsObject = await news.toObject()
+
+    delete newsObject.rss
+    delete newsObject.title
+    delete newsObject.description
+    delete newsObject.body
+    delete newsObject.date
+    delete newsObject.link
+    delete newsObject.image
+    delete newsObject.__v
+
+    const likesLength = newsObject.likes.length
+    const disLikesLength = newsObject.dislikes.length
+
+    delete newsObject.likes
+    delete newsObject.dislikes
+
+    const isDisliked = news.dislikes.filter(dislike => dislike.users.toString() == user._id.toString()).length;
+    const isLiked = news.likes.filter(like => like.users.toString() == user._id.toString()).length;
+
+    newsObject["isDisliked"] = isDisliked ? true : false
+    newsObject["isLiked"] = isLiked ? true : false
+    newsObject["likes"] = likesLength
+    newsObject["dislikes"] = disLikesLength
+    console.log(newsObject)
+
+    res.send(newsObject)
+  } catch (e) {
+    res.status(400).send({"error" : e.toString()})
+  }
+
+})
 
 
 
