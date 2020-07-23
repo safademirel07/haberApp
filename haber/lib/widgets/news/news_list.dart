@@ -45,7 +45,6 @@ class _NewsListState extends State<NewsList>
           });
     }
 
-    print("changed ");
     super.didChangeDependencies();
   }
 
@@ -87,7 +86,6 @@ class _NewsListState extends State<NewsList>
     widget.news_sites =
         Provider.of<NewsProvider>(context, listen: true).getSelectedNewsSites();
 
-    print("Buildde " + widget.news_sites.toString());
 
     List<News> news =
         Provider.of<NewsProvider>(context, listen: true).anyListNews()
@@ -97,7 +95,6 @@ class _NewsListState extends State<NewsList>
     bool isLoading =
         Provider.of<NewsProvider>(context, listen: true).loadingListNewsMore;
 
-    print("news " + news.length.toString());
     return Scaffold(
       body: Column(
         mainAxisAlignment: news.length == 0
@@ -115,9 +112,6 @@ class _NewsListState extends State<NewsList>
                             !isLoading) {
                           loadMoreNews();
                         }
-
-                        print("scrollInfo.metrics.pixels" +
-                            scrollInfo.metrics.pixels.toString());
                       },
                       child: ListView.builder(
                         padding: EdgeInsets.zero,

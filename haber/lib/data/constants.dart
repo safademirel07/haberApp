@@ -10,11 +10,18 @@ class Constants {
   static const String ntv_pref = "ntvKey";
   static const String init_pref = "initKey";
 
+  static const String auth_token = "authToken";
+  static const String uid_token = "uidToken";
+  static const String user_token = "userToken";
+  static const String password_token = "passToken";
+
   static const String sabahID = "5f1351a1c961bd0bb0ba82bf";
   static const String milliyetID = "5f1351c3c961bd0bb0ba82c0";
   static const String cnnTurkID = "5f13521fc961bd0bb0ba82c1";
   static const String haberTurkID = "5f13523dc961bd0bb0ba82c2";
   static const String ntvID = "5f1366bf58a4b8083428bee1";
+
+  static bool loggedIn = false;
 
   static List<String> selectedNewsSites = List<String>();
 

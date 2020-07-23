@@ -4,6 +4,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:haber/app_theme.dart';
+import 'package:haber/data/constants.dart';
+import 'package:haber/models/Firebase.dart';
 import 'package:haber/models/NewsTest.dart';
 import 'package:haber/providers/news_provider.dart';
 import 'package:haber/widgets/news/careousel_slider.dart';
@@ -71,10 +73,21 @@ class NewsSlider implements SliverPersistentHeaderDelegate {
                       color: Colors.black,
                     ),
                     onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        "/login",
-                      );
+                      print("Firebase().getUser()" +
+                          Firebase().getUser().toString());
+                      if (Constants.loggedIn && Firebase().getUser() != null) {
+                        print("User logged in.");
+                        Navigator.pushNamed(
+                          context,
+                          "/profile",
+                        );
+                      } else {
+                        print("User not logged in.");
+                        Navigator.pushNamed(
+                          context,
+                          "/login",
+                        );
+                      }
                     },
                   )
                 ],

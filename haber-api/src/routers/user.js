@@ -54,7 +54,7 @@ router.post("/users/register", async (req,res) => {
 
             })
             .catch(function(error) {
-                return res.status(400).send({"error": "An Firebase eror happened."})
+                return res.status(400).send({"error": "A Firebase eror happened."})
             });
 
 

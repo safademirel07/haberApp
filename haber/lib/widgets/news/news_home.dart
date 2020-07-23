@@ -116,9 +116,6 @@ class _NewsHomeState extends State<NewsHome> {
   }
 
   void getvaluefromkey(Set selection) async {
-    print("selection ne ");
-    print(selection);
-
     if (selection != null) {
       await SharedPreferenceHelper.setSabah(false);
       await SharedPreferenceHelper.setMilliyet(false);
@@ -134,7 +131,6 @@ class _NewsHomeState extends State<NewsHome> {
             } else if (newsSite.name == "Milliyet") {
               await SharedPreferenceHelper.setMilliyet(true);
             } else if (newsSite.name == "CNN Türk") {
-              print("cnn tamam");
               await SharedPreferenceHelper.setCNNTurk(true);
             } else if (newsSite.name == "HABERTÜRK") {
               await SharedPreferenceHelper.setHaberTurk(true);
@@ -167,6 +163,5 @@ class _NewsHomeState extends State<NewsHome> {
       if (value[4]) Constants.selectedNewsSites.add(Constants.ntvID);
     });
     Provider.of<NewsProvider>(context, listen: false).setSelectedNewsSites();
-    print("newsSites " + Constants.selectedNewsSites.toString());
   }
 }

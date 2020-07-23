@@ -10,14 +10,6 @@ class NewsRequest {
     String siteQuery =
         sites.length > 0 ? ("&news_sites=" + sites.join(',')) : "";
 
-    print("searchQuery $searchQuery");
-    print("categoryQuery $categoryQuery");
-    print("siteQuery $siteQuery");
-
-    print("Giden query " +
-        (Constants.api_url +
-            "/news/get?page=$page$searchQuery$categoryQuery$siteQuery"));
-
     return http.get(
         Constants.api_url +
             "/news/get?page=$page$searchQuery$categoryQuery$siteQuery",
@@ -30,10 +22,6 @@ class NewsRequest {
     String siteQuery =
         sites.length > 0 ? ("&news_sites=" + sites.join(',')) : "";
 
-    print("siteQuery $siteQuery");
-
-    print("Giden query " +
-        (Constants.api_url + "/news/slider?page=$page$siteQuery"));
 
     return http.get(Constants.api_url + "/news/slider?page=$page$siteQuery",
         headers: <String, String>{

@@ -66,7 +66,6 @@ class _CategoryListState extends State<CategoryList>
 
   @override
   Widget build(BuildContext context) {
-    print("Buildde " + Constants.selectedNewsSites.toString());
 
     return Column(
       children: <Widget>[

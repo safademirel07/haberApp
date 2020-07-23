@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class NewsSearch extends StatefulWidget {
+class Profile extends StatefulWidget {
   @override
-  _NewsSearchState createState() => _NewsSearchState();
+  _ProfileState createState() => _ProfileState();
 }
 
-class _NewsSearchState extends State<NewsSearch> {
+class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -13,7 +13,7 @@ class _NewsSearchState extends State<NewsSearch> {
         body: Container(
           child: Column(
             children: <Widget>[
-              Text("Search"),
+              Text("Profile"),
             ],
           ),
         ),

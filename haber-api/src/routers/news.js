@@ -237,7 +237,6 @@ router.get("/news/get", async (req, res) => {
     delete news.rssDetails.site
     delete news.rssDetails.category
     delete news.categoryDetails.__v
-    moment.locale("tr")
     news.date = moment.unix(news.date).format("LLLL")
     data.push(news)
 
@@ -253,7 +252,6 @@ router.get("/news/slider", async (req, res) => {
 
 
   const newsSites = req.query.news_sites
-  const categories = req.query.categories
   let page = (Math.abs(req.query.page) || 1) - 1;
 
 
@@ -466,6 +464,7 @@ router.get("/news/slider", async (req, res) => {
     delete news.rssDetails.site
     delete news.rssDetails.category
     delete news.categoryDetails.__v
+    news.date = moment.unix(news.date).format("LLLL")
     data.push(news)
 
   }

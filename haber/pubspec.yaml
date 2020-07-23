@@ -39,6 +39,7 @@ dependencies:
   auto_size_text: ^2.1.0
   share: ^0.6.4+3
   firebase_analytics: ^5.0.16
+  flutter_form_builder: ^3.8.2
 
 
   # The following adds the Cupertino Icons font to your application.

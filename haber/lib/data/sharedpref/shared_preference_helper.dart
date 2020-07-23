@@ -55,4 +55,20 @@ class SharedPreferenceHelper {
   static Future setNTV(bool value) {
     return setBool(Constants.ntv_pref, value);
   }
+
+  static Future<String> get getAuthToken => getString(Constants.auth_token);
+  static Future setAuthToken(String value) =>
+      setString(Constants.auth_token, value);
+
+  static Future<String> get getUID => getString(Constants.uid_token);
+  static Future setUID(String value) => setString(Constants.uid_token, value);
+
+  static Future<String> get getUser => getString(Constants.user_token);
+  static Future setUser(String value) {
+    setString(Constants.user_token, value);
+  }
+
+  static Future<String> get getPassword => getString(Constants.password_token);
+  static Future setPassword(String value) =>
+      setString(Constants.password_token, value);
 }

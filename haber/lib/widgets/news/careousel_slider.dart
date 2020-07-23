@@ -37,7 +37,6 @@ class _CareouselSliderState extends State<CareouselSlider> {
           });
     }
 
-    print("changed ");
     super.didChangeDependencies();
   }
 
@@ -104,12 +103,7 @@ class _CareouselSliderState extends State<CareouselSlider> {
               int newsLength = Provider.of<NewsProvider>(context, listen: false)
                   .getSliderNews()
                   .length;
-              print("News index" +
-                  index.toString() +
-                  " length " +
-                  newsLength.toString());
               if (index + 1 == newsLength) {
-                print("tekrar cek");
                 Provider.of<NewsProvider>(context, listen: false)
                     .fetchSliderNews(
                   news_sites,

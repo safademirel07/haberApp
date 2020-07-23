@@ -9,13 +9,11 @@ class NewsProvider with ChangeNotifier {
   static List<String> _selectedNewsSites = List<String>();
 
   NewsProvider() {
-    print("NewsProvider created");
     _selectedNewsSites = Constants.selectedNewsSites;
   }
 
   void setSelectedNewsSites() {
     _selectedNewsSites = Constants.selectedNewsSites;
-    print("setSelectedNewsSites calisti");
     _requiredToFetchAgain = true;
     notifyListeners();
   }
@@ -129,7 +127,6 @@ class NewsProvider with ChangeNotifier {
       List<String> sites, bool isMore) async {
     if (loadingListNews || loadingListNewsMore) return;
 
-    print("fetchListNews" + categories.toString());
     if (isMore)
       setLoadingListNewsMore = true;
     else
@@ -151,7 +148,6 @@ class NewsProvider with ChangeNotifier {
               ++listPage;
             }
             _listNews.addAll(news);
-            print("burasi??");
             setLoadingListNewsMore = false;
             notifyListeners();
           } else {
@@ -174,7 +170,6 @@ class NewsProvider with ChangeNotifier {
   }
 
   void setListNews(value) {
-    print("setlistnews");
     _listNews = value;
     notifyListeners();
   }
