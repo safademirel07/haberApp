@@ -235,11 +235,20 @@ router.get("/news/get", async (req, res) => {
 
   for await (const news of allNews) {
 
+    delete news.__v
+    delete news.rss
     delete news.siteDetails.__v
     delete news.rssDetails.__v
     delete news.rssDetails.site
     delete news.rssDetails.category
     delete news.categoryDetails.__v
+    const likes = news.likes.length
+    const dislikes = news.dislikes.length
+    delete news.likes
+    delete news.dislikes
+    news["likes"] = likes
+    news["dislikes"] = dislikes
+
     news.date = moment.unix(news.date).format("LLLL")
     data.push(news)
 
@@ -462,11 +471,19 @@ router.get("/news/slider", async (req, res) => {
 
   for await (const news of allNews) {
 
+    delete news.__v
+    delete news.rss
     delete news.siteDetails.__v
     delete news.rssDetails.__v
     delete news.rssDetails.site
     delete news.rssDetails.category
     delete news.categoryDetails.__v
+    const likes = news.likes.length
+    const dislikes = news.dislikes.length
+    delete news.likes
+    delete news.dislikes
+    news["likes"] = likes
+    news["dislikes"] = dislikes
     news.date = moment.unix(news.date).format("LLLL")
     data.push(news)
 

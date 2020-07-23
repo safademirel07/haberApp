@@ -89,7 +89,7 @@ class _NewsDetailState extends State<NewsDetail> {
                                 width: 2,
                               ),
                               Text(
-                                "251",
+                                news.viewers.toString(),
                                 style: AppTheme.caption2,
                               ),
                             ],
@@ -99,12 +99,16 @@ class _NewsDetailState extends State<NewsDetail> {
                               SizedBox(
                                 width: 4,
                               ),
-                              Icon(Icons.thumb_up),
+                              InkWell(
+                                  onTap: () {
+                                    print("liked");
+                                  },
+                                  child: Icon(Icons.thumb_up)),
                               SizedBox(
                                 width: 2,
                               ),
                               Text(
-                                "24",
+                                news.likes.toString(),
                                 style: AppTheme.caption2,
                               ),
                             ],
@@ -114,12 +118,16 @@ class _NewsDetailState extends State<NewsDetail> {
                               SizedBox(
                                 width: 4,
                               ),
-                              Icon(Icons.thumb_down),
+                              InkWell(
+                                  onTap: () {
+                                    print("disliked");
+                                  },
+                                  child: Icon(Icons.thumb_down)),
                               SizedBox(
                                 width: 2,
                               ),
                               Text(
-                                "12",
+                                news.dislikes.toString(),
                                 style: AppTheme.caption2,
                               ),
                             ],
@@ -134,7 +142,7 @@ class _NewsDetailState extends State<NewsDetail> {
                                 width: 2,
                               ),
                               Text(
-                                "22 Temmuz 2020 18:50",
+                                news.date,
                                 style: AppTheme.caption2,
                               ),
                             ],
