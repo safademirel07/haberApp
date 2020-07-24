@@ -66,6 +66,7 @@ class NewsProvider with ChangeNotifier {
   //Slider News
 
   Future<void> fetchSliderNews(List<String> sites, bool isMore) async {
+    print("slidergeldi");
     if (isMore)
       setLoadingSliderNewsMore = true;
     else
@@ -184,6 +185,130 @@ class NewsProvider with ChangeNotifier {
 
   int listNewsLength() {
     return _listNews != null ? _listNews.length : 0;
+  }
+
+  // Like, dislike, view
+
+  int getNewsSliderIndex(String id) {
+    return _sliderNews.indexWhere((news) => news.sId == id);
+  }
+
+  int getNewsListIndex(String id) {
+    return _listNews.indexWhere((news) => news.sId == id);
+  }
+
+  Future<void> likeNews(String id) async {
+    try {
+      NewsRequest().likeNews(id).then((data) {
+        if (data.statusCode == 200) {
+          News returnData = News.fromJson(json.decode(data.body));
+
+          News fromSlider, fromList;
+
+          if (getNewsSliderIndex(id) != -1) {
+            fromSlider = _sliderNews[getNewsSliderIndex(id)];
+          }
+
+          if (getNewsListIndex(id) != -1) {
+            fromList = _listNews[getNewsListIndex(id)];
+          }
+
+          if (fromSlider != null) {
+            fromSlider.likes = returnData.likes;
+            fromSlider.dislikes = returnData.dislikes;
+            fromSlider.viewers = returnData.viewers;
+          }
+
+          if (fromList != null) {
+            fromList.likes = returnData.likes;
+            fromList.dislikes = returnData.dislikes;
+            fromList.viewers = returnData.viewers;
+          }
+
+          notifyListeners();
+        } else {
+          print("error2" + data.statusCode.toString());
+        }
+      });
+    } catch (e) {
+      print("error");
+    }
+  }
+
+  Future<void> dislikeNews(String id) async {
+    try {
+      NewsRequest().dislikeNews(id).then((data) {
+        if (data.statusCode == 200) {
+          News returnData = News.fromJson(json.decode(data.body));
+
+          News fromSlider, fromList;
+
+          if (getNewsSliderIndex(id) != -1) {
+            fromSlider = _sliderNews[getNewsSliderIndex(id)];
+          }
+
+          if (getNewsListIndex(id) != -1) {
+            fromList = _listNews[getNewsListIndex(id)];
+          }
+
+          if (fromSlider != null) {
+            fromSlider.likes = returnData.likes;
+            fromSlider.dislikes = returnData.dislikes;
+            fromSlider.viewers = returnData.viewers;
+          }
+
+          if (fromList != null) {
+            fromList.likes = returnData.likes;
+            fromList.dislikes = returnData.dislikes;
+            fromList.viewers = returnData.viewers;
+          }
+
+          notifyListeners();
+        } else {
+          print("error2" + data.statusCode.toString());
+        }
+      });
+    } catch (e) {
+      print("error");
+    }
+  }
+
+  Future<void> viewNews(String id) async {
+    try {
+      NewsRequest().viewNews(id).then((data) {
+        if (data.statusCode == 200) {
+          News returnData = News.fromJson(json.decode(data.body));
+
+          News fromSlider, fromList;
+
+          if (getNewsSliderIndex(id) != -1) {
+            fromSlider = _sliderNews[getNewsSliderIndex(id)];
+          }
+
+          if (getNewsListIndex(id) != -1) {
+            fromList = _listNews[getNewsListIndex(id)];
+          }
+
+          if (fromSlider != null) {
+            fromSlider.likes = returnData.likes;
+            fromSlider.dislikes = returnData.dislikes;
+            fromSlider.viewers = returnData.viewers;
+          }
+
+          if (fromList != null) {
+            fromList.likes = returnData.likes;
+            fromList.dislikes = returnData.dislikes;
+            fromList.viewers = returnData.viewers;
+          }
+
+          notifyListeners();
+        } else {
+          print("error2" + data.statusCode.toString());
+        }
+      });
+    } catch (e) {
+      print("error");
+    }
   }
 
   // Others

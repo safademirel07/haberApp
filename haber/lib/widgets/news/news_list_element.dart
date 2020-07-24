@@ -2,11 +2,15 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:haber/app_theme.dart';
 import 'package:haber/models/News.dart';
+import 'package:haber/models/NewsDetails.dart';
+import 'package:haber/providers/news_provider.dart';
+import 'package:provider/provider.dart';
 
 class NewsListElement extends StatefulWidget {
   News news;
+  int index;
 
-  NewsListElement(this.news);
+  NewsListElement(this.news, this.index);
 
   @override
   _NewsListElementState createState() => _NewsListElementState();
@@ -18,11 +22,14 @@ class _NewsListElementState extends State<NewsListElement> {
     return Container(
       padding: EdgeInsets.all(8),
       child: InkWell(
-        onTap: () {
+        onTap: () async {
+          await Provider.of<NewsProvider>(context, listen: false)
+              .viewNews(widget.news.sId);
+
           Navigator.pushNamed(
             context,
             "/detail",
-            arguments: widget.news,
+            arguments: NewsDetails(widget.index, false),
           );
         },
         child: Row(
@@ -33,6 +40,15 @@ class _NewsListElementState extends State<NewsListElement> {
                 child: Hero(
                   tag: widget.news.image,
                   child: CachedNetworkImage(
+                    errorWidget: (context, url, error) => Container(
+                        child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        "Haber fotoğrafı yüklenemedi.",
+                        style: AppTheme.caption,
+                        textAlign: TextAlign.center,
+                      ),
+                    )),
                     placeholder: (context, url) => Container(
                       child: Center(
                         child: CircularProgressIndicator(

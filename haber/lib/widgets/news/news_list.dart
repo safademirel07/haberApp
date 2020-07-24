@@ -22,6 +22,12 @@ class _NewsListState extends State<NewsList>
   Future<void> refreshNews() {
     widget.news_sites = Provider.of<NewsProvider>(context, listen: false)
         .getSelectedNewsSites();
+
+    Provider.of<NewsProvider>(context, listen: false).fetchSliderNews(
+      widget.news_sites,
+      false,
+    );
+
     return Provider.of<NewsProvider>(context, listen: false).fetchListNews(
       "",
       widget.categories,
@@ -86,7 +92,6 @@ class _NewsListState extends State<NewsList>
     widget.news_sites =
         Provider.of<NewsProvider>(context, listen: true).getSelectedNewsSites();
 
-
     List<News> news =
         Provider.of<NewsProvider>(context, listen: true).anyListNews()
             ? Provider.of<NewsProvider>(context, listen: true).getListNews()
@@ -117,7 +122,7 @@ class _NewsListState extends State<NewsList>
                         padding: EdgeInsets.zero,
                         itemCount: news.length,
                         itemBuilder: (BuildContext context, int index) {
-                          return NewsListElement(news[index]);
+                          return NewsListElement(news[index], index);
                         },
                       ),
                     ),

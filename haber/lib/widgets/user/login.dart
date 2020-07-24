@@ -37,8 +37,6 @@ class _LoginState extends State<Login> {
       ),
     );
 
-    print("response.statusCode" + response.statusCode.toString());
-
     if (response.statusCode == 200) {
       try {
         var firebase = Firebase();

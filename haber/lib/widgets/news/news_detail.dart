@@ -1,8 +1,15 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:haber/app_theme.dart';
+import 'package:haber/data/constants.dart';
+import 'package:haber/models/Firebase.dart';
 import 'package:haber/models/News.dart';
+import 'package:haber/models/NewsDetails.dart';
+import 'package:haber/providers/news_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -12,12 +19,29 @@ class NewsDetail extends StatefulWidget {
 }
 
 class _NewsDetailState extends State<NewsDetail> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
+  void showInSnackBar(String value) {
+    _scaffoldKey.currentState
+        .showSnackBar(new SnackBar(content: new Text(value)));
+  }
+
   @override
   Widget build(BuildContext context) {
-    final News news = ModalRoute.of(context).settings.arguments;
+    NewsDetails details = ModalRoute.of(context).settings.arguments;
+
+    bool isSlider = details.isSlider();
+    int index = details.getIndex();
+
+    List<News> listNews = isSlider
+        ? Provider.of<NewsProvider>(context, listen: true).getSliderNews()
+        : Provider.of<NewsProvider>(context, listen: true).getListNews();
+
+    final News news = listNews[index];
 
     return SafeArea(
       child: Scaffold(
+        key: _scaffoldKey,
         body: SingleChildScrollView(
           child: Container(
             padding: EdgeInsets.only(left: 8, right: 8, top: 8),
@@ -35,13 +59,22 @@ class _NewsDetailState extends State<NewsDetail> {
                   child: Hero(
                     tag: news.image,
                     child: CachedNetworkImage(
+                      errorWidget: (context, url, error) => Container(
+                          padding: EdgeInsets.all(4.0),
+                          child: Center(
+                            child: Text(
+                              "Haber fotoğrafı yüklenemedi.",
+                              textAlign: TextAlign.center,
+                              style: AppTheme.caption,
+                            ),
+                          )),
                       placeholder: (context, url) => Container(
                         child: Center(
                           child: CircularProgressIndicator(
                             strokeWidth: 1.0,
                           ),
                         ),
-                        padding: EdgeInsets.all(3.0),
+                        padding: EdgeInsets.all(4.0),
                       ),
                       imageUrl: news.image,
                       fit: BoxFit.cover,
@@ -101,7 +134,14 @@ class _NewsDetailState extends State<NewsDetail> {
                               ),
                               InkWell(
                                   onTap: () {
-                                    print("liked");
+                                    if (Constants.loggedIn &&
+                                        Firebase().getUser() != null) {
+                                      Provider.of<NewsProvider>(context,
+                                              listen: false)
+                                          .likeNews(news.sId);
+                                    } else {
+                                      showInSnackBar("Lütfen giriş yapın.");
+                                    }
                                   },
                                   child: Icon(Icons.thumb_up)),
                               SizedBox(
@@ -120,7 +160,14 @@ class _NewsDetailState extends State<NewsDetail> {
                               ),
                               InkWell(
                                   onTap: () {
-                                    print("disliked");
+                                    if (Constants.loggedIn &&
+                                        Firebase().getUser() != null) {
+                                      Provider.of<NewsProvider>(context,
+                                              listen: false)
+                                          .dislikeNews(news.sId);
+                                    } else {
+                                      showInSnackBar("Lütfen giriş yapın.");
+                                    }
                                   },
                                   child: Icon(Icons.thumb_down)),
                               SizedBox(

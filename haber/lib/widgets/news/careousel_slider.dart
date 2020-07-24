@@ -1,6 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:haber/app_theme.dart';
+import 'package:haber/models/News.dart';
+import 'package:haber/models/NewsDetails.dart';
 import 'package:haber/providers/news_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -96,7 +99,9 @@ class _CareouselSliderState extends State<CareouselSlider> {
           ),
         ),
       );
-    } else
+    } else {
+      List<News> listNews =
+          Provider.of<NewsProvider>(context, listen: true).getSliderNews();
       return CarouselSlider(
           options: CarouselOptions(
             onPageChanged: (index, reason) {
@@ -116,14 +121,17 @@ class _CareouselSliderState extends State<CareouselSlider> {
             aspectRatio: 2.0,
             enlargeCenterPage: true,
           ),
-          items: Provider.of<NewsProvider>(context, listen: true)
-              .getSliderNews()
+          items: listNews
               .map((item) => InkWell(
-                    onTap: () {
+                    onTap: () async {
+                      var index = listNews.indexOf(item);
+                      await Provider.of<NewsProvider>(context, listen: false)
+                          .viewNews(item.sId);
+
                       Navigator.pushNamed(
                         context,
                         "/detail",
-                        arguments: item,
+                        arguments: NewsDetails(index, true),
                       );
                     },
                     child: Container(
@@ -134,8 +142,21 @@ class _CareouselSliderState extends State<CareouselSlider> {
                                 BorderRadius.all(Radius.circular(5.0)),
                             child: Stack(
                               children: <Widget>[
-                                Image.network(item.image,
-                                    fit: BoxFit.cover, width: 1000.0),
+                                Hero(
+                                  tag: item.image,
+                                  child: CachedNetworkImage(
+                                    placeholder: (context, url) => Container(
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 1.0,
+                                        ),
+                                      ),
+                                      padding: EdgeInsets.all(3.0),
+                                    ),
+                                    imageUrl: item.image,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
                                 Positioned(
                                   bottom: 0.0,
                                   left: 0.0,
@@ -170,5 +191,6 @@ class _CareouselSliderState extends State<CareouselSlider> {
                     ),
                   ))
               .toList());
+    }
   }
 }

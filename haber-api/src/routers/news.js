@@ -578,8 +578,6 @@ router.post("/news/dislike", auth, async (req, res) => {
       }else {
           news.dislikes.unshift({ users: user._id });
       }
-
-
     }
 
     await news.save()
@@ -612,6 +610,48 @@ router.post("/news/dislike", auth, async (req, res) => {
     console.log(newsObject)
 
     res.send(newsObject)
+  } catch (e) {
+    res.status(400).send({"error" : e.toString()})
+  }
+
+})
+
+
+router.post("/news/view", async (req, res) => {
+  try {
+    const newsID = mongoose.Types.ObjectId(req.query.news)
+    const news = await News.findOne({
+      _id: newsID
+    }).populate("rss")
+
+    if (news) {
+      await news.updateOne({$inc: {'viewers': 1}})
+      await news.save()
+      const newsObject = await news.toObject()
+  
+      delete newsObject.rss
+      delete newsObject.title
+      delete newsObject.description
+      delete newsObject.body
+      delete newsObject.date
+      delete newsObject.link
+      delete newsObject.image
+      delete newsObject.__v
+  
+      const likesLength = newsObject.likes.length
+      const disLikesLength = newsObject.dislikes.length
+  
+      delete newsObject.likes
+      delete newsObject.dislikes
+      newsObject["viewers"] =  newsObject["viewers"]+1
+      newsObject["likes"] = likesLength
+      newsObject["dislikes"] = disLikesLength
+  
+      res.send(newsObject)
+        
+    } else {
+      res.status(400).send({"error" : "News not found."})
+    }
   } catch (e) {
     res.status(400).send({"error" : e.toString()})
   }
