@@ -38,7 +38,7 @@ class _NewsListElementState extends State<NewsListElement> {
               flex: 40,
               child: Material(
                 child: Hero(
-                  tag: widget.news.image,
+                  tag: "list_" + widget.news.image,
                   child: CachedNetworkImage(
                     errorWidget: (context, url, error) => Container(
                         child: Padding(

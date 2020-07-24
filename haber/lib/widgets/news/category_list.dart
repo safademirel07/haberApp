@@ -66,7 +66,6 @@ class _CategoryListState extends State<CategoryList>
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
       children: <Widget>[
         _getTabBar(),

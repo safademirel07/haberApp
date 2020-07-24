@@ -143,7 +143,7 @@ class _CareouselSliderState extends State<CareouselSlider> {
                             child: Stack(
                               children: <Widget>[
                                 Hero(
-                                  tag: item.image,
+                                  tag: "slider_" + item.image,
                                   child: CachedNetworkImage(
                                     placeholder: (context, url) => Container(
                                       child: Center(

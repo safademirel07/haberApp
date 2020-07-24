@@ -57,7 +57,7 @@ class _NewsDetailState extends State<NewsDetail> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: Hero(
-                    tag: news.image,
+                    tag: (isSlider ? "slider_" : "list_") + news.image,
                     child: CachedNetworkImage(
                       errorWidget: (context, url, error) => Container(
                           padding: EdgeInsets.all(4.0),
