@@ -231,16 +231,10 @@ class _NewsDetailState extends State<NewsDetail> {
                   children: <Widget>[
                     Row(
                       children: <Widget>[
-                        RaisedButton(
+                        FlatButton(
                           textColor: Colors.white,
                           color: Colors.black,
-                          child: Row(children: <Widget>[
-                            Icon(Icons.open_in_browser),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Text("Habere Git"),
-                          ]),
+                          child: Icon(Icons.save),
                           onPressed: () async {
                             if (await canLaunch(news.link)) {
                               await launch(news.link);
@@ -258,13 +252,25 @@ class _NewsDetailState extends State<NewsDetail> {
                         RaisedButton(
                           textColor: Colors.white,
                           color: Colors.black,
-                          child: Row(children: <Widget>[
-                            Icon(Icons.share),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Text("Paylaş"),
-                          ]),
+                          child: Icon(Icons.open_in_browser),
+                          onPressed: () async {
+                            if (await canLaunch(news.link)) {
+                              await launch(news.link);
+                            } else {
+                              throw 'Could not launch' + news.link;
+                            }
+                          },
+                          shape: new RoundedRectangleBorder(
+                            borderRadius: new BorderRadius.circular(16.0),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 5,
+                        ),
+                        RaisedButton(
+                          textColor: Colors.white,
+                          color: Colors.black,
+                          child: Icon(Icons.share),
                           onPressed: () {
                             Share.share(
                                 news.body +

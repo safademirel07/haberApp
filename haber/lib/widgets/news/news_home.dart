@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:haber/app_theme.dart';
 import 'package:haber/data/constants.dart';
 import 'package:haber/data/sharedpref/shared_preference_helper.dart';
@@ -38,34 +39,34 @@ class _NewsHomeState extends State<NewsHome> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        key: _scaffoldKey,
-        body: NestedScrollView(
-          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-            return <Widget>[
-              SliverPersistentHeader(
-                pinned: false,
-                floating: false,
-                delegate: NewsSlider(
-                  minExtent: 255.0,
-                  maxExtent: 255.0,
-                ),
+    SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
+
+    return Scaffold(
+      key: _scaffoldKey,
+      body: NestedScrollView(
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return <Widget>[
+            SliverPersistentHeader(
+              pinned: false,
+              floating: false,
+              delegate: NewsSlider(
+                minExtent: 255.0,
+                maxExtent: 255.0,
               ),
-            ];
-          },
-          body: CategoryList(),
-        ),
-        floatingActionButton: Container(
-          height: MediaQuery.of(context).size.width * 0.1,
-          width: MediaQuery.of(context).size.width * 0.1,
-          child: FloatingActionButton(
-              tooltip: "Filtrele",
-              child: Icon(Icons.filter_list),
-              onPressed: () {
-                _showMultiSelect(context);
-              }),
-        ),
+            ),
+          ];
+        },
+        body: CategoryList(),
+      ),
+      floatingActionButton: Container(
+        height: MediaQuery.of(context).size.width * 0.1,
+        width: MediaQuery.of(context).size.width * 0.1,
+        child: FloatingActionButton(
+            tooltip: "Filtrele",
+            child: Icon(Icons.filter_list),
+            onPressed: () {
+              _showMultiSelect(context);
+            }),
       ),
     );
   }

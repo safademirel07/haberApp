@@ -616,7 +616,6 @@ router.post("/news/dislike", auth, async (req, res) => {
 
 })
 
-
 router.post("/news/view", async (req, res) => {
   try {
     const newsID = mongoose.Types.ObjectId(req.query.news)
@@ -652,6 +651,52 @@ router.post("/news/view", async (req, res) => {
     } else {
       res.status(400).send({"error" : "News not found."})
     }
+  } catch (e) {
+    res.status(400).send({"error" : e.toString()})
+  }
+
+})
+
+
+router.post("/news/save", auth, async (req, res) => {
+  try {
+    const user = req.user
+    const newsID = mongoose.Types.ObjectId(req.query.news)
+    const news = await News.findOne({
+      _id: newsID
+    })
+
+
+
+
+    if (news) {
+      const saveResult = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString());
+      if (saveResult.length > 0) {
+          const removeIndexFavorite = user.favorites.map(favorite => favorite.news.toString()).indexOf(news._id.toString());
+          user.favorites.splice(removeIndexFavorite, 1);
+      }else {
+        user.favorites.unshift({ news: newsID });
+      }
+    }
+
+    await user.save()
+
+
+    const userObjects = await user.toObject()
+
+    delete userObjects.name
+    delete userObjects.email
+    delete userObjects.date
+    delete userObjects.likes
+    delete userObjects.dislikes
+    delete userObjects.tokens
+    delete userObjects.__v
+    delete userObjects.password
+    delete userObjects.firebaseUID
+
+    console.log(userObjects)
+
+    res.send(userObjects)
   } catch (e) {
     res.status(400).send({"error" : e.toString()})
   }

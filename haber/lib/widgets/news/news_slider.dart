@@ -42,7 +42,7 @@ class NewsSlider implements SliverPersistentHeaderDelegate {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Container(
-          margin: EdgeInsets.only(left: 8, top: 8),
+          margin: EdgeInsets.only(left: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[

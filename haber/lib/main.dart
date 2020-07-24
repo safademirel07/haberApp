@@ -2,9 +2,11 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:haber/data/sharedpref/shared_preference_helper.dart';
 import 'package:haber/models/NewsTest.dart';
 import 'package:haber/providers/news_provider.dart';
+import 'package:haber/widgets/home.dart';
 import 'package:haber/widgets/news/news_detail.dart';
 import 'package:haber/widgets/news/news_home.dart';
 import 'package:haber/widgets/news/news_search.dart';
@@ -22,6 +24,7 @@ import 'package:http/http.dart' as http;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
 
   await SharedPreferenceHelper.getInit.then((value) async {
     if (!value) {
@@ -128,7 +131,8 @@ void main() async {
       title: 'haberApp',
       initialRoute: '/home',
       routes: {
-        '/home': (context) => NewsHome(),
+        '/home': (context) => Home(),
+        '/news': (context) => NewsHome(),
         '/detail': (context) => NewsDetail(),
         '/login': (context) => Login(),
         '/register': (context) => Register(),

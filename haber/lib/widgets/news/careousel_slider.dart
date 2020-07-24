@@ -155,6 +155,7 @@ class _CareouselSliderState extends State<CareouselSlider> {
                                     ),
                                     imageUrl: item.image,
                                     fit: BoxFit.cover,
+                                    width: 1000,
                                   ),
                                 ),
                                 Positioned(
