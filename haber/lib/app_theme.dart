@@ -116,4 +116,12 @@ class AppTheme {
     letterSpacing: 0.2,
     color: Colors.white, // was lightText
   );
+
+  static final TextStyle captionWhiteBig = GoogleFonts.montserrat(
+    // Caption -> caption
+    fontWeight: FontWeight.w300,
+    fontSize: 13,
+    letterSpacing: 0.2,
+    color: Colors.white, // was lightText
+  );
 }

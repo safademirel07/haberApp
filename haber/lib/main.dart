@@ -11,6 +11,7 @@ import 'package:haber/widgets/news/news_detail.dart';
 import 'package:haber/widgets/news/news_home.dart';
 import 'package:haber/widgets/news/news_search.dart';
 import 'package:haber/widgets/news/news_slider.dart';
+import 'package:haber/widgets/others/webview.dart';
 import 'package:haber/widgets/user/login.dart';
 import 'package:haber/widgets/user/profile.dart';
 import 'package:haber/widgets/user/register.dart';
@@ -138,6 +139,7 @@ void main() async {
         '/register': (context) => Register(),
         '/search': (context) => NewsSearch(),
         '/profile': (context) => Profile(),
+        '/browser': (context) => Browser(),
       },
     ),
   ));

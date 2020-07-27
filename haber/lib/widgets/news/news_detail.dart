@@ -12,6 +12,7 @@ import 'package:haber/providers/news_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class NewsDetail extends StatefulWidget {
   @override
@@ -25,6 +26,8 @@ class _NewsDetailState extends State<NewsDetail> {
     _scaffoldKey.currentState
         .showSnackBar(new SnackBar(content: new Text(value)));
   }
+
+  WebViewController _controller;
 
   @override
   Widget build(BuildContext context) {
@@ -303,12 +306,12 @@ class _NewsDetailState extends State<NewsDetail> {
                               ),
                             ],
                           ),
-                          onPressed: () async {
-                            if (await canLaunch(news.link)) {
-                              await launch(news.link);
-                            } else {
-                              throw 'Could not launch' + news.link;
-                            }
+                          onPressed: () {
+                            Navigator.pushNamed(
+                              context,
+                              "/browser",
+                              arguments: news,
+                            );
                           },
                           shape: new RoundedRectangleBorder(
                             borderRadius: new BorderRadius.circular(16.0),
