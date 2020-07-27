@@ -54,4 +54,13 @@ class Constants {
         name: "NTV",
         url: "https://www.ntv.com.tr"),
   ];
+
+  static const int minLengthShort = 3;
+  static const int maxLengthShort = 24;
+
+  static const int minLengthMiddle = 3;
+  static const int maxLengthMiddle = 40;
+
+  static const int minLengthLong = 3;
+  static const int maxLengthLong = 500;
 }
