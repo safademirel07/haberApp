@@ -6,12 +6,17 @@ const NewsSite = require("../models/news_site")
 const mongoose = require("mongoose")
 const moment = require("moment")
 
-const auth = require("../middleware/auth")
+var auth = require("../middleware/auth")
+
 
 // @route    GET news/get?news_sites=(id1,id2)&categories=(id1,id2)&searchWord=xyz&page=1
 // @desc     Gets news specified News Sites, Categories, Search Word with pagination.
 // to-do     Implement sort with date.
-router.get("/news/get", async (req, res) => {
+router.get("/news/get", auth.auth_test, async (req, res) => {
+
+  const user = req.user
+
+  console.log("user ne? " + user)
 
   let limit = 10; //news per page
 
@@ -22,6 +27,7 @@ router.get("/news/get", async (req, res) => {
   let page = (Math.abs(req.query.page) || 1) - 1;
 
   console.log("search" + searchWord)
+
 
 
   console.log(newsSites)
@@ -244,10 +250,28 @@ router.get("/news/get", async (req, res) => {
     delete news.categoryDetails.__v
     const likes = news.likes.length
     const dislikes = news.dislikes.length
+
+    var isLiked = false, isDisliked = false, isFavorited = false
+
+    if (user != undefined)
+    {
+      isLiked = news.likes.filter(like => like.users.toString() == user._id.toString()).length > 0 ? true : false
+      isDisliked = news.dislikes.filter(dislike => dislike.users.toString() == user._id.toString()).length > 0 ? true : false
+      isFavorited = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString()).length > 0 ? true : false
+    }
+
     delete news.likes
     delete news.dislikes
     news["likes"] = likes
     news["dislikes"] = dislikes
+
+
+
+    console.log(" user.favorites" +  isLiked.length + " abc")
+
+    news["isLiked"] = isLiked
+    news["isDisliked"] = isDisliked
+    news["isFavorited"] = isFavorited
 
     news.date = moment.unix(news.date).format("LLLL")
     data.push(news)
@@ -258,7 +282,10 @@ router.get("/news/get", async (req, res) => {
 
 })
 
-router.get("/news/slider", async (req, res) => {
+router.get("/news/slider", auth.auth_test, async (req, res) => {
+
+
+  const user = req.user
 
   let limit = 10; //news per page
 
@@ -480,10 +507,29 @@ router.get("/news/slider", async (req, res) => {
     delete news.categoryDetails.__v
     const likes = news.likes.length
     const dislikes = news.dislikes.length
+
+    var isLiked = false, isDisliked = false, isFavorited = false
+
+    if (user != undefined)
+    {
+      isLiked = news.likes.filter(like => like.users.toString() == user._id.toString()).length > 0 ? true : false
+      isDisliked = news.dislikes.filter(dislike => dislike.users.toString() == user._id.toString()).length > 0 ? true : false
+      isFavorited = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString()).length > 0 ? true : false
+    }
+
     delete news.likes
     delete news.dislikes
     news["likes"] = likes
     news["dislikes"] = dislikes
+
+
+
+    console.log(" user.favorites" +  isLiked.length + " abc")
+
+    news["isLiked"] = isLiked
+    news["isDisliked"] = isDisliked
+    news["isFavorited"] = isFavorited
+
     news.date = moment.unix(news.date).format("LLLL")
     data.push(news)
 
@@ -491,7 +537,7 @@ router.get("/news/slider", async (req, res) => {
   res.send(data)
 })
 
-router.post("/news/like", auth, async (req, res) => {
+router.post("/news/like", auth.auth, async (req, res) => {
   try {
     const user = req.user
     const newsID = mongoose.Types.ObjectId(req.query.news)
@@ -555,7 +601,7 @@ router.post("/news/like", auth, async (req, res) => {
 })
 
 
-router.post("/news/dislike", auth, async (req, res) => {
+router.post("/news/dislike", auth.auth, async (req, res) => {
   try {
     const user = req.user
     const newsID = mongoose.Types.ObjectId(req.query.news)
@@ -658,7 +704,7 @@ router.post("/news/view", async (req, res) => {
 })
 
 
-router.post("/news/save", auth, async (req, res) => {
+router.post("/news/save", auth.auth, async (req, res) => {
   try {
     const user = req.user
     const newsID = mongoose.Types.ObjectId(req.query.news)
@@ -677,31 +723,200 @@ router.post("/news/save", auth, async (req, res) => {
       }else {
         user.favorites.unshift({ news: newsID });
       }
+
+      await user.save()
+
+
+      const newsObject = await news.toObject()
+
+      delete newsObject.rss
+      delete newsObject.title
+      delete newsObject.description
+      delete newsObject.body
+      delete newsObject.date
+      delete newsObject.link
+      delete newsObject.image
+      delete newsObject.__v
+  
+      const likesLength = newsObject.likes.length
+      const disLikesLength = newsObject.dislikes.length
+  
+      delete newsObject.likes
+      delete newsObject.dislikes
+  
+      const isDisliked = news.dislikes.filter(dislike => dislike.users.toString() == user._id.toString()).length;
+      const isLiked = news.likes.filter(like => like.users.toString() == user._id.toString()).length;
+      const isFavorited = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString()).length > 0 ? true : false
+
+      newsObject["isDisliked"] = isDisliked ? true : false
+      newsObject["isLiked"] = isLiked ? true : false
+      newsObject["isFavorited"] = isFavorited ? true : false
+      newsObject["likes"] = likesLength
+      newsObject["dislikes"] = disLikesLength
+      console.log(newsObject)
+  
+      res.send(newsObject)
+  
+
     }
-
-    await user.save()
-
-
-    const userObjects = await user.toObject()
-
-    delete userObjects.name
-    delete userObjects.email
-    delete userObjects.date
-    delete userObjects.likes
-    delete userObjects.dislikes
-    delete userObjects.tokens
-    delete userObjects.__v
-    delete userObjects.password
-    delete userObjects.firebaseUID
-
-    console.log(userObjects)
-
-    res.send(userObjects)
   } catch (e) {
     res.status(400).send({"error" : e.toString()})
   }
 
 })
+
+router.get("/news/favorite", auth.auth, async (req, res) => {
+
+  const user = req.user
+
+
+  let limit = 10; //news per page
+
+  const searchWord = req.query.search
+  let page = (Math.abs(req.query.page) || 1) - 1;
+
+  var allFavoriteNews = []
+
+  user.favorites.forEach(favorite => {
+    allFavoriteNews.push(mongoose.Types.ObjectId(favorite.news))
+    console.log("favorite news id " + favorite.news)
+  })
+
+
+
+
+  var aggregateQuery = [{
+      "$lookup": {
+        "let": {
+          "rssObjID": {
+            "$toObjectId": "$rss"
+          }
+        },
+        "from": "rsses",
+        "pipeline": [{
+          "$match": {
+            "$expr": {
+              "$eq": ["$_id", "$$rssObjID"]
+            }
+          }
+        }],
+        "as": "rssDetails"
+      }
+    },
+    {
+      "$unwind": "$rssDetails"
+    },
+    {
+      "$lookup": {
+        "let": {
+          "siteObjID": {
+            "$toObjectId": "$rssDetails.site"
+          }
+        },
+        "from": "news_sites",
+        "pipeline": [{
+          "$match": {
+            "$expr": {
+              "$eq": ["$_id", "$$siteObjID"]
+            }
+          }
+        }],
+        "as": "siteDetails"
+      }
+    },
+    {
+      $unwind: "$siteDetails"
+    },
+    {
+      "$lookup": {
+        "let": {
+          "categoryObjID": {
+            "$toObjectId": "$rssDetails.category"
+          }
+        },
+        "from": "categories",
+        "pipeline": [{
+          "$match": {
+            "$expr": {
+              "$eq": ["$_id", "$$categoryObjID"]
+            }
+          }
+        }],
+        "as": "categoryDetails"
+      }
+    },
+    {
+      $unwind: "$categoryDetails"
+    },
+    {
+      "$match": {
+
+        
+          "_id": {
+            "$in": allFavoriteNews,
+          }
+        }
+    },
+    {
+      "$skip": limit * page
+    }, {
+      "$limit": limit
+    },
+  ]
+
+
+
+
+  const allNews = News.aggregate(aggregateQuery)
+
+
+  const data = []
+
+  for await (const news of allNews) {
+
+    delete news.__v
+    delete news.rss
+    delete news.siteDetails.__v
+    delete news.rssDetails.__v
+    delete news.rssDetails.site
+    delete news.rssDetails.category
+    delete news.categoryDetails.__v
+    const likes = news.likes.length
+    const dislikes = news.dislikes.length
+
+    var isLiked = false, isDisliked = false, isFavorited = false
+
+    if (user != undefined)
+    {
+      isLiked = news.likes.filter(like => like.users.toString() == user._id.toString()).length > 0 ? true : false
+      isDisliked = news.dislikes.filter(dislike => dislike.users.toString() == user._id.toString()).length > 0 ? true : false
+      isFavorited = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString()).length > 0 ? true : false
+    }
+
+    delete news.likes
+    delete news.dislikes
+    news["likes"] = likes
+    news["dislikes"] = dislikes
+
+
+
+    console.log(" user.favorites" +  isLiked.length + " abc")
+
+    news["isLiked"] = isLiked
+    news["isDisliked"] = isDisliked
+    news["isFavorited"] = isFavorited
+
+    news.date = moment.unix(news.date).format("LLLL")
+    data.push(news)
+
+
+  }
+  res.send(data)
+}
+
+)
+
+
 
 
 

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:haber/data/constants.dart';
+import 'package:haber/widgets/news/news_favorite.dart';
 import 'package:haber/widgets/news/news_home.dart';
 import 'package:provider/provider.dart';
 
@@ -27,7 +28,7 @@ class _HomeState extends State<Home> {
 
   final List<Widget> _children = [
     NewsHome(),
-    Profile(),
+    NewsFavorite(),
     Profile(),
   ];
 

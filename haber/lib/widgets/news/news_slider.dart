@@ -67,29 +67,6 @@ class NewsSlider implements SliverPersistentHeaderDelegate {
                       );
                     },
                   ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.person,
-                      color: Colors.black,
-                    ),
-                    onPressed: () {
-                      print("Firebase().getUser()" +
-                          Firebase().getUser().toString());
-                      if (Constants.loggedIn && Firebase().getUser() != null) {
-                        print("User logged in.");
-                        Navigator.pushNamed(
-                          context,
-                          "/profile",
-                        );
-                      } else {
-                        print("User not logged in.");
-                        Navigator.pushNamed(
-                          context,
-                          "/login",
-                        );
-                      }
-                    },
-                  )
                 ],
               )
             ],

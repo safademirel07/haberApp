@@ -10,22 +10,40 @@ class NewsRequest {
         categories.length > 0 ? ("&categories=" + categories.join(',')) : "";
     String siteQuery =
         sites.length > 0 ? ("&news_sites=" + sites.join(',')) : "";
+    dynamic token = await SharedPreferenceHelper.getAuthToken;
 
     return http.get(
         Constants.api_url +
             "/news/get?page=$page$searchQuery$categoryQuery$siteQuery",
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer ${token.toString()}',
         });
   }
 
   Future<http.Response> fetchNewsSlider(int page, List<String> sites) async {
     String siteQuery =
         sites.length > 0 ? ("&news_sites=" + sites.join(',')) : "";
+    dynamic token = await SharedPreferenceHelper.getAuthToken;
 
     return http.get(Constants.api_url + "/news/slider?page=$page$siteQuery",
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer ${token.toString()}',
+        });
+  }
+
+  Future<http.Response> fetchNewsFavorite(
+    int page,
+    String search,
+  ) async {
+    String searchQuery = search.length > 0 ? "&search=$search" : "";
+    dynamic token = await SharedPreferenceHelper.getAuthToken;
+
+    return http.get(Constants.api_url + "/news/favorite?page=$page$searchQuery",
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer ${token.toString()}',
         });
   }
 
@@ -46,6 +64,18 @@ class NewsRequest {
 
     return http.post(
       Constants.api_url + "/news/dislike?news=$newsID",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ${token.toString()}',
+      },
+    );
+  }
+
+  Future<http.Response> favoriteNews(String newsID) async {
+    dynamic token = await SharedPreferenceHelper.getAuthToken;
+
+    return http.post(
+      Constants.api_url + "/news/save?news=$newsID",
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer ${token.toString()}',

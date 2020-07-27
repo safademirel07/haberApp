@@ -46,6 +46,7 @@ class _NewsDetailState extends State<NewsDetail> {
           child: Container(
             padding: EdgeInsets.only(left: 8, right: 8, top: 8),
             child: Column(
+              mainAxisSize: MainAxisSize.max,
               children: <Widget>[
                 Text(
                   news.title,
@@ -57,7 +58,9 @@ class _NewsDetailState extends State<NewsDetail> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: Hero(
-                    tag: (isSlider ? "slider_" : "list_") + news.image,
+                    tag: (isSlider ? "slider_" : "list_") +
+                        news.image +
+                        "_id$index",
                     child: CachedNetworkImage(
                       errorWidget: (context, url, error) => Container(
                           padding: EdgeInsets.all(4.0),
@@ -143,7 +146,12 @@ class _NewsDetailState extends State<NewsDetail> {
                                       showInSnackBar("Lütfen giriş yapın.");
                                     }
                                   },
-                                  child: Icon(Icons.thumb_up)),
+                                  child: Icon(
+                                    Icons.thumb_up,
+                                    color: news.isLiked
+                                        ? Colors.green[700]
+                                        : Colors.black,
+                                  )),
                               SizedBox(
                                 width: 2,
                               ),
@@ -159,17 +167,23 @@ class _NewsDetailState extends State<NewsDetail> {
                                 width: 4,
                               ),
                               InkWell(
-                                  onTap: () {
-                                    if (Constants.loggedIn &&
-                                        Firebase().getUser() != null) {
-                                      Provider.of<NewsProvider>(context,
-                                              listen: false)
-                                          .dislikeNews(news.sId);
-                                    } else {
-                                      showInSnackBar("Lütfen giriş yapın.");
-                                    }
-                                  },
-                                  child: Icon(Icons.thumb_down)),
+                                onTap: () {
+                                  if (Constants.loggedIn &&
+                                      Firebase().getUser() != null) {
+                                    Provider.of<NewsProvider>(context,
+                                            listen: false)
+                                        .dislikeNews(news.sId);
+                                  } else {
+                                    showInSnackBar("Lütfen giriş yapın.");
+                                  }
+                                },
+                                child: Icon(
+                                  Icons.thumb_down,
+                                  color: news.isDisliked
+                                      ? Colors.red
+                                      : Colors.black,
+                                ),
+                              ),
                               SizedBox(
                                 width: 2,
                               ),
@@ -231,10 +245,64 @@ class _NewsDetailState extends State<NewsDetail> {
                   children: <Widget>[
                     Row(
                       children: <Widget>[
-                        FlatButton(
+                        RaisedButton(
+                          elevation: 6,
                           textColor: Colors.white,
                           color: Colors.black,
-                          child: Icon(Icons.save),
+                          child: Row(
+                            children: <Widget>[
+                              Icon(
+                                news.isFavorited
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                size: 18,
+                              ),
+                              SizedBox(
+                                width: 3,
+                              ),
+                              Text(
+                                news.isFavorited
+                                    ? "Favorilerden Çıkar"
+                                    : "Favorilere Ekle",
+                                style: AppTheme.captionWhite,
+                              ),
+                            ],
+                          ),
+                          onPressed: () async {
+                            if (Constants.loggedIn &&
+                                Firebase().getUser() != null) {
+                              Provider.of<NewsProvider>(context, listen: false)
+                                  .favoriteNews(news.sId);
+                            } else {
+                              showInSnackBar("Lütfen giriş yapın.");
+                            }
+                          },
+                          shape: new RoundedRectangleBorder(
+                            borderRadius: new BorderRadius.circular(16.0),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 5,
+                        ),
+                        RaisedButton(
+                          elevation: 6,
+                          textColor: Colors.white,
+                          color: Colors.black,
+                          child: Row(
+                            children: <Widget>[
+                              Icon(
+                                Icons.open_in_browser,
+                                size: 18,
+                              ),
+                              SizedBox(
+                                width: 3,
+                              ),
+                              Text(
+                                "Aç",
+                                style: AppTheme.captionWhite,
+                              ),
+                            ],
+                          ),
                           onPressed: () async {
                             if (await canLaunch(news.link)) {
                               await launch(news.link);
@@ -250,27 +318,24 @@ class _NewsDetailState extends State<NewsDetail> {
                           width: 5,
                         ),
                         RaisedButton(
+                          elevation: 6,
                           textColor: Colors.white,
                           color: Colors.black,
-                          child: Icon(Icons.open_in_browser),
-                          onPressed: () async {
-                            if (await canLaunch(news.link)) {
-                              await launch(news.link);
-                            } else {
-                              throw 'Could not launch' + news.link;
-                            }
-                          },
-                          shape: new RoundedRectangleBorder(
-                            borderRadius: new BorderRadius.circular(16.0),
+                          child: Row(
+                            children: <Widget>[
+                              Icon(
+                                Icons.share,
+                                size: 18,
+                              ),
+                              SizedBox(
+                                width: 3,
+                              ),
+                              Text(
+                                "Paylaş",
+                                style: AppTheme.captionWhite,
+                              ),
+                            ],
                           ),
-                        ),
-                        SizedBox(
-                          width: 5,
-                        ),
-                        RaisedButton(
-                          textColor: Colors.white,
-                          color: Colors.black,
-                          child: Icon(Icons.share),
                           onPressed: () {
                             Share.share(
                                 news.body +

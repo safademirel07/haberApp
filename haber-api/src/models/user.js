@@ -38,7 +38,11 @@ const userSchema = new mongoose.Schema({
         news: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'News'
-        }
+        },
+        date: {
+            type: Date,
+            default: Date.now
+        },
     }],
     likes: [{
         news: {

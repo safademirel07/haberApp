@@ -21,7 +21,13 @@ class _CategoryListState extends State<CategoryList>
   @override
   void initState() {
     _tabController = new TabController(length: 7, vsync: this);
+    _tabController.addListener(_handleTabSelection);
+
     super.initState();
+  }
+
+  _handleTabSelection() {
+    //   Provider.of<NewsProvider>(context, listen: false).clearListNews();
   }
 
   TabBar _getTabBar() {

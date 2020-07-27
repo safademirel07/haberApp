@@ -30,14 +30,14 @@ class _CareouselSliderState extends State<CareouselSlider> {
   void didChangeDependencies() {
     if (Provider.of<NewsProvider>(context, listen: false)
         .requiredToFetchAgain) {
-      Future.microtask(() => {
-            news_sites = Provider.of<NewsProvider>(context, listen: false)
-                .getSelectedNewsSites(),
-            Provider.of<NewsProvider>(context, listen: false)
-                .setrequiredToFetchAgain = false,
-            Provider.of<NewsProvider>(context, listen: false)
-                .fetchSliderNews(news_sites, false)
-          });
+      Future.microtask(() {
+        news_sites = Provider.of<NewsProvider>(context, listen: false)
+            .getSelectedNewsSites();
+        Provider.of<NewsProvider>(context, listen: false)
+            .setrequiredToFetchAgain = false;
+        Provider.of<NewsProvider>(context, listen: false)
+            .fetchSliderNews(news_sites, false);
+      });
     }
 
     super.didChangeDependencies();
@@ -143,7 +143,10 @@ class _CareouselSliderState extends State<CareouselSlider> {
                             child: Stack(
                               children: <Widget>[
                                 Hero(
-                                  tag: "slider_" + item.image,
+                                  tag: "slider_" +
+                                      item.image +
+                                      "_id" +
+                                      listNews.indexOf(item).toString(),
                                   child: CachedNetworkImage(
                                     placeholder: (context, url) => Container(
                                       child: Center(

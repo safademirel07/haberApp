@@ -40,15 +40,14 @@ class _NewsListState extends State<NewsList>
   void didChangeDependencies() {
     if (Provider.of<NewsProvider>(context, listen: false)
         .requiredToFetchAgain) {
-      Future.microtask(() => {
-            widget.news_sites =
-                Provider.of<NewsProvider>(context, listen: false)
-                    .getSelectedNewsSites(),
-            Provider.of<NewsProvider>(context, listen: false)
-                .setrequiredToFetchAgain = false,
-            Provider.of<NewsProvider>(context, listen: false)
-                .fetchListNews("", widget.categories, widget.news_sites, false)
-          });
+      Future.microtask(() {
+        widget.news_sites = Provider.of<NewsProvider>(context, listen: false)
+            .getSelectedNewsSites();
+        Provider.of<NewsProvider>(context, listen: false)
+            .setrequiredToFetchAgain = false;
+        Provider.of<NewsProvider>(context, listen: false)
+            .fetchListNews("", widget.categories, widget.news_sites, false);
+      });
     }
 
     super.didChangeDependencies();
