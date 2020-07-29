@@ -267,7 +267,7 @@ router.get("/news/get", auth.auth_test, async (req, res) => {
 
 
 
-    console.log(" user.favorites" +  isLiked.length + " abc")
+    console.log("news/list calisiyor.")
 
     news["isLiked"] = isLiked
     news["isDisliked"] = isDisliked
@@ -524,7 +524,7 @@ router.get("/news/slider", auth.auth_test, async (req, res) => {
 
 
 
-    console.log(" user.favorites" +  isLiked.length + " abc")
+    console.log("news/slider calisiyor.")
 
     news["isLiked"] = isLiked
     news["isDisliked"] = isDisliked
@@ -900,7 +900,7 @@ router.get("/news/favorite", auth.auth, async (req, res) => {
 
 
 
-    console.log(" user.favorites" +  isLiked.length + " abc")
+    console.log("news/favorites calisiyor.")
 
     news["isLiked"] = isLiked
     news["isDisliked"] = isDisliked
@@ -1048,7 +1048,7 @@ router.get("/news/likes", auth.auth, async (req, res) => {
 
 
 
-    console.log(" user.favorites" + isLiked.length + " abc")
+    console.log("news/likes calisiyor.")
 
     news["isLiked"] = isLiked
     news["isDisliked"] = isDisliked
@@ -1199,6 +1199,9 @@ router.get("/news/dislikes", auth.auth, async (req, res) => {
     news["isLiked"] = isLiked
     news["isDisliked"] = isDisliked
     news["isFavorited"] = isFavorited
+
+    console.log("news/dislikes calisiyor.")
+
 
     news.date = moment.unix(news.date).format("LLLL")
     data.push(news)

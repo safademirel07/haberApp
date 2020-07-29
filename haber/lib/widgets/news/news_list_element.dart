@@ -9,8 +9,16 @@ import 'package:provider/provider.dart';
 class NewsListElement extends StatefulWidget {
   News news;
   int index;
+  int type;
 
-  NewsListElement(this.news, this.index);
+  //type == 1 > Slider
+  //type == 2 > List
+  //type == 3 > Favorites
+  //type == 4 > Liked
+  //type == 5 > Disliked
+  //type == 6 > Commented
+
+  NewsListElement(this.news, this.index, this.type);
 
   @override
   _NewsListElementState createState() => _NewsListElementState();
@@ -29,7 +37,7 @@ class _NewsListElementState extends State<NewsListElement> {
           Navigator.pushNamed(
             context,
             "/detail",
-            arguments: NewsDetails(widget.index, false),
+            arguments: NewsDetails(widget.index, false, widget.type),
           );
         },
         child: Row(

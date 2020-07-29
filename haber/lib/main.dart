@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:haber/data/sharedpref/shared_preference_helper.dart';
 import 'package:haber/models/NewsTest.dart';
 import 'package:haber/providers/news_provider.dart';
+import 'package:haber/providers/user_provider.dart';
 import 'package:haber/widgets/home.dart';
 import 'package:haber/widgets/news/news_detail.dart';
 import 'package:haber/widgets/news/news_home.dart';
@@ -117,6 +118,9 @@ void main() async {
     providers: [
       ChangeNotifierProvider(
         create: (_) => NewsProvider(),
+      ),
+      ChangeNotifierProvider(
+        create: (_) => UserProvider(),
       ),
     ],
     child: MaterialApp(

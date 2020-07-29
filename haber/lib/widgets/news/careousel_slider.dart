@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:haber/app_theme.dart';
+import 'package:haber/data/constants.dart';
 import 'package:haber/models/News.dart';
 import 'package:haber/models/NewsDetails.dart';
 import 'package:haber/providers/news_provider.dart';
@@ -131,7 +132,8 @@ class _CareouselSliderState extends State<CareouselSlider> {
                       Navigator.pushNamed(
                         context,
                         "/detail",
-                        arguments: NewsDetails(index, true),
+                        arguments:
+                            NewsDetails(index, true, Constants.newsTypeSlider),
                       );
                     },
                     child: Container(

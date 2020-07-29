@@ -7,6 +7,7 @@ import 'package:haber/providers/news_provider.dart';
 import 'package:haber/widgets/news/news_list.dart';
 import 'package:haber/widgets/news/news_list_element.dart';
 import 'package:haber/widgets/others/multi_select_checkbox.dart';
+import 'package:haber/widgets/user/news_list_for_user.dart';
 import 'package:provider/provider.dart';
 
 class ProfileCategory extends StatefulWidget {
@@ -67,12 +68,9 @@ class _ProfileCategoryState extends State<ProfileCategory>
           child: Container(
             child: _getTabBarView(
               <Widget>[
-                NewsList(
-                    ["5f135136c961bd0bb0ba82b8"], Constants.selectedNewsSites),
-                NewsList(
-                    ["5f13513ec961bd0bb0ba82b9"], Constants.selectedNewsSites),
-                NewsList(
-                    ["5f135148c961bd0bb0ba82ba"], Constants.selectedNewsSites),
+                NewsListForUser(1),
+                NewsListForUser(2),
+                NewsListForUser(3),
               ],
             ),
           ),

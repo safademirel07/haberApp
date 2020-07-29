@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:haber/app_theme.dart';
+import 'package:haber/data/constants.dart';
 import 'package:haber/models/News.dart';
 import 'package:haber/providers/news_provider.dart';
 import 'package:haber/widgets/news/news_list_element.dart';
@@ -125,7 +126,8 @@ class _NewsFavoriteState extends State<NewsFavorite>
                         padding: EdgeInsets.zero,
                         itemCount: news.length,
                         itemBuilder: (BuildContext context, int index) {
-                          return NewsListElement(news[index], index);
+                          return NewsListElement(
+                              news[index], index, Constants.newsTypeFavorites);
                         },
                       ),
                     ),

@@ -9,6 +9,7 @@ import 'package:haber/models/Firebase.dart';
 import 'package:haber/models/News.dart';
 import 'package:haber/models/NewsDetails.dart';
 import 'package:haber/providers/news_provider.dart';
+import 'package:haber/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -36,9 +37,41 @@ class _NewsDetailState extends State<NewsDetail> {
     bool isSlider = details.isSlider();
     int index = details.getIndex();
 
-    List<News> listNews = isSlider
-        ? Provider.of<NewsProvider>(context, listen: true).getSliderNews()
-        : Provider.of<NewsProvider>(context, listen: true).getListNews();
+    int type = details.getType();
+
+    List<News> listNews = List<News>();
+
+    switch (type) {
+      case Constants.newsTypeList:
+        listNews =
+            Provider.of<NewsProvider>(context, listen: true).getListNews();
+        break;
+      case Constants.newsTypeSlider:
+        listNews =
+            Provider.of<NewsProvider>(context, listen: true).getSliderNews();
+        break;
+      case Constants.newsTypeFavorites:
+        listNews =
+            Provider.of<NewsProvider>(context, listen: true).getFavoriteNews();
+        break;
+
+      case Constants.newsTypeLiked:
+        listNews =
+            Provider.of<UserProvider>(context, listen: true).getLikedNews();
+        break;
+      case Constants.newsTypeDisliked:
+        listNews =
+            Provider.of<UserProvider>(context, listen: true).getDislikedNews();
+        break;
+      case Constants.newsTypecommented:
+        listNews =
+            Provider.of<UserProvider>(context, listen: true).getCommentedNews();
+        break;
+
+      default:
+    }
+
+    print("type ne geldi " + type.toString());
 
     final News news = listNews[index];
 

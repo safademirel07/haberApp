@@ -21,6 +21,13 @@ class Constants {
   static const String haberTurkID = "5f13523dc961bd0bb0ba82c2";
   static const String ntvID = "5f1366bf58a4b8083428bee1";
 
+  static const int newsTypeSlider = 1;
+  static const int newsTypeList = 2;
+  static const int newsTypeFavorites = 3;
+  static const int newsTypeLiked = 4;
+  static const int newsTypeDisliked = 5;
+  static const int newsTypecommented = 6;
+
   static bool loggedIn = false;
 
   static List<String> selectedNewsSites = List<String>();
