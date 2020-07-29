@@ -913,6 +913,300 @@ router.get("/news/favorite", auth.auth, async (req, res) => {
   }
   res.send(data)
 }
+)
+
+// @route    GET news/likes
+// @desc     Gets all liked posts by user
+router.get("/news/likes", auth.auth, async (req, res) => {
+
+  const user = req.user
+
+  if (!user) {
+    res.send({
+      "error": true,
+      "msg": "No user"
+    })
+    return
+  }
+
+
+  let limit = 10; //news per page
+
+  const searchWord = req.query.search
+  let page = (Math.abs(req.query.page) || 1) - 1;
+
+
+  var aggregateQuery = [{
+      "$lookup": {
+        "let": {
+          "rssObjID": {
+            "$toObjectId": "$rss"
+          }
+        },
+        "from": "rsses",
+        "pipeline": [{
+          "$match": {
+            "$expr": {
+              "$eq": ["$_id", "$$rssObjID"]
+            }
+          }
+        }],
+        "as": "rssDetails"
+      }
+    },
+    {
+      "$unwind": "$rssDetails"
+    },
+    {
+      "$lookup": {
+        "let": {
+          "siteObjID": {
+            "$toObjectId": "$rssDetails.site"
+          }
+        },
+        "from": "news_sites",
+        "pipeline": [{
+          "$match": {
+            "$expr": {
+              "$eq": ["$_id", "$$siteObjID"]
+            }
+          }
+        }],
+        "as": "siteDetails"
+      }
+    },
+    {
+      $unwind: "$siteDetails"
+    },
+    {
+      "$lookup": {
+        "let": {
+          "categoryObjID": {
+            "$toObjectId": "$rssDetails.category"
+          }
+        },
+        "from": "categories",
+        "pipeline": [{
+          "$match": {
+            "$expr": {
+              "$eq": ["$_id", "$$categoryObjID"]
+            }
+          }
+        }],
+        "as": "categoryDetails"
+      }
+    },
+    {
+      $unwind: "$categoryDetails"
+    },
+    {
+      "$match": {
+        "likes": {
+          "$elemMatch": {
+            users: user._id
+          }
+        }
+      }
+    },
+
+    {
+      "$limit": limit
+    },
+  ]
+
+  const allNews = News.aggregate(aggregateQuery)
+
+
+  const data = []
+
+  for await (const news of allNews) {
+
+    delete news.__v
+    delete news.rss
+    delete news.siteDetails.__v
+    delete news.rssDetails.__v
+    delete news.rssDetails.site
+    delete news.rssDetails.category
+    delete news.categoryDetails.__v
+    const likes = news.likes.length
+    const dislikes = news.dislikes.length
+
+    var isLiked = false,
+      isDisliked = false,
+      isFavorited = false
+
+    if (user != undefined) {
+      isLiked = news.likes.filter(like => like.users.toString() == user._id.toString()).length > 0 ? true : false
+      isDisliked = news.dislikes.filter(dislike => dislike.users.toString() == user._id.toString()).length > 0 ? true : false
+      isFavorited = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString()).length > 0 ? true : false
+    }
+
+    delete news.likes
+    delete news.dislikes
+    news["likes"] = likes
+    news["dislikes"] = dislikes
+
+
+
+    console.log(" user.favorites" + isLiked.length + " abc")
+
+    news["isLiked"] = isLiked
+    news["isDisliked"] = isDisliked
+    news["isFavorited"] = isFavorited
+
+    news.date = moment.unix(news.date).format("LLLL")
+    data.push(news)
+
+
+  }
+  res.send(data)
+}
+
+)
+
+
+// @route    GET news/dislikes
+// @desc     Gets all disliked posts by user
+router.get("/news/dislikes", auth.auth, async (req, res) => {
+
+  const user = req.user
+
+  if (!user) {
+    res.send({
+      "error": true,
+      "msg": "No user"
+    })
+    return
+  }
+
+
+  let limit = 10; //news per page
+
+  const searchWord = req.query.search
+  let page = (Math.abs(req.query.page) || 1) - 1;
+
+
+  var aggregateQuery = [{
+      "$lookup": {
+        "let": {
+          "rssObjID": {
+            "$toObjectId": "$rss"
+          }
+        },
+        "from": "rsses",
+        "pipeline": [{
+          "$match": {
+            "$expr": {
+              "$eq": ["$_id", "$$rssObjID"]
+            }
+          }
+        }],
+        "as": "rssDetails"
+      }
+    },
+    {
+      "$unwind": "$rssDetails"
+    },
+    {
+      "$lookup": {
+        "let": {
+          "siteObjID": {
+            "$toObjectId": "$rssDetails.site"
+          }
+        },
+        "from": "news_sites",
+        "pipeline": [{
+          "$match": {
+            "$expr": {
+              "$eq": ["$_id", "$$siteObjID"]
+            }
+          }
+        }],
+        "as": "siteDetails"
+      }
+    },
+    {
+      $unwind: "$siteDetails"
+    },
+    {
+      "$lookup": {
+        "let": {
+          "categoryObjID": {
+            "$toObjectId": "$rssDetails.category"
+          }
+        },
+        "from": "categories",
+        "pipeline": [{
+          "$match": {
+            "$expr": {
+              "$eq": ["$_id", "$$categoryObjID"]
+            }
+          }
+        }],
+        "as": "categoryDetails"
+      }
+    },
+    {
+      $unwind: "$categoryDetails"
+    },
+    {
+      "$match": {
+        "dislikes": {
+          "$elemMatch": {
+            users: user._id
+          }
+        }
+      }
+    },
+
+    {
+      "$limit": limit
+    },
+  ]
+
+  const allNews = News.aggregate(aggregateQuery)
+
+
+  const data = []
+
+  for await (const news of allNews) {
+
+    delete news.__v
+    delete news.rss
+    delete news.siteDetails.__v
+    delete news.rssDetails.__v
+    delete news.rssDetails.site
+    delete news.rssDetails.category
+    delete news.categoryDetails.__v
+    const likes = news.likes.length
+    const dislikes = news.dislikes.length
+
+    var isLiked = false,
+      isDisliked = false,
+      isFavorited = false
+
+    if (user != undefined) {
+      isLiked = news.likes.filter(like => like.users.toString() == user._id.toString()).length > 0 ? true : false
+      isDisliked = news.dislikes.filter(dislike => dislike.users.toString() == user._id.toString()).length > 0 ? true : false
+      isFavorited = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString()).length > 0 ? true : false
+    }
+
+    delete news.likes
+    delete news.dislikes
+    news["likes"] = likes
+    news["dislikes"] = dislikes
+
+    news["isLiked"] = isLiked
+    news["isDisliked"] = isDisliked
+    news["isFavorited"] = isFavorited
+
+    news.date = moment.unix(news.date).format("LLLL")
+    data.push(news)
+
+
+  }
+  res.send(data)
+}
 
 )
 
