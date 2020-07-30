@@ -50,4 +50,28 @@ class UserRequest {
       },
     );
   }
+
+  Future<http.Response> getUserProfile() async {
+    dynamic token = await SharedPreferenceHelper.getAuthToken;
+
+    return http.get(
+      Constants.api_url + "/users/me",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ${token.toString()}',
+      },
+    );
+  }
+
+  Future<http.Response> changeProfilePhoto(String url) async {
+    dynamic token = await SharedPreferenceHelper.getAuthToken;
+
+    return http.post(
+      Constants.api_url + "/users/profile_photo?image=$url",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ${token.toString()}',
+      },
+    );
+  }
 }

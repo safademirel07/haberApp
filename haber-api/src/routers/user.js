@@ -66,6 +66,45 @@ router.post("/users/register", async (req,res) => {
 
 })
 
+router.post("/users/profile_photo", auth.auth, async (req,res) => {
+    try {
+        const user = req.user;
+        var imageUrl = req.query.image;
+
+        if (imageUrl == undefined)
+        {
+            res.status(400).send({"error" : "Unable to change. Image not found."})
+        }
+
+        if (!user) {
+            res.status(400).send({"error" : "Unable to change. User not found."})
+        }
+
+        console.log("image ne" + imageUrl)
+
+        if (!validator.isURL(imageUrl)) {
+            res.status(400).send({"error" : "Unable to change. Not an image."})
+        }
+
+        var imageUrl = imageUrl.replace("https://firebasestorage.googleapis.com/v0/b/haberapp-54a0c.appspot.com/o/images/","https://firebasestorage.googleapis.com/v0/b/haberapp-54a0c.appspot.com/o/images%2F")
+        
+
+        user.profilePhoto = imageUrl
+        user.save()
+
+
+        var userObject = user.toJSON()
+        delete userObject.favorites
+        delete userObject.likes
+        delete userObject.dislikes
+        delete userObject.__v
+        res.send(userObject)
+    } catch (e) {
+        console.log(e)
+        res.status(400).send({"error" : "Unable to login."})
+    }
+})
+
 router.post("/users/login", async (req,res) => {
     try {
         const user = await User.findByCredentials(req.body.email, req.body.password)
@@ -88,6 +127,7 @@ router.post("/users/login", async (req,res) => {
 router.post("/users/auth", auth.auth, async (req,res) => {
     return res.send({"message" : "Auth success"})
 
+    
 })
 
 
@@ -115,7 +155,11 @@ router.post("/users/logoutAll", auth.auth, async (req,res) => {
     
       
 router.get("/users/me", auth.auth, async (req,res) => {
-    const user = req.user
+    const user = req.user.toJSON()
+    delete user.favorites
+    delete user.likes
+    delete user.dislikes
+    delete user.__v
     res.send(user)
 })
 

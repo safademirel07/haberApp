@@ -8,7 +8,9 @@ import 'package:haber/app_theme.dart';
 import 'package:haber/data/constants.dart';
 import 'package:haber/models/Firebase.dart';
 import 'package:haber/models/NewsTest.dart';
+import 'package:haber/models/User.dart';
 import 'package:haber/providers/news_provider.dart';
+import 'package:haber/providers/user_provider.dart';
 import 'package:haber/widgets/news/careousel_slider.dart';
 import 'package:haber/widgets/news/category_list.dart';
 import 'package:haber/widgets/news/news_detail.dart';
@@ -40,89 +42,99 @@ class ProfileHeader implements SliverPersistentHeaderDelegate {
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Container(
-          margin: EdgeInsets.only(left: 8, top: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    User user = Provider.of<UserProvider>(context, listen: true).getUser();
+
+    print("user.photoUrl" + user.photoUrl);
+
+    return user == null
+        ? Center(
+            child: CircularProgressIndicator(),
+          )
+        : Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Container(
                 margin: EdgeInsets.only(left: 8, top: 8),
-                child: Text(
-                  "Profil",
-                  style: AppTheme.headline,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Container(
+                      margin: EdgeInsets.only(left: 8, top: 8),
+                      child: Text(
+                        "Profil",
+                        style: AppTheme.headline,
+                      ),
+                    ),
+                    Row(
+                      children: <Widget>[
+                        IconButton(
+                          icon: Icon(
+                            FontAwesomeIcons.signOutAlt,
+                            color: Colors.black,
+                          ),
+                          onPressed: () {},
+                        )
+                      ],
+                    )
+                  ],
                 ),
               ),
-              Row(
-                children: <Widget>[
-                  IconButton(
-                    icon: Icon(
-                      FontAwesomeIcons.signOutAlt,
-                      color: Colors.black,
+              Divider(
+                color: Colors.black,
+              ),
+              Center(
+                child: Column(
+                  children: <Widget>[
+                    Stack(
+                      alignment: Alignment.topRight,
+                      children: <Widget>[
+                        Container(
+                          margin: EdgeInsets.all(10.0),
+                          child: CustomCircleAvatar(
+                              animationDuration: 300,
+                              radius: 180,
+                              imagePath: (user == null ||
+                                      user.photoUrl.length <= 0)
+                                  ? 'https://s3.amazonaws.com/37assets/svn/765-default-avatar.png'
+                                  : user.photoUrl),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            _editProfileImageModal(context);
+                            print("edit profile photo");
+                          },
+                          child: Icon(Icons.add_a_photo),
+                        ),
+                      ],
                     ),
-                    onPressed: () {},
-                  )
-                ],
-              )
-            ],
-          ),
-        ),
-        Divider(
-          color: Colors.black,
-        ),
-        Center(
-          child: Column(
-            children: <Widget>[
-              Stack(
-                alignment: Alignment.topRight,
-                children: <Widget>[
-                  Container(
-                    margin: EdgeInsets.all(10.0),
-                    child: CustomCircleAvatar(
-                        animationDuration: 300,
-                        radius: 180,
-                        imagePath:
-                            'https://s3.amazonaws.com/37assets/svn/765-default-avatar.png'),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      _editProfileImageModal(context);
-                      print("edit profile photo");
-                    },
-                    child: Icon(Icons.add_a_photo),
-                  ),
-                ],
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          user.name,
+                          style: AppTheme.body2,
+                        ),
+                        SizedBox(
+                          width: 8,
+                        ),
+                        InkWell(
+                          onTap: () {
+                            _editProfileModal(context);
+                            print("edit profile photo");
+                          },
+                          child: Icon(Icons.edit),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    "Safa Demirel",
-                    style: AppTheme.body2,
-                  ),
-                  SizedBox(
-                    width: 8,
-                  ),
-                  InkWell(
-                    onTap: () {
-                      _editProfileModal(context);
-                      print("edit profile photo");
-                    },
-                    child: Icon(Icons.edit),
-                  ),
-                ],
+              Divider(
+                color: Colors.black,
               ),
             ],
-          ),
-        ),
-        Divider(
-          color: Colors.black,
-        ),
-      ],
-    );
+          );
   }
 
   double titleOpacity(double shrinkOffset) {

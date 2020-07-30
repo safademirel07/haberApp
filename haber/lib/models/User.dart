@@ -16,7 +16,7 @@ class User {
     sId = json['_id'];
     name = json['name'];
     email = json['email'];
-    photoUrl = json['photoUrl'];
+    photoUrl = json['profilePhoto'];
     token = json['token'];
     uid = _uid;
     //sharedPreferenceHelper.saveAuthToken(token);
@@ -27,7 +27,7 @@ class User {
     data['_id'] = this.sId;
     data['name'] = this.name;
     data['email'] = this.email;
-    data['photoUrl'] = this.photoUrl;
+    data['profilePhoto'] = this.photoUrl;
     data['token'] = this.token;
     return data;
   }

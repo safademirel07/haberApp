@@ -8,7 +8,9 @@ import 'package:haber/data/constants.dart';
 import 'package:haber/data/sharedpref/shared_preference_helper.dart';
 import 'package:haber/models/Firebase.dart';
 import 'package:haber/models/User.dart';
+import 'package:haber/providers/user_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -58,7 +60,12 @@ class _LoginState extends State<Login> {
 
         Constants.loggedIn = true;
 
-        return User.fromJson(json.decode(response.body), signIn.uid);
+        User loggedInUser =
+            User.fromJson(json.decode(response.body), signIn.uid);
+
+        Provider.of<UserProvider>(context, listen: false).setUser(loggedInUser);
+
+        return loggedInUser;
       } catch (e) {
         print("hata bu " + e);
         throw Future.error("Failed to login");
@@ -81,7 +88,7 @@ class _LoginState extends State<Login> {
             clickedLogin = false;
             SharedPreferenceHelper.setAuthToken(user.token);
             SharedPreferenceHelper.setUID(user.uid);
-            Navigator.pushNamed(
+            Navigator.pushReplacementNamed(
               context,
               "/home",
             );

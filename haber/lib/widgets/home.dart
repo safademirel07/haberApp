@@ -2,8 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:haber/data/constants.dart';
+import 'package:haber/models/Firebase.dart';
 import 'package:haber/widgets/news/news_favorite.dart';
 import 'package:haber/widgets/news/news_home.dart';
+import 'package:haber/widgets/user/login.dart';
 import 'package:provider/provider.dart';
 
 import 'user/profile.dart';
@@ -26,10 +28,16 @@ class _HomeState extends State<Home> {
 
   int _currentIndex = 0;
 
-  final List<Widget> _children = [
+  final List<Widget> _childrenLoggedIn = [
     NewsHome(),
     NewsFavorite(),
     Profile(),
+  ];
+
+  final List<Widget> _childrenLoggedOut = [
+    NewsHome(),
+    NewsFavorite(),
+    Login(),
   ];
 
   void onTabTapped(int index) {
@@ -74,7 +82,9 @@ class _HomeState extends State<Home> {
               this._page = newPage;
             });
           },
-          children: _children,
+          children: (Constants.loggedIn && Firebase().getUser() != null)
+              ? _childrenLoggedIn
+              : _childrenLoggedOut,
         ),
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _page,

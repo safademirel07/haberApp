@@ -1,7 +1,8 @@
 import 'package:haber/models/News_Site.dart';
 
 class Constants {
-  static const String api_url = "http://10.0.3.2:3000";
+  static const String api_url = "http://192.168.31.93:3000";
+  //"http://10.0.3.2:3000";
 
   static const String sabah_pref = "sabahKey";
   static const String milliyet_pref = "milliyetKey";

@@ -2,14 +2,20 @@ import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
 import 'package:haber/data/constants.dart';
+import 'package:haber/models/Firebase.dart';
 import 'dart:convert';
 
 import 'package:haber/models/News.dart';
+import 'package:haber/models/User.dart';
 import 'package:haber/requests/news_request.dart';
 import 'package:haber/requests/user_request.dart';
 
 class UserProvider with ChangeNotifier {
-  UserProvider() {}
+  UserProvider() {
+    fetchUser();
+  }
+
+  User _user;
 
   List<News> _likedNews = List<News>();
   List<News> _dislikedNews = List<News>();
@@ -263,6 +269,56 @@ class UserProvider with ChangeNotifier {
 
   int commentedNewsLength() {
     return _commentedNews != null ? _commentedNews.length : 0;
+  }
+
+  // Profile
+
+  User getUser() {
+    return _user;
+  }
+
+  bool isUserExists() {
+    return _user == null ? false : true;
+  }
+
+  setUser(User user) {
+    _user = user;
+  }
+
+  Future<void> fetchUser() async {
+    if (Constants.loggedIn && Firebase().getUser() != null) {
+      try {
+        UserRequest().getUserProfile().then((data) {
+          print("gelen data profile photo " + data.body);
+          if (data.statusCode == 200) {
+            _user = User.fromJson(json.decode(data.body), "");
+            notifyListeners();
+          } else {
+            print("error2" + data.statusCode.toString());
+          }
+        });
+      } catch (e) {
+        print("error");
+      }
+    } else {
+      print("user not logged in");
+    }
+  }
+
+  Future<void> changeProfilePhoto(String url) async {
+    try {
+      UserRequest().changeProfilePhoto(url).then((data) {
+        print("gelen data profile photo " + data.body);
+        if (data.statusCode == 200) {
+          _user = User.fromJson(json.decode(data.body), "");
+          notifyListeners();
+        } else {
+          print("error2" + data.statusCode.toString());
+        }
+      });
+    } catch (e) {
+      print("error");
+    }
   }
 
   // Others
