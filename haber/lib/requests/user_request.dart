@@ -51,6 +51,18 @@ class UserRequest {
     );
   }
 
+  Future<http.Response> logoutRequest() async {
+    final token = await SharedPreferenceHelper.getAuthToken;
+
+    return http.post(
+      Constants.api_url + "/users/logout",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ${token.toString()}',
+      },
+    );
+  }
+
   Future<http.Response> getUserProfile() async {
     dynamic token = await SharedPreferenceHelper.getAuthToken;
 

@@ -20,7 +20,9 @@ class NewsRequest {
             "/news/get?page=$page$searchQuery$categoryQuery$siteQuery",
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer ${token.toString()}',
+          (token != null && token.length > 0)
+              ? 'Authorization'
+              : 'Bearer ${token.toString()}': "",
         });
   }
 
@@ -33,7 +35,9 @@ class NewsRequest {
     return http.get(Constants.api_url + "/news/slider?page=$page$siteQuery",
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer ${token.toString()}',
+          (token != null && token.length > 0)
+              ? 'Authorization'
+              : 'Bearer ${token.toString()}': "",
         });
   }
 

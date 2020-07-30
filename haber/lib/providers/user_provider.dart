@@ -1,7 +1,9 @@
 import 'dart:developer';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:haber/data/constants.dart';
+import 'package:haber/data/sharedpref/shared_preference_helper.dart';
 import 'package:haber/models/Firebase.dart';
 import 'dart:convert';
 
@@ -283,6 +285,21 @@ class UserProvider with ChangeNotifier {
 
   setUser(User user) {
     _user = user;
+  }
+
+  Future<bool> logoutRequest() async {
+    UserRequest().logoutRequest().then((data) {
+      if (data != null) {
+        SharedPreferenceHelper.setAuthToken("");
+        SharedPreferenceHelper.setUID("");
+        SharedPreferenceHelper.setPassword("");
+        SharedPreferenceHelper.setUser("");
+        FirebaseAuth.instance.signOut();
+        Constants.loggedIn = false;
+        _user = null;
+        notifyListeners();
+      }
+    });
   }
 
   Future<void> fetchUser() async {

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:haber/app_theme.dart';
@@ -73,7 +74,9 @@ class ProfileHeader implements SliverPersistentHeaderDelegate {
                             FontAwesomeIcons.signOutAlt,
                             color: Colors.black,
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            logoutRequest(context);
+                          },
                         )
                       ],
                     )
@@ -154,6 +157,15 @@ class ProfileHeader implements SliverPersistentHeaderDelegate {
 
   @override
   OverScrollHeaderStretchConfiguration get stretchConfiguration => null;
+
+  void logoutRequest(BuildContext context) async {
+    FirebaseAuth.instance.signOut();
+    Provider.of<UserProvider>(context, listen: false).logoutRequest();
+    Navigator.pushReplacementNamed(
+      context,
+      "/home",
+    );
+  }
 
   void _editProfileModal(BuildContext ctx, User user) {
     showModalBottomSheet(

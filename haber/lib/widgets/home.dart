@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:haber/data/constants.dart';
 import 'package:haber/models/Firebase.dart';
+import 'package:haber/providers/user_provider.dart';
 import 'package:haber/widgets/news/news_favorite.dart';
 import 'package:haber/widgets/news/news_home.dart';
 import 'package:haber/widgets/user/login.dart';
@@ -105,7 +106,11 @@ class _HomeState extends State<Home> {
             ),
             new BottomNavigationBarItem(
               icon: Icon(Icons.person),
-              title: Text(Constants.loggedIn ? 'Profilim' : "Giriş Yap"),
+              title: Text(
+                  Provider.of<UserProvider>(context, listen: true).getUser() !=
+                          null
+                      ? 'Profilim'
+                      : "Giriş Yap"),
             )
           ],
         ),

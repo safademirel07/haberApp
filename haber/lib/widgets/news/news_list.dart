@@ -21,10 +21,18 @@ class _NewsListState extends State<NewsList>
   TabController _tabController;
 
   Future<void> refreshNews() {
+    print("refresh");
     widget.news_sites = Provider.of<NewsProvider>(context, listen: false)
         .getSelectedNewsSites();
 
     Provider.of<NewsProvider>(context, listen: false).fetchSliderNews(
+      widget.news_sites,
+      false,
+    );
+
+    Provider.of<NewsProvider>(context, listen: false).fetchListNews(
+      "",
+      widget.categories,
       widget.news_sites,
       false,
     );

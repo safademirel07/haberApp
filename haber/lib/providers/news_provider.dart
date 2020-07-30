@@ -173,12 +173,18 @@ class NewsProvider with ChangeNotifier {
 
   Future<void> fetchListNews(String search, List<String> categories,
       List<String> sites, bool isMore) async {
+    print("burasi bir" + loadingListNews.toString());
+    print("burasi bir" + loadingListNewsMore.toString());
     if (loadingListNews || loadingListNewsMore) return;
+
+    print("burasi iki");
 
     if (isMore)
       setLoadingListNewsMore = true;
     else
       setLoadingListNews = true;
+
+    print("fetchlistnews");
 
     try {
       if (!isMore) listPage = 1;
@@ -196,12 +202,14 @@ class NewsProvider with ChangeNotifier {
               ++listPage;
             }
             _listNews.addAll(news);
+            setLoadingListNews = false;
             setLoadingListNewsMore = false;
             notifyListeners();
           } else {
             //first page
             setListNews(news);
             setLoadingListNews = false;
+            setLoadingListNewsMore = false;
             notifyListeners();
           }
         } else {
