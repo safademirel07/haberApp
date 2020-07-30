@@ -74,4 +74,16 @@ class UserRequest {
       },
     );
   }
+
+  Future<http.Response> editProfile(String name, String email) async {
+    dynamic token = await SharedPreferenceHelper.getAuthToken;
+
+    return http.post(
+      Constants.api_url + "/users/edit_profile?name=$name&email=$email",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ${token.toString()}',
+      },
+    );
+  }
 }

@@ -321,6 +321,21 @@ class UserProvider with ChangeNotifier {
     }
   }
 
+  Future<void> editProfile(String name, String email) async {
+    try {
+      UserRequest().editProfile(name, email).then((data) {
+        if (data.statusCode == 200) {
+          _user = User.fromJson(json.decode(data.body), "");
+          notifyListeners();
+        } else {
+          print("error2" + data.statusCode.toString());
+        }
+      });
+    } catch (e) {
+      print("error");
+    }
+  }
+
   // Others
 
   void setMessage(value) {

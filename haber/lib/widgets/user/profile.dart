@@ -19,44 +19,6 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  void _editProfileModal(
-    BuildContext ctx,
-  ) {
-    showModalBottomSheet(
-      isScrollControlled: true,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
-      elevation: 10,
-      context: ctx,
-      builder: (_) {
-        return GestureDetector(
-          onTap: () {},
-          child: EditProfile(),
-          behavior: HitTestBehavior.opaque,
-        );
-      },
-    );
-  }
-
-  void _editProfileImageModal(
-    BuildContext ctx,
-  ) {
-    showModalBottomSheet(
-      isScrollControlled: true,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
-      elevation: 10,
-      context: ctx,
-      builder: (_) {
-        return GestureDetector(
-          onTap: () {},
-          child: EditProfileImage(),
-          behavior: HitTestBehavior.opaque,
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,8 +29,8 @@ class _ProfileState extends State<Profile> {
               pinned: false,
               floating: false,
               delegate: ProfileHeader(
-                minExtent: 312,
-                maxExtent: 312,
+                minExtent: MediaQuery.of(context).size.height * 0.43,
+                maxExtent: MediaQuery.of(context).size.height * 0.43,
               ),
             ),
           ];

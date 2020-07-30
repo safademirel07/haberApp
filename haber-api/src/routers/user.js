@@ -105,6 +105,47 @@ router.post("/users/profile_photo", auth.auth, async (req,res) => {
     }
 })
 
+
+router.post("/users/edit_profile", auth.auth, async (req,res) => {
+    try {
+        const user = req.user;
+        var name = req.query.name;
+        var email = req.query.email;
+
+        if (!user) {
+            res.status(400).send({"error" : "Unable to change. User not found."})
+        }
+
+        if (name == undefined || email == undefined)
+        {
+            res.status(400).send({"error" : "Unable to change. Undefined."})
+        }
+
+
+        if (!validator.isURL(email)) {
+            res.status(400).send({"error" : "Unable to change. Not an email."})
+        }
+
+        console.log("gelen name " + name)
+        console.log("gelen email " + email)
+        
+
+        user.name = name
+        user.email = email
+        user.save()
+
+        var userObject = user.toJSON()
+        delete userObject.favorites
+        delete userObject.likes
+        delete userObject.dislikes
+        delete userObject.__v
+        res.send(userObject)
+    } catch (e) {
+        console.log(e)
+        res.status(400).send({"error" : "Unable to login."})
+    }
+})
+
 router.post("/users/login", async (req,res) => {
     try {
         const user = await User.findByCredentials(req.body.email, req.body.password)

@@ -2,10 +2,16 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:haber/data/constants.dart';
+import 'package:haber/models/User.dart';
+import 'package:haber/providers/user_provider.dart';
 import 'package:haber/widgets/others/form_picker.dart';
 import 'package:haber/widgets/user/change_password.dart';
+import 'package:provider/provider.dart';
 
 class EditProfile extends StatefulWidget {
+  User user;
+
+  EditProfile(this.user);
   @override
   EditProfileState createState() => EditProfileState();
 }
@@ -18,7 +24,16 @@ class EditProfileState extends State<EditProfile> {
   bool _isCurrent = false;
 
   void submitForm() async {
-    Navigator.pop(context);
+    if (_fbKey.currentState.saveAndValidate()) {
+      String name = _fbKey.currentState.value['username'];
+      String email = _fbKey.currentState.value['email'];
+
+      if (name != null && email != null) {
+        Provider.of<UserProvider>(context, listen: false)
+            .editProfile(name, email);
+        Navigator.pop(context);
+      }
+    }
   }
 
   void _changePassword(
@@ -57,7 +72,7 @@ class EditProfileState extends State<EditProfile> {
                 padding: const EdgeInsets.all(8.0),
                 child: FormBuilderTextField(
                   attribute: "username",
-                  initialValue: "username",
+                  initialValue: widget.user.name,
                   decoration: InputDecoration(labelText: "Kullanıcı Adı (*)"),
                   validators: [
                     FormBuilderValidators.required(),
@@ -70,7 +85,7 @@ class EditProfileState extends State<EditProfile> {
                 padding: const EdgeInsets.all(8.0),
                 child: FormBuilderTextField(
                   attribute: "email",
-                  initialValue: "widget.iCompanyName",
+                  initialValue: widget.user.email,
                   decoration: InputDecoration(labelText: "Email"),
                   validators: [
                     FormBuilderValidators.maxLength(Constants.maxLengthMiddle),

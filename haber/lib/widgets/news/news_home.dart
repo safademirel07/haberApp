@@ -50,8 +50,8 @@ class _NewsHomeState extends State<NewsHome> {
               pinned: false,
               floating: false,
               delegate: NewsSlider(
-                minExtent: 255.0,
-                maxExtent: 255.0,
+                minExtent: MediaQuery.of(context).size.height * 0.38,
+                maxExtent: MediaQuery.of(context).size.height * 0.38,
               ),
             ),
           ];

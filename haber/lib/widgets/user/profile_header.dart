@@ -120,7 +120,7 @@ class ProfileHeader implements SliverPersistentHeaderDelegate {
                         ),
                         InkWell(
                           onTap: () {
-                            _editProfileModal(context);
+                            _editProfileModal(context, user);
                             print("edit profile photo");
                           },
                           child: Icon(Icons.edit),
@@ -155,9 +155,7 @@ class ProfileHeader implements SliverPersistentHeaderDelegate {
   @override
   OverScrollHeaderStretchConfiguration get stretchConfiguration => null;
 
-  void _editProfileModal(
-    BuildContext ctx,
-  ) {
+  void _editProfileModal(BuildContext ctx, User user) {
     showModalBottomSheet(
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
@@ -167,7 +165,7 @@ class ProfileHeader implements SliverPersistentHeaderDelegate {
       builder: (_) {
         return GestureDetector(
           onTap: () {},
-          child: EditProfile(),
+          child: EditProfile(user),
           behavior: HitTestBehavior.opaque,
         );
       },
