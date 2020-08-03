@@ -1010,6 +1010,8 @@ router.get("/news/likes", auth.auth, async (req, res) => {
     },
 
     {
+      "$skip": limit * page
+    }, {
       "$limit": limit
     },
   ]
@@ -1158,8 +1160,9 @@ router.get("/news/dislikes", auth.auth, async (req, res) => {
         }
       }
     },
-
     {
+      "$skip": limit * page
+    }, {
       "$limit": limit
     },
   ]

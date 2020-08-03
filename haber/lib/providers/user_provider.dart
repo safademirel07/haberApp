@@ -67,7 +67,6 @@ class UserProvider with ChangeNotifier {
   //Liked news
 
   Future<void> fetchLikedNews(String search, bool isMore) async {
-    print("slidergeldi");
     if (isMore)
       setLoadingLikedNewsMore = true;
     else

@@ -12,6 +12,7 @@ import 'package:haber/widgets/news/news_detail.dart';
 import 'package:haber/widgets/news/news_home.dart';
 import 'package:haber/widgets/news/news_search.dart';
 import 'package:haber/widgets/news/news_slider.dart';
+import 'package:haber/widgets/others/connection.dart';
 import 'package:haber/widgets/others/webview.dart';
 import 'package:haber/widgets/user/login.dart';
 import 'package:haber/widgets/user/profile.dart';
@@ -24,9 +25,24 @@ import 'models/Firebase.dart';
 
 import 'package:http/http.dart' as http;
 
+import 'package:connectivity/connectivity.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
+
+  var connectivityResult = await (Connectivity().checkConnectivity());
+
+  if (connectivityResult == ConnectivityResult.none) {
+    runApp(
+      MaterialApp(
+        home: Scaffold(
+          body: Connection(),
+        ),
+      ),
+    );
+    return;
+  }
 
   await SharedPreferenceHelper.getInit.then((value) async {
     if (!value) {
@@ -114,37 +130,40 @@ void main() async {
 
   FirebaseAnalytics analytics = FirebaseAnalytics();
 
-  runApp(MultiProvider(
-    providers: [
-      ChangeNotifierProvider(
-        create: (_) => NewsProvider(),
-      ),
-      ChangeNotifierProvider(
-        create: (_) => UserProvider(),
-      ),
-    ],
-    child: MaterialApp(
-      theme: ThemeData(
-        primaryColor: Colors.black,
-        textTheme: AppTheme.textTheme,
-        platform: TargetPlatform.android,
-      ),
-      navigatorObservers: [
-        FirebaseAnalyticsObserver(analytics: analytics),
+  if (connectivityResult == ConnectivityResult.wifi ||
+      connectivityResult == ConnectivityResult.mobile) {
+    runApp(MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => NewsProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => UserProvider(),
+        ),
       ],
-      debugShowCheckedModeBanner: false,
-      title: 'haberApp',
-      initialRoute: '/home',
-      routes: {
-        '/home': (context) => Home(),
-        '/news': (context) => NewsHome(),
-        '/detail': (context) => NewsDetail(),
-        '/login': (context) => Login(),
-        '/register': (context) => Register(),
-        '/search': (context) => NewsSearch(),
-        '/profile': (context) => Profile(),
-        '/browser': (context) => Browser(),
-      },
-    ),
-  ));
+      child: MaterialApp(
+        theme: ThemeData(
+          primaryColor: Colors.black,
+          textTheme: AppTheme.textTheme,
+          platform: TargetPlatform.android,
+        ),
+        navigatorObservers: [
+          FirebaseAnalyticsObserver(analytics: analytics),
+        ],
+        debugShowCheckedModeBanner: false,
+        title: 'haberApp',
+        initialRoute: '/home',
+        routes: {
+          '/home': (context) => Home(),
+          '/news': (context) => NewsHome(),
+          '/detail': (context) => NewsDetail(),
+          '/login': (context) => Login(),
+          '/register': (context) => Register(),
+          '/search': (context) => NewsSearch(),
+          '/profile': (context) => Profile(),
+          '/browser': (context) => Browser(),
+        },
+      ),
+    ));
+  }
 }
