@@ -915,6 +915,150 @@ router.get("/news/favorite", auth.auth, async (req, res) => {
 }
 )
 
+
+router.get("/news/anonymous_favorite", async (req, res) => {
+
+  let limit = 10; //news per page
+  const selectedFavorites = req.query.favorites
+
+  let page = (Math.abs(req.query.page) || 1) - 1;
+
+  var allFavoriteNews = []
+
+  if (selectedFavorites != undefined && selectedFavorites.length > 0) {
+    var splitFavorites = selectedFavorites.split(',')
+    for (const favorite of splitFavorites) {
+
+    
+      try {
+        allFavoriteNews.push(mongoose.Types.ObjectId(favorite))
+      } catch (e) {
+        continue
+      }
+    }
+  } 
+
+  var aggregateQuery = [{
+      "$lookup": {
+        "let": {
+          "rssObjID": {
+            "$toObjectId": "$rss"
+          }
+        },
+        "from": "rsses",
+        "pipeline": [{
+          "$match": {
+            "$expr": {
+              "$eq": ["$_id", "$$rssObjID"]
+            }
+          }
+        }],
+        "as": "rssDetails"
+      }
+    },
+    {
+      "$unwind": "$rssDetails"
+    },
+    {
+      "$lookup": {
+        "let": {
+          "siteObjID": {
+            "$toObjectId": "$rssDetails.site"
+          }
+        },
+        "from": "news_sites",
+        "pipeline": [{
+          "$match": {
+            "$expr": {
+              "$eq": ["$_id", "$$siteObjID"]
+            }
+          }
+        }],
+        "as": "siteDetails"
+      }
+    },
+    {
+      $unwind: "$siteDetails"
+    },
+    {
+      "$lookup": {
+        "let": {
+          "categoryObjID": {
+            "$toObjectId": "$rssDetails.category"
+          }
+        },
+        "from": "categories",
+        "pipeline": [{
+          "$match": {
+            "$expr": {
+              "$eq": ["$_id", "$$categoryObjID"]
+            }
+          }
+        }],
+        "as": "categoryDetails"
+      }
+    },
+    {
+      $unwind: "$categoryDetails"
+    },
+    {
+      "$match": {
+
+        
+          "_id": {
+            "$in": allFavoriteNews,
+          }
+        }
+    },
+    {
+      "$skip": limit * page
+    }, {
+      "$limit": limit
+    },
+  ]
+
+
+
+
+  const allNews = News.aggregate(aggregateQuery)
+
+
+  const data = []
+
+  for await (const news of allNews) {
+
+    delete news.__v
+    delete news.rss
+    delete news.siteDetails.__v
+    delete news.rssDetails.__v
+    delete news.rssDetails.site
+    delete news.rssDetails.category
+    delete news.categoryDetails.__v
+    const likes = news.likes.length
+    const dislikes = news.dislikes.length
+
+    delete news.likes
+    delete news.dislikes
+    news["likes"] = likes
+    news["dislikes"] = dislikes
+
+
+
+    console.log("news/favorites calisiyor.")
+
+    news["isLiked"] = false
+    news["isDisliked"] = false
+    news["isFavorited"] = true
+
+    news.date = moment.unix(news.date).format("LLLL")
+    data.push(news)
+
+
+  }
+  res.send(data)
+}
+)
+
 // @route    GET news/likes
 // @desc     Gets all liked posts by user
 router.get("/news/likes", auth.auth, async (req, res) => {

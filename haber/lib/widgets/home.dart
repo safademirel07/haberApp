@@ -83,7 +83,9 @@ class _HomeState extends State<Home> {
               this._page = newPage;
             });
           },
-          children: (Constants.loggedIn && Firebase().getUser() != null)
+          children: (Constants.loggedIn &&
+                  Firebase().getUser() != null &&
+                  Constants.anonymousLoggedIn == false)
               ? _childrenLoggedIn
               : _childrenLoggedOut,
         ),
@@ -107,8 +109,9 @@ class _HomeState extends State<Home> {
             new BottomNavigationBarItem(
               icon: Icon(Icons.person),
               title: Text(
-                  Provider.of<UserProvider>(context, listen: true).getUser() !=
-                          null
+                  (Provider.of<UserProvider>(context, listen: true).getUser() !=
+                              null &&
+                          Constants.anonymousLoggedIn == false)
                       ? 'Profilim'
                       : "Giriş Yap"),
             )

@@ -11,10 +11,13 @@ class Constants {
   static const String ntv_pref = "ntvKey";
   static const String init_pref = "initKey";
 
+  static const String favorites_pref = "test_3_favorites";
+
   static const String auth_token = "authToken";
   static const String uid_token = "uidToken";
   static const String user_token = "userToken";
   static const String password_token = "passToken";
+  static const String anonymous_token = "anonymousToken";
 
   static const String sabahID = "5f1351a1c961bd0bb0ba82bf";
   static const String milliyetID = "5f1351c3c961bd0bb0ba82c0";
@@ -30,6 +33,7 @@ class Constants {
   static const int newsTypecommented = 6;
 
   static bool loggedIn = false;
+  static bool anonymousLoggedIn = false;
 
   static List<String> selectedNewsSites = List<String>();
 

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:haber/app_theme.dart';
 import 'package:haber/data/constants.dart';
+import 'package:haber/data/sharedpref/shared_preference_helper.dart';
 import 'package:haber/models/Firebase.dart';
 import 'package:haber/models/NewsTest.dart';
 import 'package:haber/models/User.dart';
@@ -161,6 +162,13 @@ class ProfileHeader implements SliverPersistentHeaderDelegate {
   void logoutRequest(BuildContext context) async {
     FirebaseAuth.instance.signOut();
     Provider.of<UserProvider>(context, listen: false).logoutRequest();
+    Constants.loggedIn = false;
+    AuthResult authResult = await FirebaseAuth.instance.signInAnonymously();
+    await SharedPreferenceHelper.setAnonymousID(authResult.user.uid);
+    var firebase = Firebase();
+    firebase.setUser(authResult.user, true);
+    Provider.of<NewsProvider>(context, listen: false).setAnonymous = true;
+
     Navigator.pushReplacementNamed(
       context,
       "/home",

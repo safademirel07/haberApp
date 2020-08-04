@@ -15,7 +15,7 @@ class NewsShimmer extends StatelessWidget {
             child: Material(
               child: Image.asset(
                 "assets/images/shimmer.jpg",
-                fit: BoxFit.cover,
+                fit: BoxFit.fill,
               ),
               borderRadius: BorderRadius.all(
                 Radius.circular(8.0),

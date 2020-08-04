@@ -12,6 +12,8 @@ class NewsRequest {
         sites.length > 0 ? ("&news_sites=" + sites.join(',')) : "";
     dynamic token = await SharedPreferenceHelper.getAuthToken;
 
+    print("token ne" + token);
+
     print("adres " +
         Constants.api_url +
         "/news/get?page=$page$searchQuery$categoryQuery$siteQuery");
@@ -20,9 +22,8 @@ class NewsRequest {
             "/news/get?page=$page$searchQuery$categoryQuery$siteQuery",
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
-          (token != null && token.length > 0)
-              ? 'Authorization'
-              : 'Bearer ${token.toString()}': "",
+          if (token != null && token.length > 0)
+            'Authorization': 'Bearer ${token.toString()}',
         });
   }
 
@@ -35,9 +36,8 @@ class NewsRequest {
     return http.get(Constants.api_url + "/news/slider?page=$page$siteQuery",
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
-          (token != null && token.length > 0)
-              ? 'Authorization'
-              : 'Bearer ${token.toString()}': "",
+          if (token != null && token.length > 0)
+            'Authorization': 'Bearer ${token.toString()}',
         });
   }
 
@@ -52,6 +52,16 @@ class NewsRequest {
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer ${token.toString()}',
+        });
+  }
+
+  Future<http.Response> fetchNewsAnonymousFavorite(
+      int page, String favorites) async {
+    return http.get(
+        Constants.api_url +
+            "/news/anonymous_favorite?favorites=$favorites&page=$page",
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
         });
   }
 

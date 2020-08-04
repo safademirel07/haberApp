@@ -34,6 +34,14 @@ class NewsProvider with ChangeNotifier {
   int sliderPage = 1;
   int listPage = 1;
 
+  bool _isAnonymous = true;
+  bool get isAnonymous => _isAnonymous;
+
+  set setAnonymous(bool value) {
+    _isAnonymous = value;
+    notifyListeners();
+  }
+
   void clearListNews() {
     _listNews = List<News>();
     notifyListeners();
@@ -267,6 +275,51 @@ class NewsProvider with ChangeNotifier {
       NewsRequest()
           .fetchNewsFavorite((isMore ? (listPage + 1) : listPage), search)
           .then((data) {
+        if (data.statusCode == 200) {
+          List<News> news = (json.decode(data.body) as List)
+              .map((data) => News.fromJson(data))
+              .toList();
+          if (isMore) {
+            if (news.length > 0) {
+              ++listPage;
+            }
+            _favoriteNews.addAll(news);
+            setLoadingFavoriteNewsMore = false;
+            notifyListeners();
+          } else {
+            //first page
+            setFavoriteNews(news);
+            setLoadingFavoriteNews = false;
+            notifyListeners();
+          }
+        } else {
+          Map<String, dynamic> result = json.decode(data.body);
+          setMessage(result["error"]);
+          setLoadingFavoriteNews = false;
+          setLoadingFavoriteNewsMore = false;
+        }
+      });
+    } catch (e) {
+      setLoadingFavoriteNews = false;
+      setLoadingFavoriteNewsMore = false;
+    }
+  }
+
+  Future<void> fetchAnonymousFavoriteNews(String favorites, bool isMore) async {
+    if (loadingFavoriteNewsMore) return;
+
+    if (isMore)
+      setLoadingFavoriteNewsMore = true;
+    else
+      setLoadingFavoriteNews = true;
+
+    try {
+      if (!isMore) listPage = 1;
+      NewsRequest()
+          .fetchNewsAnonymousFavorite(
+              (isMore ? (listPage + 1) : listPage), favorites)
+          .then((data) {
+        print("gelen data body " + data.body);
         if (data.statusCode == 200) {
           List<News> news = (json.decode(data.body) as List)
               .map((data) => News.fromJson(data))

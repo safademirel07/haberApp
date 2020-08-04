@@ -71,4 +71,20 @@ class SharedPreferenceHelper {
   static Future<String> get getPassword => getString(Constants.password_token);
   static Future setPassword(String value) =>
       setString(Constants.password_token, value);
+
+  static Future<String> get getAnonymousID =>
+      getString(Constants.anonymous_token);
+  static Future setAnonymousID(String value) =>
+      setString(Constants.anonymous_token, value);
+
+  static Future<String> get getFavorites => getString(Constants.favorites_pref);
+  static Future addFavorites(String value) async {
+    String currentFavorites = await getFavorites;
+    String newValue = currentFavorites + value + ",";
+    setString(Constants.favorites_pref, newValue);
+  }
+
+  static Future setFavorites(String value) async {
+    setString(Constants.favorites_pref, value);
+  }
 }

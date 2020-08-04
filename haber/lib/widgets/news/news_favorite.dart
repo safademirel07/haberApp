@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:haber/app_theme.dart';
 import 'package:haber/data/constants.dart';
+import 'package:haber/data/sharedpref/shared_preference_helper.dart';
 import 'package:haber/models/News.dart';
 import 'package:haber/providers/news_provider.dart';
 import 'package:haber/widgets/news/news_list_element.dart';
@@ -17,20 +18,40 @@ class NewsFavorite extends StatefulWidget {
 
 class _NewsFavoriteState extends State<NewsFavorite>
     with SingleTickerProviderStateMixin {
-  Future<void> refreshNews() {
-    print("burasi 1");
-    return Provider.of<NewsProvider>(context, listen: false).fetchFavoriteNews(
-      "",
-      false,
-    );
+  Future<void> refreshNews() async {
+    print("burasi 1" + Constants.anonymousLoggedIn.toString());
+    if (Constants.anonymousLoggedIn == true) {
+      String favorites = await SharedPreferenceHelper.getFavorites;
+      print("anonymous favorites " + favorites);
+      return Provider.of<NewsProvider>(context, listen: false)
+          .fetchAnonymousFavoriteNews(
+        favorites,
+        false,
+      );
+    } else
+      return Provider.of<NewsProvider>(context, listen: false)
+          .fetchFavoriteNews(
+        "",
+        false,
+      );
   }
 
-  Future<void> loadMoreNews() {
+  Future<void> loadMoreNews() async {
     print("burasi 3");
-    return Provider.of<NewsProvider>(context, listen: false).fetchFavoriteNews(
-      "",
-      true,
-    );
+    if (Constants.anonymousLoggedIn == true) {
+      String favorites = await SharedPreferenceHelper.getFavorites;
+      print("anonymous favorites " + favorites);
+      return Provider.of<NewsProvider>(context, listen: false)
+          .fetchAnonymousFavoriteNews(
+        favorites,
+        false,
+      );
+    } else
+      return Provider.of<NewsProvider>(context, listen: false)
+          .fetchFavoriteNews(
+        "",
+        true,
+      );
   }
 
   @override
@@ -39,10 +60,16 @@ class _NewsFavoriteState extends State<NewsFavorite>
       if (context != null) {
         Provider.of<NewsProvider>(context, listen: false)
             .setLoadingFavoriteNews = true;
-        Provider.of<NewsProvider>(context, listen: false).fetchFavoriteNews(
-          "",
-          false,
-        );
+        if (Constants.anonymousLoggedIn == true) {
+          // initstate cant be async
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            refreshNews();
+          });
+        } else
+          Provider.of<NewsProvider>(context, listen: false).fetchFavoriteNews(
+            "",
+            false,
+          );
       }
     });
 
@@ -58,8 +85,14 @@ class _NewsFavoriteState extends State<NewsFavorite>
             .setLoadingFavoriteNews = true;
         Provider.of<NewsProvider>(context, listen: false)
             .setRequiredToFetchAgainFavorites = false;
-        Provider.of<NewsProvider>(context, listen: false)
-            .fetchFavoriteNews("", false);
+
+        if (Constants.anonymousLoggedIn == true) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            refreshNews();
+          });
+        } else
+          Provider.of<NewsProvider>(context, listen: false)
+              .fetchFavoriteNews("", false);
       });
     }
 
@@ -68,10 +101,16 @@ class _NewsFavoriteState extends State<NewsFavorite>
 
   @override
   Widget build(BuildContext context) {
-    List<News> news =
-        Provider.of<NewsProvider>(context, listen: true).anyFavoriteNews()
-            ? Provider.of<NewsProvider>(context, listen: true).getFavoriteNews()
-            : List<News>();
+    List<News> news;
+
+    bool isAnonymous =
+        Provider.of<NewsProvider>(context, listen: true).isAnonymous;
+
+    print("isanonymous " + isAnonymous.toString());
+
+    news = Provider.of<NewsProvider>(context, listen: true).anyFavoriteNews()
+        ? Provider.of<NewsProvider>(context, listen: true).getFavoriteNews()
+        : List<News>();
 
     bool isLoadingMore = Provider.of<NewsProvider>(context, listen: true)
         .loadingFavoriteNewsMore;

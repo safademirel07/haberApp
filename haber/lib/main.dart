@@ -57,12 +57,17 @@ void main() async {
   });
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  var firebase = Firebase();
 
   await SharedPreferenceHelper.getAuthToken.then((value) async {
     if (value.length == 0) {
       //no value.
       Constants.loggedIn = false;
-      print("No auth.");
+      AuthResult authResult = await FirebaseAuth.instance.signInAnonymously();
+      await SharedPreferenceHelper.setAnonymousID(authResult.user.uid);
+      firebase.setUser(authResult.user, true);
+      Constants.anonymousLoggedIn = true;
+      print("No auth. Anonymous ID " + authResult.user.uid);
       return;
     }
     final http.Response response = await http.post(
@@ -80,8 +85,6 @@ void main() async {
         SharedPreferenceHelper.getUser,
         SharedPreferenceHelper.getPassword
       ]).then((value) async {
-        var firebase = Firebase();
-
         AuthCredential credential = EmailAuthProvider.getCredential(
             email: value[0].trim(), password: value[1]);
 
@@ -94,6 +97,12 @@ void main() async {
           await SharedPreferenceHelper.setPassword("");
           await SharedPreferenceHelper.setUser("");
           Constants.loggedIn = false;
+          AuthResult authResult =
+              await FirebaseAuth.instance.signInAnonymously();
+          await SharedPreferenceHelper.setAnonymousID(authResult.user.uid);
+          firebase.setUser(authResult.user, true);
+          Constants.anonymousLoggedIn = true;
+          print("No auth. Anonymous ID " + authResult.user.uid);
         } else {
           print("Auth success. Email: " + firebaseUser.email);
 
@@ -110,6 +119,11 @@ void main() async {
       await SharedPreferenceHelper.setPassword("");
       await SharedPreferenceHelper.setUser("");
       Constants.loggedIn = false;
+      AuthResult authResult = await FirebaseAuth.instance.signInAnonymously();
+      await SharedPreferenceHelper.setAnonymousID(authResult.user.uid);
+      firebase.setUser(authResult.user, true);
+      Constants.anonymousLoggedIn = true;
+      print("No auth. Anonymous ID " + authResult.user.uid);
     }
   });
 

@@ -8,6 +8,7 @@ import 'package:haber/data/constants.dart';
 import 'package:haber/data/sharedpref/shared_preference_helper.dart';
 import 'package:haber/models/Firebase.dart';
 import 'package:haber/models/User.dart';
+import 'package:haber/providers/news_provider.dart';
 import 'package:haber/providers/user_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -58,12 +59,18 @@ class _LoginState extends State<Login> {
 
         print("Login sucess. Email " + signIn.email);
 
+        Constants.anonymousLoggedIn = false;
         Constants.loggedIn = true;
 
         User loggedInUser =
             User.fromJson(json.decode(response.body), signIn.uid);
 
         Provider.of<UserProvider>(context, listen: false).setUser(loggedInUser);
+        Provider.of<NewsProvider>(context, listen: false)
+            .setrequiredToFetchAgain = true;
+        Provider.of<NewsProvider>(context, listen: false)
+            .setRequiredToFetchAgainFavorites = true;
+        Provider.of<NewsProvider>(context, listen: false).setAnonymous = false;
 
         return loggedInUser;
       } catch (e) {

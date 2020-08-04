@@ -311,7 +311,9 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> fetchUser() async {
-    if (Constants.loggedIn && Firebase().getUser() != null) {
+    if (Constants.loggedIn &&
+        Firebase().getUser() != null &&
+        Constants.anonymousLoggedIn == false) {
       try {
         UserRequest().getUserProfile().then((data) {
           print("gelen data profile photo " + data.body);
