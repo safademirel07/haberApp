@@ -4,6 +4,7 @@ import 'package:haber/data/constants.dart';
 import 'package:haber/data/sharedpref/shared_preference_helper.dart';
 import 'package:haber/models/News.dart';
 import 'package:haber/providers/news_provider.dart';
+import 'package:haber/providers/user_provider.dart';
 import 'package:haber/widgets/news/news_list.dart';
 import 'package:haber/widgets/news/news_list_element.dart';
 import 'package:haber/widgets/others/multi_select_checkbox.dart';
@@ -27,7 +28,18 @@ class _CategoryListState extends State<CategoryList>
   }
 
   _handleTabSelection() {
-    //   Provider.of<NewsProvider>(context, listen: false).clearListNews();
+    Provider.of<NewsProvider>(context, listen: false).setLoadingListNews = true;
+
+    Provider.of<UserProvider>(context, listen: false).setLoadingLikedNews =
+        true;
+    Provider.of<UserProvider>(context, listen: false).setLoadingDislikedNews =
+        true;
+    Provider.of<UserProvider>(context, listen: false).setLoadingCommentedNews =
+        true;
+    Provider.of<NewsProvider>(context, listen: false).setLoadingFavoriteNews =
+        true;
+
+    Provider.of<NewsProvider>(context, listen: false).clearListNews();
   }
 
   TabBar _getTabBar() {

@@ -36,14 +36,15 @@ class NewsProvider with ChangeNotifier {
 
   void clearListNews() {
     _listNews = List<News>();
+    notifyListeners();
   }
 
   bool _requiredToFetchAgain = false;
   bool _requiredToFetchAgainFavorites = false;
 
   bool _loadingSliderNews = false, _loadingSliderNewsMore = false;
-  bool _loadingListNews = false, _loadingListNewsMore = false;
-  bool _loadingFavoriteNews = false, _loadingFavoriteNewsMore = false;
+  bool _loadingListNews = true, _loadingListNewsMore = false;
+  bool _loadingFavoriteNews = true, _loadingFavoriteNewsMore = false;
 
   bool get loadingSliderNews => _loadingSliderNews;
   bool get loadingSliderNewsMore => _loadingSliderNewsMore;
@@ -56,42 +57,49 @@ class NewsProvider with ChangeNotifier {
 
   set setrequiredToFetchAgain(bool value) {
     _requiredToFetchAgain = value;
+    notifyListeners();
   }
 
   bool get requiredToFetchAgainFavorites => _requiredToFetchAgainFavorites;
 
   set setRequiredToFetchAgainFavorites(bool value) {
     _requiredToFetchAgainFavorites = value;
+    notifyListeners();
   }
 
   set setLoadingSliderNews(bool value) {
     _loadingSliderNews = value;
+    notifyListeners();
   }
 
   set setLoadingSliderNewsMore(bool value) {
     _loadingSliderNewsMore = value;
+    notifyListeners();
   }
 
   set setLoadingListNews(bool value) {
     _loadingListNews = value;
+    notifyListeners();
   }
 
   set setLoadingListNewsMore(bool value) {
     _loadingListNewsMore = value;
+    notifyListeners();
   }
 
   set setLoadingFavoriteNews(bool value) {
     _loadingFavoriteNews = value;
+    notifyListeners();
   }
 
   set setLoadingFavoriteNewsMore(bool value) {
     _loadingFavoriteNewsMore = value;
+    notifyListeners();
   }
 
   //Slider News
 
   Future<void> fetchSliderNews(List<String> sites, bool isMore) async {
-    print("slidergeldi");
     if (isMore)
       setLoadingSliderNewsMore = true;
     else
@@ -175,7 +183,7 @@ class NewsProvider with ChangeNotifier {
       List<String> sites, bool isMore) async {
     print("burasi bir" + loadingListNews.toString());
     print("burasi bir" + loadingListNewsMore.toString());
-    if (loadingListNews || loadingListNewsMore) return;
+    if (loadingListNewsMore) return;
 
     print("burasi iki");
 
@@ -247,7 +255,7 @@ class NewsProvider with ChangeNotifier {
   //List News
 
   Future<void> fetchFavoriteNews(String search, bool isMore) async {
-    if (loadingFavoriteNews || loadingFavoriteNewsMore) return;
+    if (loadingFavoriteNewsMore) return;
 
     if (isMore)
       setLoadingFavoriteNewsMore = true;
@@ -259,9 +267,6 @@ class NewsProvider with ChangeNotifier {
       NewsRequest()
           .fetchNewsFavorite((isMore ? (listPage + 1) : listPage), search)
           .then((data) {
-        print("data body ne " + data.body);
-        print("data.statusCode " + data.statusCode.toString());
-
         if (data.statusCode == 200) {
           List<News> news = (json.decode(data.body) as List)
               .map((data) => News.fromJson(data))

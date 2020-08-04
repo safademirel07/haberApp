@@ -4,7 +4,9 @@ import 'package:haber/data/constants.dart';
 import 'package:haber/models/News.dart';
 import 'package:haber/providers/news_provider.dart';
 import 'package:haber/widgets/news/news_list_element.dart';
+import 'package:haber/widgets/news/news_shimmer.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 class NewsFavorite extends StatefulWidget {
   String search;
@@ -33,17 +35,16 @@ class _NewsFavoriteState extends State<NewsFavorite>
 
   @override
   void initState() {
-    Future.microtask(() => {
-          if (context != null)
-            {
-              print("burasi 4"),
-              Provider.of<NewsProvider>(context, listen: false)
-                  .fetchFavoriteNews(
-                "",
-                false,
-              ),
-            }
-        });
+    Future.microtask(() {
+      if (context != null) {
+        Provider.of<NewsProvider>(context, listen: false)
+            .setLoadingFavoriteNews = true;
+        Provider.of<NewsProvider>(context, listen: false).fetchFavoriteNews(
+          "",
+          false,
+        );
+      }
+    });
 
     super.initState();
   }
@@ -53,6 +54,8 @@ class _NewsFavoriteState extends State<NewsFavorite>
     if (Provider.of<NewsProvider>(context, listen: false)
         .requiredToFetchAgainFavorites) {
       Future.microtask(() {
+        Provider.of<NewsProvider>(context, listen: false)
+            .setLoadingFavoriteNews = true;
         Provider.of<NewsProvider>(context, listen: false)
             .setRequiredToFetchAgainFavorites = false;
         Provider.of<NewsProvider>(context, listen: false)
@@ -70,8 +73,10 @@ class _NewsFavoriteState extends State<NewsFavorite>
             ? Provider.of<NewsProvider>(context, listen: true).getFavoriteNews()
             : List<News>();
 
-    bool isLoading = Provider.of<NewsProvider>(context, listen: true)
+    bool isLoadingMore = Provider.of<NewsProvider>(context, listen: true)
         .loadingFavoriteNewsMore;
+    bool isLoading =
+        Provider.of<NewsProvider>(context, listen: true).loadingFavoriteNews;
 
     return Scaffold(
       body: Column(
@@ -110,54 +115,71 @@ class _NewsFavoriteState extends State<NewsFavorite>
           Divider(
             color: Colors.black,
           ),
-          news.length > 0
+          isLoading == true
               ? Expanded(
-                  child: RefreshIndicator(
-                    onRefresh: refreshNews,
-                    child: NotificationListener<ScrollNotification>(
-                      onNotification: (ScrollNotification scrollInfo) {
-                        if (scrollInfo.metrics.pixels ==
-                                scrollInfo.metrics.maxScrollExtent &&
-                            !isLoading) {
-                          loadMoreNews();
-                        }
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[300],
+                    highlightColor: Colors.grey[100],
+                    enabled: true,
+                    child: ListView.builder(
+                      padding: EdgeInsets.zero,
+                      itemCount: 10,
+                      itemBuilder: (BuildContext context, int index) {
+                        return NewsShimmer();
+                        // return NewsListElement(news, 0, 0, true);
                       },
-                      child: ListView.builder(
-                        padding: EdgeInsets.zero,
-                        itemCount: news.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return NewsListElement(
-                              news[index], index, Constants.newsTypeFavorites);
-                        },
-                      ),
                     ),
                   ),
                 )
-              : Expanded(
-                  child: Center(
-                    child: Container(
-                      padding: EdgeInsets.all(16),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Text(
-                            "Daha önce hiç bir haberi Favori'ye eklememişsin.",
-                            style: AppTheme.title,
-                            textAlign: TextAlign.center,
+              : news.length > 0
+                  ? Expanded(
+                      child: RefreshIndicator(
+                        onRefresh: refreshNews,
+                        child: NotificationListener<ScrollNotification>(
+                          onNotification: (ScrollNotification scrollInfo) {
+                            if (scrollInfo.metrics.pixels ==
+                                    scrollInfo.metrics.maxScrollExtent &&
+                                !isLoadingMore &&
+                                !isLoading) {
+                              loadMoreNews();
+                            }
+                          },
+                          child: ListView.builder(
+                            padding: EdgeInsets.zero,
+                            itemCount: news.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return NewsListElement(news[index], index,
+                                  Constants.newsTypeFavorites);
+                            },
                           ),
-                          SizedBox(
-                            height: 10,
+                        ),
+                      ),
+                    )
+                  : Expanded(
+                      child: Center(
+                        child: Container(
+                          padding: EdgeInsets.all(16),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Text(
+                                "Daha önce hiç bir haberi Favori'ye eklememişsin.",
+                                style: AppTheme.title,
+                                textAlign: TextAlign.center,
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                "Haberlerin sonunda Favori'ye Ekle ile haberleri Favori'ye alabilirsin.",
+                                style: AppTheme.subtitle,
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
                           ),
-                          Text(
-                            "Haberlerin sonunda Favori'ye Ekle ile haberleri Favori'ye alabilirsin.",
-                            style: AppTheme.subtitle,
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                ),
         ],
       ),
     );

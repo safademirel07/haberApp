@@ -29,9 +29,9 @@ class UserProvider with ChangeNotifier {
   int sliderPage = 1;
   int listPage = 1;
 
-  bool _loadingLikedNews = false, _loadingLikedNewsMore = false;
-  bool _loadingDislikedNews = false, _loadingDislikedNewsMore = false;
-  bool _loadingCommentedNews = false, _loadingCommentedNewsMore = false;
+  bool _loadingLikedNews = true, _loadingLikedNewsMore = false;
+  bool _loadingDislikedNews = true, _loadingDislikedNewsMore = false;
+  bool _loadingCommentedNews = true, _loadingCommentedNewsMore = false;
 
   bool get loadingLikedNews => _loadingLikedNews;
   bool get loadingLikedNewsMore => _loadingLikedNewsMore;
@@ -42,31 +42,38 @@ class UserProvider with ChangeNotifier {
 
   set setLoadingLikedNews(bool value) {
     _loadingLikedNews = value;
+    notifyListeners();
   }
 
   set setLoadingLikedNewsMore(bool value) {
     _loadingLikedNewsMore = value;
+    notifyListeners();
   }
 
   set setLoadingDislikedNews(bool value) {
     _loadingDislikedNews = value;
+    notifyListeners();
   }
 
   set setLoadingDislikedNewsMore(bool value) {
     _loadingDislikedNewsMore = value;
+    notifyListeners();
   }
 
   set setLoadingCommentedNews(bool value) {
     _loadingCommentedNews = value;
+    notifyListeners();
   }
 
   set setLoadingCommentedNewsMore(bool value) {
     _loadingCommentedNewsMore = value;
+    notifyListeners();
   }
 
   //Liked news
 
   Future<void> fetchLikedNews(String search, bool isMore) async {
+    if (loadingLikedNewsMore) return;
     if (isMore)
       setLoadingLikedNewsMore = true;
     else
@@ -147,7 +154,7 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> fetchDislikedNews(String search, bool isMore) async {
-    if (loadingDislikedNews || loadingDislikedNewsMore) return;
+    if (loadingDislikedNewsMore) return;
 
     if (isMore)
       setLoadingDislikedNewsMore = true;
@@ -175,6 +182,8 @@ class UserProvider with ChangeNotifier {
             //first page
             setDislikedNews(news);
             setLoadingDislikedNews = false;
+            print("loadingdisliked news false yapildi ama.." +
+                _loadingDislikedNews.toString());
             notifyListeners();
           }
         } else {

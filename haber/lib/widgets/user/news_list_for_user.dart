@@ -4,7 +4,9 @@ import 'package:haber/models/News.dart';
 import 'package:haber/providers/news_provider.dart';
 import 'package:haber/providers/user_provider.dart';
 import 'package:haber/widgets/news/news_list_element.dart';
+import 'package:haber/widgets/news/news_shimmer.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 class NewsListForUser extends StatefulWidget {
   int newsType; // 1 liked, 2 disliked, 3 commented
@@ -118,15 +120,30 @@ class _NewsListForUserState extends State<NewsListForUser>
     }
 
     bool isLoading = true;
+    bool isLoadingMore = false;
     if (widget.newsType == 1) {
+      print("suan type 1");
       isLoading =
           Provider.of<UserProvider>(context, listen: true).loadingLikedNews;
+      isLoadingMore =
+          Provider.of<UserProvider>(context, listen: true).loadingLikedNewsMore;
+
+      print("liked isloading " + isLoading.toString());
+      print("liked isLoadingMore " + isLoadingMore.toString());
     } else if (widget.newsType == 2) {
+      print("suan type 2");
       isLoading =
           Provider.of<UserProvider>(context, listen: true).loadingDislikedNews;
+      isLoadingMore = Provider.of<UserProvider>(context, listen: true)
+          .loadingDislikedNewsMore;
+      print("disliked isloading " + isLoading.toString());
+      print("disliked isLoadingMore " + isLoadingMore.toString());
     } else if (widget.newsType == 3) {
+      print("suan type 3");
       isLoading =
           Provider.of<UserProvider>(context, listen: true).loadingCommentedNews;
+      isLoadingMore = Provider.of<UserProvider>(context, listen: true)
+          .loadingCommentedNewsMore;
     }
 
     String errorMessage = "";
@@ -141,52 +158,88 @@ class _NewsListForUserState extends State<NewsListForUser>
 
     return Scaffold(
       body: Column(
-        mainAxisAlignment: news.length == 0
-            ? MainAxisAlignment.center
-            : MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          news.length > 0
+          isLoading == true
               ? Expanded(
-                  child: RefreshIndicator(
-                    onRefresh: refreshNews,
-                    child: NotificationListener<ScrollNotification>(
-                      onNotification: (ScrollNotification scrollInfo) {
-                        if (scrollInfo.metrics.pixels ==
-                                scrollInfo.metrics.maxScrollExtent &&
-                            !isLoading) {
-                          loadMoreNews();
-                        }
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[300],
+                    highlightColor: Colors.grey[100],
+                    enabled: true,
+                    child: ListView.builder(
+                      padding: EdgeInsets.zero,
+                      itemCount: 5,
+                      itemBuilder: (BuildContext context, int index) {
+                        return NewsShimmer();
+                        // return NewsListElement(news, 0, 0, true);
                       },
-                      child: ListView.builder(
-                        padding: EdgeInsets.zero,
-                        itemCount: news.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return NewsListElement(
-                              news[index], index, widget.newsType + 3);
-                        },
-                      ),
                     ),
                   ),
                 )
-              : Container(
-                  padding: EdgeInsets.all(16),
-                  child: Center(
-                    child: Column(
-                      children: <Widget>[
-                        Text(
-                          errorMessage,
-                          style: AppTheme.title,
-                          textAlign: TextAlign.center,
+              : news.length > 0
+                  ? Expanded(
+                      child: RefreshIndicator(
+                        onRefresh: refreshNews,
+                        child: NotificationListener<ScrollNotification>(
+                          onNotification: (ScrollNotification scrollInfo) {
+                            if (scrollInfo.metrics.pixels ==
+                                    scrollInfo.metrics.maxScrollExtent &&
+                                !isLoadingMore &&
+                                !isLoading) {
+                              loadMoreNews();
+                            }
+                          },
+                          child: ListView.builder(
+                            padding: EdgeInsets.zero,
+                            itemCount: news.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return NewsListElement(
+                                  news[index], index, widget.newsType + 3);
+                            },
+                          ),
                         ),
-                        SizedBox(
-                          height: 10,
+                      ),
+                    )
+                  : Container(
+                      padding: EdgeInsets.all(16),
+                      child: Center(
+                        child: Column(
+                          children: <Widget>[
+                            Text(
+                              errorMessage,
+                              style: AppTheme.title,
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
         ],
       ),
     );
   }
 }
+
+/*
+                        News news = News(
+                          sId: "",
+                          viewers: 0,
+                          title: "Yükleniyor.",
+                          description: "",
+                          body: "",
+                          date: "Lorem IpsumLorem IpsumLorem IpsumLorem Ipsum",
+                          link: "",
+                          isLiked: false,
+                          isDisliked: false,
+                          isFavorited: false,
+                          rssDetails: null,
+                          siteDetails: null,
+                          categoryDetails: null,
+                          likes: 0,
+                          dislikes: 0,
+                          image:
+                              "https://cdn1.ntv.com.tr/gorsel/mhf0vJHJFUGtpyJY99o14A.jpg?width=1200&mode=crop&scale=both",
+                        );*/

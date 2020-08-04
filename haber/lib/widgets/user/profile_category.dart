@@ -4,6 +4,7 @@ import 'package:haber/data/constants.dart';
 import 'package:haber/data/sharedpref/shared_preference_helper.dart';
 import 'package:haber/models/News.dart';
 import 'package:haber/providers/news_provider.dart';
+import 'package:haber/providers/user_provider.dart';
 import 'package:haber/widgets/news/news_list.dart';
 import 'package:haber/widgets/news/news_list_element.dart';
 import 'package:haber/widgets/others/multi_select_checkbox.dart';
@@ -27,9 +28,7 @@ class _ProfileCategoryState extends State<ProfileCategory>
     super.initState();
   }
 
-  _handleTabSelection() {
-    //   Provider.of<NewsProvider>(context, listen: false).clearListNews();
-  }
+  _handleTabSelection() {}
 
   TabBar _getTabBar() {
     return TabBar(
