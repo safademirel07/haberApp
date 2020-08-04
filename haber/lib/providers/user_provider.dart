@@ -6,11 +6,13 @@ import 'package:haber/data/constants.dart';
 import 'package:haber/data/sharedpref/shared_preference_helper.dart';
 import 'package:haber/models/Firebase.dart';
 import 'dart:convert';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import 'package:haber/models/News.dart';
 import 'package:haber/models/User.dart';
 import 'package:haber/requests/news_request.dart';
 import 'package:haber/requests/user_request.dart';
+import 'dart:math';
 
 class UserProvider with ChangeNotifier {
   UserProvider() {
@@ -334,10 +336,17 @@ class UserProvider with ChangeNotifier {
 
   Future<void> changeProfilePhoto(String url) async {
     try {
-      UserRequest().changeProfilePhoto(url).then((data) {
+      UserRequest().changeProfilePhoto(url).then((data) async {
         print("gelen data profile photo " + data.body);
         if (data.statusCode == 200) {
           _user = User.fromJson(json.decode(data.body), "");
+          await DefaultCacheManager()
+              .removeFile(_user.photoUrl); //invalidate old image
+          Random random = new Random();
+          _user.photoUrl += "&new=id_" +
+              random
+                  .nextInt(100000)
+                  .toString(); //give random id , because if it's same url it doesnt rebuild.
           notifyListeners();
         } else {
           print("error2" + data.statusCode.toString());

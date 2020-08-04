@@ -33,6 +33,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+
 class ProfileHeader implements SliverPersistentHeaderDelegate {
   ProfileHeader({
     this.minExtent,
@@ -45,8 +47,6 @@ class ProfileHeader implements SliverPersistentHeaderDelegate {
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     User user = Provider.of<UserProvider>(context, listen: true).getUser();
-
-    print("user.photoUrl" + user.photoUrl);
 
     return user == null
         ? Center(
@@ -104,7 +104,10 @@ class ProfileHeader implements SliverPersistentHeaderDelegate {
                                   : user.photoUrl),
                         ),
                         InkWell(
-                          onTap: () {
+                          onTap: () async {
+                            await DefaultCacheManager()
+                                .removeFile(user.photoUrl);
+
                             _editProfileImageModal(context);
                             print("edit profile photo");
                           },
