@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:haber/app_theme.dart';
 
 class NewsShimmer extends StatelessWidget {
   const NewsShimmer({Key key}) : super(key: key);
@@ -28,7 +29,24 @@ class NewsShimmer extends StatelessWidget {
             child: Container(
               margin: EdgeInsets.symmetric(horizontal: 8),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(8.0),
+                      ),
+                      color: Colors.black,
+                    ),
+                    child: Center(
+                      child: Text("Bu bir baslik",
+                          maxLines: 2, style: AppTheme.caption),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 4,
+                  ),
                   Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(
@@ -38,22 +56,28 @@ class NewsShimmer extends StatelessWidget {
                       ),
                       child: Center(
                           child: Text(
-                              "Bu bir baslikBu bir baslikBu bir baslikBu bir baslikBu bir baslikBu bir baslik"))),
+                              "Bu bir baslikBu bir baslikBu bir baslikBu bir baslikBu bir baslikBu bir baslikBu bir baslik",
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                              style: AppTheme.title))),
                   SizedBox(
-                    height: 20,
+                    height: 4,
                   ),
                   Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(8.0),
-                        ),
-                        color: Colors.black,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(8.0),
                       ),
-                      child: Center(child: Text("Bu bir baslikBu bir baslik"))),
+                      color: Colors.black,
+                    ),
+                    child: Center(
+                      child: Text("Bu bir tarih", style: AppTheme.caption),
+                    ),
+                  ),
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );

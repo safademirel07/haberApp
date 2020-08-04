@@ -97,7 +97,7 @@ class ProfileHeader implements SliverPersistentHeaderDelegate {
                           margin: EdgeInsets.all(10.0),
                           child: CustomCircleAvatar(
                               animationDuration: 300,
-                              radius: 180,
+                              radius: MediaQuery.of(context).size.height * 0.22,
                               imagePath: (user == null ||
                                       user.photoUrl.length <= 0)
                                   ? 'https://s3.amazonaws.com/37assets/svn/765-default-avatar.png'
