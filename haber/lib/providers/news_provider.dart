@@ -559,18 +559,21 @@ class NewsProvider with ChangeNotifier {
             fromSlider.likes = returnData.likes;
             fromSlider.dislikes = returnData.dislikes;
             fromSlider.viewers = returnData.viewers;
+            fromSlider.uniqueViews = returnData.uniqueViews;
           }
 
           if (fromList != null) {
             fromList.likes = returnData.likes;
             fromList.dislikes = returnData.dislikes;
             fromList.viewers = returnData.viewers;
+            fromList.uniqueViews = returnData.uniqueViews;
           }
 
           if (favoriteList != null) {
             favoriteList.likes = returnData.likes;
             favoriteList.dislikes = returnData.dislikes;
             favoriteList.viewers = returnData.viewers;
+            favoriteList.uniqueViews = returnData.uniqueViews;
           }
 
           notifyListeners();

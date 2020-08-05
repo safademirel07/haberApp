@@ -19,24 +19,27 @@ class News {
   bool isLiked;
   bool isDisliked;
   bool isFavorited;
+  int uniqueViews;
 
-  News(
-      {this.sId,
-      this.viewers,
-      this.title,
-      this.description,
-      this.body,
-      this.date,
-      this.link,
-      this.image,
-      this.rssDetails,
-      this.siteDetails,
-      this.categoryDetails,
-      this.likes,
-      this.dislikes,
-      this.isLiked,
-      this.isDisliked,
-      this.isFavorited});
+  News({
+    this.sId,
+    this.viewers,
+    this.title,
+    this.description,
+    this.body,
+    this.date,
+    this.link,
+    this.image,
+    this.rssDetails,
+    this.siteDetails,
+    this.categoryDetails,
+    this.likes,
+    this.dislikes,
+    this.isLiked,
+    this.isDisliked,
+    this.isFavorited,
+    this.uniqueViews,
+  });
 
   News.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -62,6 +65,7 @@ class News {
         : null;
     likes = json['likes'];
     dislikes = json['dislikes'];
+    uniqueViews = json['uniqueViews'];
   }
 
   Map<String, dynamic> toJson() {
@@ -89,6 +93,7 @@ class News {
     data['is_liked'] = this.isLiked;
     data['isDisliked'] = this.isDisliked;
     data['isFavorited'] = this.isFavorited;
+    data['uniqueViews'] = this.uniqueViews;
 
     return data;
   }

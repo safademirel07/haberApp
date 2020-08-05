@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:haber/data/constants.dart';
 import 'package:haber/data/sharedpref/shared_preference_helper.dart';
+import 'package:haber/models/Firebase.dart';
 import 'package:http/http.dart' as http;
 
 class NewsRequest {
@@ -104,8 +106,14 @@ class NewsRequest {
   Future<http.Response> viewNews(String newsID) async {
     dynamic token = await SharedPreferenceHelper.getAuthToken;
 
+    Firebase firebase = Firebase();
+    IdTokenResult tokenResult = await firebase.getUser().getIdToken();
+    String authToken = tokenResult.token;
+    String uid = firebase.getUser().uid;
+
     return http.post(
-      Constants.api_url + "/news/view?news=$newsID",
+      Constants.api_url +
+          "/news/view?news=$newsID&authToken=$authToken&uid=$uid",
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer ${token.toString()}',

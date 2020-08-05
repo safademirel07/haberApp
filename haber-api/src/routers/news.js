@@ -8,6 +8,9 @@ const moment = require("moment")
 
 var auth = require("../middleware/auth")
 
+const firebaseAdmin = require("../firebase/firebase")
+
+
 
 // @route    GET news/get?news_sites=(id1,id2)&categories=(id1,id2)&searchWord=xyz&page=1
 // @desc     Gets news specified News Sites, Categories, Search Word with pagination.
@@ -250,6 +253,8 @@ router.get("/news/get", auth.auth_test, async (req, res) => {
     delete news.categoryDetails.__v
     const likes = news.likes.length
     const dislikes = news.dislikes.length
+    const uniqueViews = news.viewers_unique.length
+    delete news.viewers_unique
 
     var isLiked = false, isDisliked = false, isFavorited = false
 
@@ -272,6 +277,7 @@ router.get("/news/get", auth.auth_test, async (req, res) => {
     news["isLiked"] = isLiked
     news["isDisliked"] = isDisliked
     news["isFavorited"] = isFavorited
+    news["uniqueViews"] = uniqueViews
 
     news.date = moment.unix(news.date).format("LLLL")
     data.push(news)
@@ -507,6 +513,8 @@ router.get("/news/slider", auth.auth_test, async (req, res) => {
     delete news.categoryDetails.__v
     const likes = news.likes.length
     const dislikes = news.dislikes.length
+    const uniqueViews = news.viewers_unique.length
+    delete news.viewers_unique
 
     var isLiked = false, isDisliked = false, isFavorited = false
 
@@ -529,6 +537,7 @@ router.get("/news/slider", auth.auth_test, async (req, res) => {
     news["isLiked"] = isLiked
     news["isDisliked"] = isDisliked
     news["isFavorited"] = isFavorited
+    news["uniqueViews"] = uniqueViews
 
     news.date = moment.unix(news.date).format("LLLL")
     data.push(news)
@@ -663,6 +672,23 @@ router.post("/news/dislike", auth.auth, async (req, res) => {
 })
 
 router.post("/news/view", async (req, res) => {
+
+  const authToken = req.query.authToken;
+  const uid = req.query.uid;
+
+  console.log("gelen uid" + uid);
+
+  const decodedClaims = await firebaseAdmin.auth().verifyIdToken(authToken)
+  console.log("decoded" + decodedClaims.uid)
+
+  if (uid != decodedClaims.uid){
+    res.status(400).send({"error" : "uid and decoded uid is not same."})
+  }
+
+  console.log("devam ediyorum.")
+ 
+
+
   try {
     const newsID = mongoose.Types.ObjectId(req.query.news)
     const news = await News.findOne({
@@ -670,6 +696,25 @@ router.post("/news/view", async (req, res) => {
     }).populate("rss")
 
     if (news) {
+      var alreadyViewed = news.viewers_unique == undefined ? false : news.viewers_unique.filter(unique => unique.firebaseID.toString() == uid).length > 0 ? true : false
+        console.log("alreadyViewed " + alreadyViewed)
+        if (!alreadyViewed)
+        {
+          var unique = {"firebaseID" : uid, "count" : 1}
+          await news.viewers_unique.unshift(unique)
+          await news.save()
+        } else {
+          // Needs to rework...
+          const viewerUnique = news.viewers_unique.filter(unique => unique.firebaseID.toString() == uid)
+          const newValue = viewerUnique[0].count+1
+          const removeIndex = news.viewers_unique.map(unique => unique.firebaseID.toString() == uid)
+          var unique = {"firebaseID" : uid, "count" : newValue}
+          await news.viewers_unique.splice(removeIndex, 1);
+          await news.viewers_unique.unshift(unique)
+          await news.save()
+          console.log(news)
+
+        }
       await news.updateOne({$inc: {'viewers': 1}})
       await news.save()
       const newsObject = await news.toObject()
@@ -691,13 +736,17 @@ router.post("/news/view", async (req, res) => {
       newsObject["viewers"] =  newsObject["viewers"]+1
       newsObject["likes"] = likesLength
       newsObject["dislikes"] = disLikesLength
-  
+      const uniqueViews = news.viewers_unique.length
+      delete news.viewers_unique
+      newsObject["uniqueViews"] = uniqueViews
+      
       res.send(newsObject)
         
     } else {
       res.status(400).send({"error" : "News not found."})
     }
   } catch (e) {
+    console.log("error mu " + e.toString())
     res.status(400).send({"error" : e.toString()})
   }
 
@@ -753,6 +802,10 @@ router.post("/news/save", auth.auth, async (req, res) => {
       newsObject["isFavorited"] = isFavorited ? true : false
       newsObject["likes"] = likesLength
       newsObject["dislikes"] = disLikesLength
+      const uniqueViews = news.viewers_unique.length
+      delete news.viewers_unique
+	    newsObject["uniqueViews"] = uniqueViews
+    
       console.log(newsObject)
   
       res.send(newsObject)
@@ -883,6 +936,8 @@ router.get("/news/favorite", auth.auth, async (req, res) => {
     delete news.categoryDetails.__v
     const likes = news.likes.length
     const dislikes = news.dislikes.length
+    const uniqueViews = news.viewers_unique.length
+    delete news.viewers_unique
 
     var isLiked = false, isDisliked = false, isFavorited = false
 
@@ -905,6 +960,9 @@ router.get("/news/favorite", auth.auth, async (req, res) => {
     news["isLiked"] = isLiked
     news["isDisliked"] = isDisliked
     news["isFavorited"] = isFavorited
+    news["uniqueViews"] = uniqueViews
+
+
 
     news.date = moment.unix(news.date).format("LLLL")
     data.push(news)
@@ -1036,6 +1094,8 @@ router.get("/news/anonymous_favorite", async (req, res) => {
     delete news.categoryDetails.__v
     const likes = news.likes.length
     const dislikes = news.dislikes.length
+    const uniqueViews = news.viewers_unique.length
+    delete news.viewers_unique
 
     delete news.likes
     delete news.dislikes
@@ -1049,6 +1109,7 @@ router.get("/news/anonymous_favorite", async (req, res) => {
     news["isLiked"] = false
     news["isDisliked"] = false
     news["isFavorited"] = true
+    news["uniqueViews"] = uniqueViews
 
     news.date = moment.unix(news.date).format("LLLL")
     data.push(news)
@@ -1176,6 +1237,8 @@ router.get("/news/likes", auth.auth, async (req, res) => {
     delete news.categoryDetails.__v
     const likes = news.likes.length
     const dislikes = news.dislikes.length
+    const uniqueViews = news.viewers_unique.length
+    delete news.viewers_unique
 
     var isLiked = false,
       isDisliked = false,
@@ -1199,6 +1262,7 @@ router.get("/news/likes", auth.auth, async (req, res) => {
     news["isLiked"] = isLiked
     news["isDisliked"] = isDisliked
     news["isFavorited"] = isFavorited
+    news["uniqueViews"] = uniqueViews
 
     news.date = moment.unix(news.date).format("LLLL")
     data.push(news)
@@ -1327,6 +1391,8 @@ router.get("/news/dislikes", auth.auth, async (req, res) => {
     delete news.categoryDetails.__v
     const likes = news.likes.length
     const dislikes = news.dislikes.length
+    const uniqueViews = news.viewers_unique.length
+    delete news.viewers_unique
 
     var isLiked = false,
       isDisliked = false,
@@ -1346,6 +1412,7 @@ router.get("/news/dislikes", auth.auth, async (req, res) => {
     news["isLiked"] = isLiked
     news["isDisliked"] = isDisliked
     news["isFavorited"] = isFavorited
+    news["uniqueViews"] = uniqueViews
 
     console.log("news/dislikes calisiyor.")
 

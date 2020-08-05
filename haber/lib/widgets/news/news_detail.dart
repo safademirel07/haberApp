@@ -347,7 +347,7 @@ class _NewsDetailState extends State<NewsDetail> {
                                   width: 2,
                                 ),
                                 Text(
-                                  news.viewers.toString(),
+                                  news.uniqueViews.toString(),
                                   style: AppTheme.caption2,
                                 ),
                               ],
