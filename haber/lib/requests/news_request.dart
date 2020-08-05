@@ -14,11 +14,6 @@ class NewsRequest {
         sites.length > 0 ? ("&news_sites=" + sites.join(',')) : "";
     dynamic token = await SharedPreferenceHelper.getAuthToken;
 
-    print("token ne" + token);
-
-    print("adres " +
-        Constants.api_url +
-        "/news/get?page=$page$searchQuery$categoryQuery$siteQuery");
     return http.get(
         Constants.api_url +
             "/news/get?page=$page$searchQuery$categoryQuery$siteQuery",
@@ -33,7 +28,6 @@ class NewsRequest {
     String siteQuery =
         sites.length > 0 ? ("&news_sites=" + sites.join(',')) : "";
     dynamic token = await SharedPreferenceHelper.getAuthToken;
-    print("adres " + Constants.api_url + "/news/slider?page=$page$siteQuery");
 
     return http.get(Constants.api_url + "/news/slider?page=$page$siteQuery",
         headers: <String, String>{

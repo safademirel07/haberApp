@@ -27,7 +27,6 @@ class NewsDetails {
     _isSlider = isSlider;
     _type = type;
     _listType = listType;
-    print("listtype yaptim " + _listType.toString());
   }
 
   //type == 1 > Slider

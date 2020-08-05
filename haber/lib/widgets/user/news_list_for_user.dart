@@ -23,6 +23,7 @@ class _NewsListForUserState extends State<NewsListForUser>
 
   Future<void> refreshNews() {
     if (widget.newsType == 1) {
+      print("refresh?_");
       return Provider.of<UserProvider>(context, listen: false).fetchLikedNews(
         "",
         false,
@@ -44,7 +45,6 @@ class _NewsListForUserState extends State<NewsListForUser>
 
   @override
   void didChangeDependencies() {
-    print("changed dependencies news for users");
     super.didChangeDependencies();
   }
 
@@ -122,24 +122,16 @@ class _NewsListForUserState extends State<NewsListForUser>
     bool isLoading = true;
     bool isLoadingMore = false;
     if (widget.newsType == 1) {
-      print("suan type 1");
       isLoading =
           Provider.of<UserProvider>(context, listen: true).loadingLikedNews;
       isLoadingMore =
           Provider.of<UserProvider>(context, listen: true).loadingLikedNewsMore;
-
-      print("liked isloading " + isLoading.toString());
-      print("liked isLoadingMore " + isLoadingMore.toString());
     } else if (widget.newsType == 2) {
-      print("suan type 2");
       isLoading =
           Provider.of<UserProvider>(context, listen: true).loadingDislikedNews;
       isLoadingMore = Provider.of<UserProvider>(context, listen: true)
           .loadingDislikedNewsMore;
-      print("disliked isloading " + isLoading.toString());
-      print("disliked isLoadingMore " + isLoadingMore.toString());
     } else if (widget.newsType == 3) {
-      print("suan type 3");
       isLoading =
           Provider.of<UserProvider>(context, listen: true).loadingCommentedNews;
       isLoadingMore = Provider.of<UserProvider>(context, listen: true)

@@ -31,6 +31,81 @@ class UserProvider with ChangeNotifier {
   int sliderPage = 1;
   int listPage = 1;
 
+  int getNewsLikedListIndex(String id) {
+    return _likedNews == null
+        ? -1
+        : _likedNews.indexWhere((news) => news.sId == id);
+  }
+
+  int getNewsDislikedListIndex(String id) {
+    return _dislikedNews == null
+        ? -1
+        : _dislikedNews.indexWhere((news) => news.sId == id);
+  }
+
+  int getNewsCommentedListIndex(String id) {
+    return _commentedNews == null
+        ? -1
+        : _commentedNews.indexWhere((news) => news.sId == id);
+  }
+
+  void updateAllLists(String id, News returnNews) {
+    print("burasi geldi..");
+
+    print("returnNews isliked " + returnNews.isLiked.toString());
+    print("returnNews isDisliked " + returnNews.isDisliked.toString());
+    print("returnNews isFavorited " + returnNews.isFavorited.toString());
+    print("returnNews likes " + returnNews.likes.toString());
+    print("returnNews dislikes " + returnNews.dislikes.toString());
+    print("returnNews uniqueViews " + returnNews.uniqueViews.toString());
+
+    News fromLiked, fromDisliked, fromCommented;
+
+    if (getNewsLikedListIndex(id) != -1) {
+      fromLiked = _likedNews[getNewsLikedListIndex(id)];
+    }
+
+    if (getNewsDislikedListIndex(id) != -1) {
+      fromDisliked = _dislikedNews[getNewsDislikedListIndex(id)];
+    }
+
+    if (getNewsCommentedListIndex(id) != -1) {
+      fromCommented = _commentedNews[getNewsCommentedListIndex(id)];
+    }
+
+    if (fromLiked != null) {
+      print("fromLiked icindeyiz.");
+      fromLiked.likes = returnNews.likes;
+      fromLiked.dislikes = returnNews.dislikes;
+      fromLiked.viewers = returnNews.viewers;
+      fromLiked.isLiked = returnNews.isLiked;
+      fromLiked.isDisliked = returnNews.isDisliked;
+      fromLiked.uniqueViews = returnNews.uniqueViews;
+      fromLiked.isFavorited = returnNews.isFavorited;
+    }
+
+    if (fromDisliked != null) {
+      fromDisliked.likes = returnNews.likes;
+      fromDisliked.dislikes = returnNews.dislikes;
+      fromDisliked.viewers = returnNews.viewers;
+      fromDisliked.isLiked = returnNews.isLiked;
+      fromDisliked.isDisliked = returnNews.isDisliked;
+      fromDisliked.uniqueViews = returnNews.uniqueViews;
+      fromDisliked.isFavorited = returnNews.isFavorited;
+    }
+
+    if (fromCommented != null) {
+      fromCommented.likes = returnNews.likes;
+      fromCommented.dislikes = returnNews.dislikes;
+      fromCommented.viewers = returnNews.viewers;
+      fromCommented.isLiked = returnNews.isLiked;
+      fromCommented.isDisliked = returnNews.isDisliked;
+      fromCommented.uniqueViews = returnNews.uniqueViews;
+      fromCommented.isFavorited = returnNews.isFavorited;
+    }
+    notifyListeners();
+  }
+
   bool _loadingLikedNews = true, _loadingLikedNewsMore = false;
   bool _loadingDislikedNews = true, _loadingDislikedNewsMore = false;
   bool _loadingCommentedNews = true, _loadingCommentedNewsMore = false;
@@ -87,6 +162,7 @@ class UserProvider with ChangeNotifier {
           .fetchLikedNews((isMore ? (sliderPage + 1) : sliderPage), search)
           .then((data) {
         if (data.statusCode == 200) {
+          //LogPrint("databody " + data.body);
           List<News> news = (json.decode(data.body) as List)
               .map((data) => News.fromJson(data))
               .toList();
@@ -184,8 +260,6 @@ class UserProvider with ChangeNotifier {
             //first page
             setDislikedNews(news);
             setLoadingDislikedNews = false;
-            print("loadingdisliked news false yapildi ama.." +
-                _loadingDislikedNews.toString());
             notifyListeners();
           }
         } else {
@@ -233,9 +307,6 @@ class UserProvider with ChangeNotifier {
       UserRequest()
           .fetchCommentedNews((isMore ? (listPage + 1) : listPage), search)
           .then((data) {
-        print("data body ne " + data.body);
-        print("data.statusCode " + data.statusCode.toString());
-
         if (data.statusCode == 200) {
           List<News> news = (json.decode(data.body) as List)
               .map((data) => News.fromJson(data))
@@ -318,7 +389,6 @@ class UserProvider with ChangeNotifier {
         Constants.anonymousLoggedIn == false) {
       try {
         UserRequest().getUserProfile().then((data) {
-          print("gelen data profile photo " + data.body);
           if (data.statusCode == 200) {
             _user = User.fromJson(json.decode(data.body), "");
             notifyListeners();
@@ -337,7 +407,6 @@ class UserProvider with ChangeNotifier {
   Future<void> changeProfilePhoto(String url) async {
     try {
       UserRequest().changeProfilePhoto(url).then((data) async {
-        print("gelen data profile photo " + data.body);
         if (data.statusCode == 200) {
           _user = User.fromJson(json.decode(data.body), "");
           await DefaultCacheManager()

@@ -1,11 +1,14 @@
 import 'dart:developer';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:haber/data/constants.dart';
 import 'dart:convert';
 
 import 'package:haber/models/News.dart';
+import 'package:haber/providers/user_provider.dart';
 import 'package:haber/requests/news_request.dart';
+import 'package:provider/provider.dart';
 
 class NewsProvider with ChangeNotifier {
   static List<String> _selectedNewsSites = List<String>();
@@ -189,18 +192,12 @@ class NewsProvider with ChangeNotifier {
 
   Future<void> fetchListNews(String search, List<String> categories,
       List<String> sites, bool isMore) async {
-    print("burasi bir" + loadingListNews.toString());
-    print("burasi bir" + loadingListNewsMore.toString());
     if (loadingListNewsMore) return;
-
-    print("burasi iki");
 
     if (isMore)
       setLoadingListNewsMore = true;
     else
       setLoadingListNews = true;
-
-    print("fetchlistnews");
 
     try {
       if (!isMore) listPage = 1;
@@ -319,7 +316,6 @@ class NewsProvider with ChangeNotifier {
           .fetchNewsAnonymousFavorite(
               (isMore ? (listPage + 1) : listPage), favorites)
           .then((data) {
-        print("gelen data body " + data.body);
         if (data.statusCode == 200) {
           List<News> news = (json.decode(data.body) as List)
               .map((data) => News.fromJson(data))
@@ -387,51 +383,13 @@ class NewsProvider with ChangeNotifier {
         : _favoriteNews.indexWhere((news) => news.sId == id);
   }
 
-  Future<void> likeNews(String id) async {
+  Future<void> likeNews(String id, BuildContext context) async {
     try {
       NewsRequest().likeNews(id).then((data) {
         if (data.statusCode == 200) {
           News returnData = News.fromJson(json.decode(data.body));
 
-          News fromSlider, fromList, favoriteList;
-
-          if (getNewsSliderIndex(id) != -1) {
-            fromSlider = _sliderNews[getNewsSliderIndex(id)];
-          }
-
-          if (getNewsListIndex(id) != -1) {
-            fromList = _listNews[getNewsListIndex(id)];
-          }
-
-          if (getNewsFavoriteIndex(id) != -1) {
-            favoriteList = _favoriteNews[getNewsFavoriteIndex(id)];
-          }
-
-          if (fromSlider != null) {
-            fromSlider.likes = returnData.likes;
-            fromSlider.dislikes = returnData.dislikes;
-            fromSlider.viewers = returnData.viewers;
-            fromSlider.isLiked = returnData.isLiked;
-            fromSlider.isDisliked = returnData.isDisliked;
-          }
-
-          if (fromList != null) {
-            fromList.likes = returnData.likes;
-            fromList.dislikes = returnData.dislikes;
-            fromList.viewers = returnData.viewers;
-            fromList.isLiked = returnData.isLiked;
-            fromList.isDisliked = returnData.isDisliked;
-          }
-
-          if (favoriteList != null) {
-            favoriteList.likes = returnData.likes;
-            favoriteList.dislikes = returnData.dislikes;
-            favoriteList.viewers = returnData.viewers;
-            favoriteList.isLiked = returnData.isLiked;
-            favoriteList.isDisliked = returnData.isDisliked;
-          }
-
-          notifyListeners();
+          updateAllLists(id, returnData, context);
         } else {
           print("error2" + data.statusCode.toString());
         }
@@ -441,50 +399,13 @@ class NewsProvider with ChangeNotifier {
     }
   }
 
-  Future<void> dislikeNews(String id) async {
+  Future<void> dislikeNews(String id, BuildContext context) async {
     try {
       NewsRequest().dislikeNews(id).then((data) {
         if (data.statusCode == 200) {
           News returnData = News.fromJson(json.decode(data.body));
-
-          News fromSlider, fromList, favoriteList;
-
-          if (getNewsSliderIndex(id) != -1) {
-            fromSlider = _sliderNews[getNewsSliderIndex(id)];
-          }
-
-          if (getNewsListIndex(id) != -1) {
-            fromList = _listNews[getNewsListIndex(id)];
-          }
-
-          if (getNewsFavoriteIndex(id) != -1) {
-            favoriteList = _favoriteNews[getNewsFavoriteIndex(id)];
-          }
-          if (fromSlider != null) {
-            fromSlider.likes = returnData.likes;
-            fromSlider.dislikes = returnData.dislikes;
-            fromSlider.viewers = returnData.viewers;
-            fromSlider.isLiked = returnData.isLiked;
-            fromSlider.isDisliked = returnData.isDisliked;
-          }
-
-          if (fromList != null) {
-            fromList.likes = returnData.likes;
-            fromList.dislikes = returnData.dislikes;
-            fromList.viewers = returnData.viewers;
-            fromList.isLiked = returnData.isLiked;
-            fromList.isDisliked = returnData.isDisliked;
-          }
-
-          if (favoriteList != null) {
-            favoriteList.likes = returnData.likes;
-            favoriteList.dislikes = returnData.dislikes;
-            favoriteList.viewers = returnData.viewers;
-            favoriteList.isLiked = returnData.isLiked;
-            favoriteList.isDisliked = returnData.isDisliked;
-          }
-
-          notifyListeners();
+          print("data.body " + data.body);
+          updateAllLists(id, returnData, context);
         } else {
           print("error2" + data.statusCode.toString());
         }
@@ -494,38 +415,13 @@ class NewsProvider with ChangeNotifier {
     }
   }
 
-  Future<void> favoriteNews(String id) async {
+  Future<void> favoriteNews(String id, BuildContext context) async {
     try {
       NewsRequest().favoriteNews(id).then((data) {
         if (data.statusCode == 200) {
           News returnData = News.fromJson(json.decode(data.body));
 
-          News fromSlider, fromList, favoriteList;
-
-          if (getNewsSliderIndex(id) != -1) {
-            fromSlider = _sliderNews[getNewsSliderIndex(id)];
-          }
-
-          if (getNewsListIndex(id) != -1) {
-            fromList = _listNews[getNewsListIndex(id)];
-          }
-
-          if (getNewsFavoriteIndex(id) != -1) {
-            favoriteList = _favoriteNews[getNewsFavoriteIndex(id)];
-          }
-          if (fromSlider != null) {
-            fromSlider.isFavorited = returnData.isFavorited;
-          }
-
-          if (fromList != null) {
-            fromList.isFavorited = returnData.isFavorited;
-          }
-
-          if (favoriteList != null) {
-            favoriteList.isFavorited = returnData.isFavorited;
-          }
-
-          notifyListeners();
+          updateAllLists(id, returnData, context);
         } else {
           print("error2" + data.statusCode.toString());
         }
@@ -535,48 +431,12 @@ class NewsProvider with ChangeNotifier {
     }
   }
 
-  Future<void> viewNews(String id) async {
+  Future<void> viewNews(String id, BuildContext context) async {
     try {
       NewsRequest().viewNews(id).then((data) {
         if (data.statusCode == 200) {
           News returnData = News.fromJson(json.decode(data.body));
-
-          News fromSlider, fromList, favoriteList;
-
-          if (getNewsSliderIndex(id) != -1) {
-            fromSlider = _sliderNews[getNewsSliderIndex(id)];
-          }
-
-          if (getNewsListIndex(id) != -1) {
-            fromList = _listNews[getNewsListIndex(id)];
-          }
-
-          if (getNewsFavoriteIndex(id) != -1) {
-            favoriteList = _favoriteNews[getNewsFavoriteIndex(id)];
-          }
-
-          if (fromSlider != null) {
-            fromSlider.likes = returnData.likes;
-            fromSlider.dislikes = returnData.dislikes;
-            fromSlider.viewers = returnData.viewers;
-            fromSlider.uniqueViews = returnData.uniqueViews;
-          }
-
-          if (fromList != null) {
-            fromList.likes = returnData.likes;
-            fromList.dislikes = returnData.dislikes;
-            fromList.viewers = returnData.viewers;
-            fromList.uniqueViews = returnData.uniqueViews;
-          }
-
-          if (favoriteList != null) {
-            favoriteList.likes = returnData.likes;
-            favoriteList.dislikes = returnData.dislikes;
-            favoriteList.viewers = returnData.viewers;
-            favoriteList.uniqueViews = returnData.uniqueViews;
-          }
-
-          notifyListeners();
+          updateAllLists(id, returnData, context);
         } else {
           print("error2" + data.statusCode.toString());
         }
@@ -584,6 +444,57 @@ class NewsProvider with ChangeNotifier {
     } catch (e) {
       print("error");
     }
+  }
+
+  void updateAllLists(String id, News returnData, BuildContext context) {
+    News fromSlider, fromList, favoriteList;
+
+    if (getNewsSliderIndex(id) != -1) {
+      fromSlider = _sliderNews[getNewsSliderIndex(id)];
+    }
+
+    if (getNewsListIndex(id) != -1) {
+      fromList = _listNews[getNewsListIndex(id)];
+    }
+
+    if (getNewsFavoriteIndex(id) != -1) {
+      favoriteList = _favoriteNews[getNewsFavoriteIndex(id)];
+    }
+
+    if (fromSlider != null) {
+      fromSlider.likes = returnData.likes;
+      fromSlider.dislikes = returnData.dislikes;
+      fromSlider.viewers = returnData.viewers;
+      fromSlider.isFavorited = returnData.isFavorited;
+      fromSlider.isLiked = returnData.isLiked;
+      fromSlider.isDisliked = returnData.isDisliked;
+      fromSlider.uniqueViews = returnData.uniqueViews;
+    }
+
+    if (fromList != null) {
+      fromList.likes = returnData.likes;
+      fromList.dislikes = returnData.dislikes;
+      fromList.viewers = returnData.viewers;
+      fromList.uniqueViews = returnData.uniqueViews;
+      fromList.isFavorited = returnData.isFavorited;
+      fromList.isDisliked = returnData.isDisliked;
+      fromList.isLiked = returnData.isLiked;
+    }
+
+    if (favoriteList != null) {
+      favoriteList.likes = returnData.likes;
+      favoriteList.dislikes = returnData.dislikes;
+      favoriteList.viewers = returnData.viewers;
+      favoriteList.uniqueViews = returnData.uniqueViews;
+      favoriteList.isFavorited = returnData.isFavorited;
+      favoriteList.isDisliked = returnData.isDisliked;
+      favoriteList.isLiked = returnData.isLiked;
+    }
+
+    Provider.of<UserProvider>(context, listen: false)
+        .updateAllLists(id, returnData);
+
+    notifyListeners();
   }
 
   // Others

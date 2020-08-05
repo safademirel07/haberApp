@@ -33,9 +33,8 @@ class _NewsListElementState extends State<NewsListElement> {
       child: InkWell(
         onTap: () async {
           await Provider.of<NewsProvider>(context, listen: false)
-              .viewNews(widget.news.sId);
+              .viewNews(widget.news.sId, context);
 
-          print("inkwell categories " + widget.categories.toString());
           Navigator.pushNamed(
             context,
             "/detail",

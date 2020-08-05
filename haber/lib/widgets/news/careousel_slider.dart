@@ -193,7 +193,7 @@ class _CareouselSliderState extends State<CareouselSlider> {
                       onTap: () async {
                         var index = listNews.indexOf(item);
                         await Provider.of<NewsProvider>(context, listen: false)
-                            .viewNews(item.sId);
+                            .viewNews(item.sId, context);
 
                         Navigator.pushNamed(
                           context,

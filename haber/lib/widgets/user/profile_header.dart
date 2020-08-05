@@ -109,7 +109,6 @@ class ProfileHeader implements SliverPersistentHeaderDelegate {
                                 .removeFile(user.photoUrl);
 
                             _editProfileImageModal(context);
-                            print("edit profile photo");
                           },
                           child: Icon(Icons.add_a_photo),
                         ),
@@ -128,7 +127,6 @@ class ProfileHeader implements SliverPersistentHeaderDelegate {
                         InkWell(
                           onTap: () {
                             _editProfileModal(context, user);
-                            print("edit profile photo");
                           },
                           child: Icon(Icons.edit),
                         ),

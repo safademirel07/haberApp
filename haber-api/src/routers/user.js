@@ -80,8 +80,6 @@ router.post("/users/profile_photo", auth.auth, async (req,res) => {
             res.status(400).send({"error" : "Unable to change. User not found."})
         }
 
-        console.log("image ne" + imageUrl)
-
         if (!validator.isURL(imageUrl)) {
             res.status(400).send({"error" : "Unable to change. Not an image."})
         }
@@ -126,9 +124,6 @@ router.post("/users/edit_profile", auth.auth, async (req,res) => {
             res.status(400).send({"error" : "Unable to change. Not an email."})
         }
 
-        console.log("gelen name " + name)
-        console.log("gelen email " + email)
-        
 
         user.name = name
         user.email = email

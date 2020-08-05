@@ -50,7 +50,6 @@ class EditProfileImageState extends State<EditProfileImage> {
             });
             await _uploadTask.onComplete;
             storageReference.getDownloadURL().then((fileURL) {
-              print("fileUrl " + fileURL);
               setState(() {
                 _loading = false;
               });

@@ -37,7 +37,6 @@ class _NewsDetailState extends State<NewsDetail> {
     switch (type) {
       case Constants.newsTypeList:
         {
-          print("news sites " + categories.toString());
           List<String> news_sites =
               Provider.of<NewsProvider>(context, listen: false)
                   .getSelectedNewsSites();
@@ -83,8 +82,6 @@ class _NewsDetailState extends State<NewsDetail> {
     if (isExists) return;
     await SharedPreferenceHelper.addFavorites(favoriteID);
 
-    print("Eklendi final :  " + await SharedPreferenceHelper.getFavorites);
-
     setState(() {
       favoritedAsAnonymous = true;
     });
@@ -96,7 +93,6 @@ class _NewsDetailState extends State<NewsDetail> {
     String favorites = await SharedPreferenceHelper.getFavorites;
     String replacedFavorites = favorites.replaceAll("$favoriteID,", "");
     await SharedPreferenceHelper.setFavorites(replacedFavorites);
-    print("Silindi final :  " + await SharedPreferenceHelper.getFavorites);
 
     setState(() {
       favoritedAsAnonymous = false;
@@ -219,6 +215,12 @@ class _NewsDetailState extends State<NewsDetail> {
 
     final News news = listNews[index];
 
+    print("news isliked " + news.isLiked.toString());
+    print("news isDisliked " + news.isDisliked.toString());
+    print("news isFavorited " + news.isFavorited.toString());
+    print("news likes " + news.likes.toString());
+    print("news dislikes " + news.dislikes.toString());
+    print("news uniqueViews " + news.uniqueViews.toString());
     return SafeArea(
       child: Scaffold(
         key: _scaffoldKey,
@@ -229,7 +231,6 @@ class _NewsDetailState extends State<NewsDetail> {
                 showInSnackBar(
                     "Daha fazla haber yükleniyor, birazdan tekrar dene.");
                 getMoreNews(type, listType);
-                print("daha cok haber");
                 return;
               }
               News previousNews = listNews[index + 1];
@@ -239,7 +240,6 @@ class _NewsDetailState extends State<NewsDetail> {
                   "/detail",
                   arguments: NewsDetails(index + 1, true, type, listType),
                 );
-                print("Can Swipe Right");
               } else {
                 showInSnackBar("Daha fazla ileriye gidemezsin.");
               }
@@ -258,7 +258,6 @@ class _NewsDetailState extends State<NewsDetail> {
                   "/detail",
                   arguments: NewsDetails(index - 1, true, type, listType),
                 );
-                print("Can Swipe Right");
               } else {
                 showInSnackBar("Daha fazla geriye gidemezsin.");
               }
@@ -365,7 +364,7 @@ class _NewsDetailState extends State<NewsDetail> {
                                           Firebase().getUser() != null) {
                                         Provider.of<NewsProvider>(context,
                                                 listen: false)
-                                            .likeNews(news.sId);
+                                            .likeNews(news.sId, context);
                                       } else {
                                         showInSnackBar("Lütfen giriş yapın.");
                                       }
@@ -397,7 +396,7 @@ class _NewsDetailState extends State<NewsDetail> {
                                         Firebase().getUser() != null) {
                                       Provider.of<NewsProvider>(context,
                                               listen: false)
-                                          .dislikeNews(news.sId);
+                                          .dislikeNews(news.sId, context);
                                     } else {
                                       showInSnackBar("Lütfen giriş yapın.");
                                     }
@@ -501,7 +500,6 @@ class _NewsDetailState extends State<NewsDetail> {
                               if (Constants.anonymousLoggedIn == true &&
                                   Firebase().getUser() != null) {
                                 bool isExist = await favoriteExists(news.sId);
-                                print("isExists ne " + isExist.toString());
                                 if (isExist) {
                                   removeFromFavoritesAsAnonymous(news.sId);
                                   showInSnackBar("Anonim olarak silindi.");
@@ -514,7 +512,7 @@ class _NewsDetailState extends State<NewsDetail> {
                                   Firebase().getUser() != null) {
                                 Provider.of<NewsProvider>(context,
                                         listen: false)
-                                    .favoriteNews(news.sId);
+                                    .favoriteNews(news.sId, context);
                               } else {
                                 showInSnackBar("Lütfen giriş yapın.");
                               }

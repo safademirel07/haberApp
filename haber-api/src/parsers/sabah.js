@@ -86,9 +86,7 @@ async function parseRSS(rssURL, rssID, rssCategory) {
             });
             const onlyJson = $('[type="application/ld+json"]')
 
-            console.log("date " + item.pubDate[0]);
             var unixTimeStamp = moment(item.pubDate[0]).unix();
-            console.log("moment format " + unixTimeStamp)
             
             try {
                 const createNews = new News({

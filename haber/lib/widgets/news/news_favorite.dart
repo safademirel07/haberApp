@@ -22,7 +22,6 @@ class _NewsFavoriteState extends State<NewsFavorite>
     print("burasi 1" + Constants.anonymousLoggedIn.toString());
     if (Constants.anonymousLoggedIn == true) {
       String favorites = await SharedPreferenceHelper.getFavorites;
-      print("anonymous favorites " + favorites);
       return Provider.of<NewsProvider>(context, listen: false)
           .fetchAnonymousFavoriteNews(
         favorites,
@@ -40,7 +39,6 @@ class _NewsFavoriteState extends State<NewsFavorite>
     print("burasi 3");
     if (Constants.anonymousLoggedIn == true) {
       String favorites = await SharedPreferenceHelper.getFavorites;
-      print("anonymous favorites " + favorites);
       return Provider.of<NewsProvider>(context, listen: false)
           .fetchAnonymousFavoriteNews(
         favorites,
@@ -105,8 +103,6 @@ class _NewsFavoriteState extends State<NewsFavorite>
 
     bool isAnonymous =
         Provider.of<NewsProvider>(context, listen: true).isAnonymous;
-
-    print("isanonymous " + isAnonymous.toString());
 
     news = Provider.of<NewsProvider>(context, listen: true).anyFavoriteNews()
         ? Provider.of<NewsProvider>(context, listen: true).getFavoriteNews()
