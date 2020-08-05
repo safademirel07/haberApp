@@ -52,6 +52,15 @@ const newsSchema = new mongoose.Schema({
         type: Number,
         default : 0,
     },
+    viewers_unique: [{
+        firebaseID: {
+            type: String,
+        },
+        count : {
+            type: Number,
+            default : 0,
+        },
+    }],
 })
 
 newsSchema.methods.toJSON = async function () {

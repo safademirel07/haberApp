@@ -165,8 +165,8 @@ class _NewsListState extends State<NewsList>
                             padding: EdgeInsets.zero,
                             itemCount: news.length,
                             itemBuilder: (BuildContext context, int index) {
-                              return NewsListElement(
-                                  news[index], index, Constants.newsTypeList);
+                              return NewsListElement(news[index], index,
+                                  Constants.newsTypeList, widget.categories);
                             },
                           ),
                         ),

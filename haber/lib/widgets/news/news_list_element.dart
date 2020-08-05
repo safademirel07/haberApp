@@ -10,6 +10,7 @@ class NewsListElement extends StatefulWidget {
   News news;
   int index;
   int type;
+  List<String> categories;
 
   //type == 1 > Slider
   //type == 2 > List
@@ -18,7 +19,7 @@ class NewsListElement extends StatefulWidget {
   //type == 5 > Disliked
   //type == 6 > Commented
 
-  NewsListElement(this.news, this.index, this.type);
+  NewsListElement(this.news, this.index, this.type, [this.categories]);
 
   @override
   _NewsListElementState createState() => _NewsListElementState();
@@ -34,10 +35,12 @@ class _NewsListElementState extends State<NewsListElement> {
           await Provider.of<NewsProvider>(context, listen: false)
               .viewNews(widget.news.sId);
 
+          print("inkwell categories " + widget.categories.toString());
           Navigator.pushNamed(
             context,
             "/detail",
-            arguments: NewsDetails(widget.index, false, widget.type),
+            arguments: NewsDetails(
+                widget.index, false, widget.type, widget.categories),
           );
         },
         child: Row(

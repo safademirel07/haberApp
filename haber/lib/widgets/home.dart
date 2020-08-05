@@ -54,16 +54,16 @@ class _HomeState extends State<Home> {
     return (await showDialog(
           context: context,
           builder: (context) => new AlertDialog(
-            title: new Text('Are you sure?'),
-            content: new Text('Do you want to exit an App'),
+            title: new Text('Çıkış'),
+            content: new Text('Çıkış yapmak istiyor musun?'),
             actions: <Widget>[
               new FlatButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: new Text('No'),
+                onPressed: () => Navigator.of(context).pop(true),
+                child: new Text('Evet'),
               ),
               new FlatButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: new Text('Yes'),
+                onPressed: () => Navigator.of(context).pop(false),
+                child: new Text('Hayır'),
               ),
             ],
           ),
