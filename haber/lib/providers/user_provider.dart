@@ -50,15 +50,6 @@ class UserProvider with ChangeNotifier {
   }
 
   void updateAllLists(String id, News returnNews) {
-    print("burasi geldi..");
-
-    print("returnNews isliked " + returnNews.isLiked.toString());
-    print("returnNews isDisliked " + returnNews.isDisliked.toString());
-    print("returnNews isFavorited " + returnNews.isFavorited.toString());
-    print("returnNews likes " + returnNews.likes.toString());
-    print("returnNews dislikes " + returnNews.dislikes.toString());
-    print("returnNews uniqueViews " + returnNews.uniqueViews.toString());
-
     News fromLiked, fromDisliked, fromCommented;
 
     if (getNewsLikedListIndex(id) != -1) {
@@ -74,7 +65,6 @@ class UserProvider with ChangeNotifier {
     }
 
     if (fromLiked != null) {
-      print("fromLiked icindeyiz.");
       fromLiked.likes = returnNews.likes;
       fromLiked.dislikes = returnNews.dislikes;
       fromLiked.viewers = returnNews.viewers;

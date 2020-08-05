@@ -259,6 +259,11 @@ class NewsProvider with ChangeNotifier {
 
   //List News
 
+  void clearFavorites() {
+    _favoriteNews.clear();
+    notifyListeners();
+  }
+
   Future<void> fetchFavoriteNews(String search, bool isMore) async {
     if (loadingFavoriteNewsMore) return;
 

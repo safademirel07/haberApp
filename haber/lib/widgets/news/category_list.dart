@@ -39,6 +39,10 @@ class _CategoryListState extends State<CategoryList>
     Provider.of<NewsProvider>(context, listen: false).setLoadingFavoriteNews =
         true;
 
+    Provider.of<NewsProvider>(context, listen: false)
+        .setRequiredToFetchAgainFavorites = true;
+    Provider.of<NewsProvider>(context, listen: false).clearFavorites();
+
     Provider.of<NewsProvider>(context, listen: false).clearListNews();
   }
 

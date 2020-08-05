@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AppTheme {
   AppTheme._();
@@ -101,10 +102,17 @@ class AppTheme {
     color: lightText, // was lightText
   );
 
+  static final TextStyle caption2Adaptive = GoogleFonts.montserrat(
+    // Caption -> caption
+    fontWeight: FontWeight.bold,
+    fontSize: ScreenUtil().setSp(32),
+    color: lightText, // was lightText
+  );
+
   static final TextStyle captionMont = GoogleFonts.montserrat(
     // Caption -> caption
     fontWeight: FontWeight.w300,
-    fontSize: 11,
+    fontSize: ScreenUtil().setSp(36),
     letterSpacing: 0.2,
     color: lightText, // was lightText
   );

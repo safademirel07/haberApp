@@ -9,6 +9,7 @@ const moment = require("moment")
 var auth = require("../middleware/auth")
 
 const firebaseAdmin = require("../firebase/firebase")
+const constants = require("../others/constants")
 
 
 
@@ -16,18 +17,12 @@ const firebaseAdmin = require("../firebase/firebase")
 // @desc     Gets news specified News Sites, Categories, Search Word with pagination.
 // to-do     Implement sort with date.
 router.get("/news/get", auth.auth_test, async (req, res) => {
-
   const user = req.user
-
-
   let limit = 10; //news per page
-
-
   const newsSites = req.query.news_sites
   const categories = req.query.categories
   const searchWord = req.query.search
   let page = (Math.abs(req.query.page) || 1) - 1;
-
 
   var filterSites = []
   var filterCategories = []
@@ -45,70 +40,8 @@ router.get("/news/get", auth.auth_test, async (req, res) => {
     });
   }
 
-
-  var aggregateQuery = [{
-      "$lookup": {
-        "let": {
-          "rssObjID": {
-            "$toObjectId": "$rss"
-          }
-        },
-        "from": "rsses",
-        "pipeline": [{
-          "$match": {
-            "$expr": {
-              "$eq": ["$_id", "$$rssObjID"]
-            }
-          }
-        }],
-        "as": "rssDetails"
-      }
-    },
-    {
-      "$unwind": "$rssDetails"
-    },
-    {
-      "$lookup": {
-        "let": {
-          "siteObjID": {
-            "$toObjectId": "$rssDetails.site"
-          }
-        },
-        "from": "news_sites",
-        "pipeline": [{
-          "$match": {
-            "$expr": {
-              "$eq": ["$_id", "$$siteObjID"]
-            }
-          }
-        }],
-        "as": "siteDetails"
-      }
-    },
-    {
-      $unwind: "$siteDetails"
-    },
-    {
-      "$lookup": {
-        "let": {
-          "categoryObjID": {
-            "$toObjectId": "$rssDetails.category"
-          }
-        },
-        "from": "categories",
-        "pipeline": [{
-          "$match": {
-            "$expr": {
-              "$eq": ["$_id", "$$categoryObjID"]
-            }
-          }
-        }],
-        "as": "categoryDetails"
-      }
-    },
-    {
-      $unwind: "$categoryDetails"
-    },
+  const constantQuery = constants.constantQueryPart
+  var aggregateQuery = [constantQuery[0],constantQuery[1],constantQuery[2],constantQuery[3],constantQuery[4],constantQuery[5],
     {
       "$sort": {
         date: -1
@@ -122,69 +55,7 @@ router.get("/news/get", auth.auth_test, async (req, res) => {
   ]
 
   if (filterSites.length > 0 || filterCategories.length > 0) {
-    aggregateQuery = [{
-        "$lookup": {
-          "let": {
-            "rssObjID": {
-              "$toObjectId": "$rss"
-            }
-          },
-          "from": "rsses",
-          "pipeline": [{
-            "$match": {
-              "$expr": {
-                "$eq": ["$_id", "$$rssObjID"]
-              }
-            }
-          }],
-          "as": "rssDetails"
-        }
-      },
-      {
-        "$unwind": "$rssDetails"
-      },
-      {
-        "$lookup": {
-          "let": {
-            "siteObjID": {
-              "$toObjectId": "$rssDetails.site"
-            }
-          },
-          "from": "news_sites",
-          "pipeline": [{
-            "$match": {
-              "$expr": {
-                "$eq": ["$_id", "$$siteObjID"]
-              }
-            }
-          }],
-          "as": "siteDetails"
-        }
-      },
-      {
-        $unwind: "$siteDetails"
-      },
-      {
-        "$lookup": {
-          "let": {
-            "categoryObjID": {
-              "$toObjectId": "$rssDetails.category"
-            }
-          },
-          "from": "categories",
-          "pipeline": [{
-            "$match": {
-              "$expr": {
-                "$eq": ["$_id", "$$categoryObjID"]
-              }
-            }
-          }],
-          "as": "categoryDetails"
-        }
-      },
-      {
-        $unwind: "$categoryDetails"
-      },
+    aggregateQuery = [constantQuery[0], constantQuery[1], constantQuery[2], constantQuery[3], constantQuery[4], constantQuery[5],
       {
         "$match": {
           "$and": [{
@@ -226,27 +97,14 @@ router.get("/news/get", auth.auth_test, async (req, res) => {
     ]
   }
 
-
-
   const allNews = News.aggregate(aggregateQuery)
-
-
   const data = []
 
   for await (const news of allNews) {
 
-    delete news.__v
-    delete news.rss
-    delete news.siteDetails.__v
-    delete news.rssDetails.__v
-    delete news.rssDetails.site
-    delete news.rssDetails.category
-    delete news.categoryDetails.__v
     const likes = news.likes.length
     const dislikes = news.dislikes.length
     const uniqueViews = news.viewers_unique == undefined ? 0 : news.viewers_unique.length
-    delete news.viewers_unique
-
     var isLiked = false, isDisliked = false, isFavorited = false
 
     if (user != undefined)
@@ -256,14 +114,19 @@ router.get("/news/get", auth.auth_test, async (req, res) => {
       isFavorited = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString()).length > 0 ? true : false
     }
 
+    delete news.__v
+    delete news.rss
+    delete news.siteDetails.__v
+    delete news.rssDetails.__v
+    delete news.rssDetails.site
+    delete news.rssDetails.category
+    delete news.categoryDetails.__v
+    delete news.viewers_unique
     delete news.likes
-    delete news.dislikes
+    delete news.dislikes 
+
     news["likes"] = likes
     news["dislikes"] = dislikes
-
-
-
-
     news["isLiked"] = isLiked
     news["isDisliked"] = isDisliked
     news["isFavorited"] = isFavorited
@@ -279,19 +142,10 @@ router.get("/news/get", auth.auth_test, async (req, res) => {
 })
 
 router.get("/news/slider", auth.auth_test, async (req, res) => {
-
-
   const user = req.user
-
   let limit = 10; //news per page
-
-
   const newsSites = req.query.news_sites
   let page = (Math.abs(req.query.page) || 1) - 1;
-
-
-
-
   var filterSites = []
 
   if (newsSites != undefined && newsSites.length > 0) {
@@ -301,74 +155,12 @@ router.get("/news/slider", auth.auth_test, async (req, res) => {
     });
   }
 
-
   var latestID = mongoose.Types.ObjectId("5f135127c961bd0bb0ba82b7")
   var homeID = mongoose.Types.ObjectId("5f135136c961bd0bb0ba82b8")
 
+  const constantQuery = constants.constantQueryPart
 
-  var aggregateQuery = [{
-      "$lookup": {
-        "let": {
-          "rssObjID": {
-            "$toObjectId": "$rss"
-          }
-        },
-        "from": "rsses",
-        "pipeline": [{
-          "$match": {
-            "$expr": {
-              "$eq": ["$_id", "$$rssObjID"]
-            }
-          }
-        }],
-        "as": "rssDetails"
-      }
-    },
-    {
-      "$unwind": "$rssDetails"
-    },
-    {
-      "$lookup": {
-        "let": {
-          "siteObjID": {
-            "$toObjectId": "$rssDetails.site"
-          }
-        },
-        "from": "news_sites",
-        "pipeline": [{
-          "$match": {
-            "$expr": {
-              "$eq": ["$_id", "$$siteObjID"]
-            }
-          }
-        }],
-        "as": "siteDetails"
-      }
-    },
-    {
-      $unwind: "$siteDetails"
-    },
-    {
-      "$lookup": {
-        "let": {
-          "categoryObjID": {
-            "$toObjectId": "$rssDetails.category"
-          }
-        },
-        "from": "categories",
-        "pipeline": [{
-          "$match": {
-            "$expr": {
-              "$eq": ["$_id", "$$categoryObjID"]
-            }
-          }
-        }],
-        "as": "categoryDetails"
-      }
-    },
-    {
-      $unwind: "$categoryDetails"
-    },
+  var aggregateQuery = [constantQuery[0],constantQuery[1],constantQuery[2],constantQuery[3],constantQuery[4],constantQuery[5],
     {
       "$match": {
         "rssDetails.category": {
@@ -389,86 +181,7 @@ router.get("/news/slider", auth.auth_test, async (req, res) => {
   ]
 
   if (filterSites.length > 0) {
-    aggregateQuery = [{
-        "$lookup": {
-          "let": {
-            "rssObjID": {
-              "$toObjectId": "$rss"
-            }
-          },
-          "from": "rsses",
-          "pipeline": [{
-            "$match": {
-              "$expr": {
-                "$eq": ["$_id", "$$rssObjID"]
-              }
-            }
-          }],
-          "as": "rssDetails"
-        }
-      },
-      {
-        "$unwind": "$rssDetails"
-      },
-      {
-        "$lookup": {
-          "let": {
-            "siteObjID": {
-              "$toObjectId": "$rssDetails.site"
-            }
-          },
-          "from": "news_sites",
-          "pipeline": [{
-            "$match": {
-              "$expr": {
-                "$eq": ["$_id", "$$siteObjID"]
-              }
-            }
-          }],
-          "as": "siteDetails"
-        }
-      },
-      {
-        $unwind: "$siteDetails"
-      },
-      {
-        "$lookup": {
-          "let": {
-            "categoryObjID": {
-              "$toObjectId": "$rssDetails.category"
-            }
-          },
-          "from": "categories",
-          "pipeline": [{
-            "$match": {
-              "$expr": {
-                "$eq": ["$_id", "$$categoryObjID"]
-              }
-            }
-          }],
-          "as": "categoryDetails"
-        }
-      },
-      {
-        $unwind: "$categoryDetails"
-      },
-      {
-        "$match": {
-
-          "$and": [{
-              "rssDetails.category": {
-                "$in": [latestID, homeID]
-              }
-            },
-            {
-              "rssDetails.site": {
-                "$in": filterSites
-              }
-            }
-          ]
-        }
-
-      },
+    aggregateQuery = [constantQuery[0], constantQuery[1], constantQuery[2], constantQuery[3], constantQuery[4], constantQuery[5],
       {
         "$sort": {
           date: -1 //date by Descending
@@ -483,27 +196,13 @@ router.get("/news/slider", auth.auth_test, async (req, res) => {
     ]
   }
 
-
-
   const allNews = News.aggregate(aggregateQuery)
-
-
   const data = []
 
   for await (const news of allNews) {
-
-    delete news.__v
-    delete news.rss
-    delete news.siteDetails.__v
-    delete news.rssDetails.__v
-    delete news.rssDetails.site
-    delete news.rssDetails.category
-    delete news.categoryDetails.__v
     const likes = news.likes.length
     const dislikes = news.dislikes.length
     const uniqueViews = news.viewers_unique == undefined ? 0 : news.viewers_unique.length
-    delete news.viewers_unique
-
     var isLiked = false, isDisliked = false, isFavorited = false
 
     if (user != undefined)
@@ -513,11 +212,19 @@ router.get("/news/slider", auth.auth_test, async (req, res) => {
       isFavorited = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString()).length > 0 ? true : false
     }
 
+    delete news.__v
+    delete news.rss
+    delete news.siteDetails.__v
+    delete news.rssDetails.__v
+    delete news.rssDetails.site
+    delete news.rssDetails.category
+    delete news.categoryDetails.__v
+    delete news.viewers_unique
     delete news.likes
-    delete news.dislikes
+    delete news.dislikes 
+
     news["likes"] = likes
     news["dislikes"] = dislikes
-
     news["isLiked"] = isLiked
     news["isDisliked"] = isDisliked
     news["isFavorited"] = isFavorited
@@ -564,12 +271,10 @@ router.post("/news/like", auth.auth, async (req, res) => {
 
     const likesLength = newsObject.likes.length
     const disLikesLength = newsObject.dislikes.length
-
-
     const isDisliked = news.dislikes.filter(dislike => dislike.users.toString() == user._id.toString()).length;
     const isLiked = news.likes.filter(like => like.users.toString() == user._id.toString()).length;
     const isFavorited = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString()).length > 0 ? true : false
-
+    const uniqueViews = news.viewers_unique == undefined ? 0 : news.viewers_unique.length
 
     delete newsObject.rss
     delete newsObject.title
@@ -581,18 +286,14 @@ router.post("/news/like", auth.auth, async (req, res) => {
     delete newsObject.__v
     delete newsObject.likes
     delete newsObject.dislikes
+    delete news.viewers_unique
 
     newsObject["isFavorited"] = isFavorited
     newsObject["isDisliked"] = isDisliked ? true : false
     newsObject["isLiked"] = isLiked ? true : false
     newsObject["likes"] = likesLength
     newsObject["dislikes"] = disLikesLength
-    const uniqueViews = news.viewers_unique == undefined ? 0 : news.viewers_unique.length
-    delete news.viewers_unique
     newsObject["uniqueViews"] = uniqueViews
-
-
-
 
     res.send(newsObject)
   } catch (e) {
@@ -632,6 +333,14 @@ router.post("/news/dislike", auth.auth, async (req, res) => {
 
     const newsObject = await news.toObject()
 
+    const likesLength = newsObject.likes.length
+    const disLikesLength = newsObject.dislikes.length
+    const isDisliked = news.dislikes.filter(dislike => dislike.users.toString() == user._id.toString()).length;
+    const isLiked = news.likes.filter(like => like.users.toString() == user._id.toString()).length;
+    const isFavorited = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString()).length > 0 ? true : false
+    const uniqueViews = news.viewers_unique == undefined ? 0 : news.viewers_unique.length
+
+
     delete newsObject.rss
     delete newsObject.title
     delete newsObject.description
@@ -640,25 +349,20 @@ router.post("/news/dislike", auth.auth, async (req, res) => {
     delete newsObject.link
     delete newsObject.image
     delete newsObject.__v
-
-    const likesLength = newsObject.likes.length
-    const disLikesLength = newsObject.dislikes.length
-
     delete newsObject.likes
-    delete newsObject.dislikes
-
-    const isDisliked = news.dislikes.filter(dislike => dislike.users.toString() == user._id.toString()).length;
-    const isLiked = news.likes.filter(like => like.users.toString() == user._id.toString()).length;
-    const isFavorited = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString()).length > 0 ? true : false
+    delete newsObject.dislikes 
+    delete news.viewers_unique
 
     newsObject["isFavorited"] = isFavorited
     newsObject["isDisliked"] = isDisliked ? true : false
     newsObject["isLiked"] = isLiked ? true : false
     newsObject["likes"] = likesLength
     newsObject["dislikes"] = disLikesLength
-    const uniqueViews = news.viewers_unique == undefined ? 0 : news.viewers_unique.length
-    delete news.viewers_unique
     newsObject["uniqueViews"] = uniqueViews
+
+    
+
+
 
 
     res.send(newsObject)
@@ -670,18 +374,13 @@ router.post("/news/dislike", auth.auth, async (req, res) => {
 
 router.post("/news/view", auth.auth_test, async (req, res) => {
   const user = req.user
-
   const authToken = req.query.authToken;
   const uid = req.query.uid;
-
   const decodedClaims = await firebaseAdmin.auth().verifyIdToken(authToken)
 
   if (uid != decodedClaims.uid){
     res.status(400).send({"error" : "uid and decoded uid is not same."})
   }
-
- 
-
 
   try {
     const newsID = mongoose.Types.ObjectId(req.query.news)
@@ -720,6 +419,10 @@ router.post("/news/view", auth.auth_test, async (req, res) => {
         isDisliked = news.dislikes.filter(dislike => dislike.users.toString() == user._id.toString()).length > 0 ? true : false
         isFavorited = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString()).length > 0 ? true : false
       }
+
+      const likesLength = newsObject.likes.length
+      const disLikesLength = newsObject.dislikes.length
+      const uniqueViews = news.viewers_unique == undefined ? 0 : news.viewers_unique.length
   
       delete newsObject.rss
       delete newsObject.title
@@ -729,21 +432,16 @@ router.post("/news/view", auth.auth_test, async (req, res) => {
       delete newsObject.link
       delete newsObject.image
       delete newsObject.__v
-  
-      const likesLength = newsObject.likes.length
-      const disLikesLength = newsObject.dislikes.length
-  
       delete newsObject.likes
       delete newsObject.dislikes
+      delete news.viewers_unique
+
       newsObject["viewers"] =  newsObject["viewers"]+1
       newsObject["likes"] = likesLength
       newsObject["dislikes"] = disLikesLength
       newsObject["isLiked"] = isLiked 
       newsObject["isDisliked"] = isDisliked
       newsObject["isFavorited"] = isFavorited
-  
-      const uniqueViews = news.viewers_unique == undefined ? 0 : news.viewers_unique.length
-      delete news.viewers_unique
       newsObject["uniqueViews"] = uniqueViews
       
       res.send(newsObject)
@@ -766,9 +464,6 @@ router.post("/news/save", auth.auth, async (req, res) => {
       _id: newsID
     })
 
-
-
-
     if (news) {
       const saveResult = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString());
       if (saveResult.length > 0) {
@@ -780,8 +475,14 @@ router.post("/news/save", auth.auth, async (req, res) => {
 
       await user.save()
 
-
       const newsObject = await news.toObject()
+
+      const likesLength = newsObject.likes.length
+      const disLikesLength = newsObject.dislikes.length
+      const isDisliked = news.dislikes.filter(dislike => dislike.users.toString() == user._id.toString()).length;
+      const isLiked = news.likes.filter(like => like.users.toString() == user._id.toString()).length;
+      const isFavorited = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString()).length > 0 ? true : false
+      const uniqueViews = news.viewers_unique == undefined ? 0 : news.viewers_unique.length
 
       delete newsObject.rss
       delete newsObject.title
@@ -791,24 +492,16 @@ router.post("/news/save", auth.auth, async (req, res) => {
       delete newsObject.link
       delete newsObject.image
       delete newsObject.__v
-  
-      const likesLength = newsObject.likes.length
-      const disLikesLength = newsObject.dislikes.length
-  
       delete newsObject.likes
       delete newsObject.dislikes
-  
-      const isDisliked = news.dislikes.filter(dislike => dislike.users.toString() == user._id.toString()).length;
-      const isLiked = news.likes.filter(like => like.users.toString() == user._id.toString()).length;
-      const isFavorited = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString()).length > 0 ? true : false
+      delete news.viewers_unique
+
 
       newsObject["isDisliked"] = isDisliked ? true : false
       newsObject["isLiked"] = isLiked ? true : false
       newsObject["isFavorited"] = isFavorited ? true : false
       newsObject["likes"] = likesLength
       newsObject["dislikes"] = disLikesLength
-      const uniqueViews = news.viewers_unique == undefined ? 0 : news.viewers_unique.length
-      delete news.viewers_unique
 	    newsObject["uniqueViews"] = uniqueViews
       
       res.send(newsObject)
@@ -824,8 +517,6 @@ router.post("/news/save", auth.auth, async (req, res) => {
 router.get("/news/favorite", auth.auth, async (req, res) => {
 
   const user = req.user
-
-
   let limit = 10; //news per page
 
   const searchWord = req.query.search
@@ -837,71 +528,8 @@ router.get("/news/favorite", auth.auth, async (req, res) => {
     allFavoriteNews.push(mongoose.Types.ObjectId(favorite.news))
   })
 
-
-
-  var aggregateQuery = [{
-      "$lookup": {
-        "let": {
-          "rssObjID": {
-            "$toObjectId": "$rss"
-          }
-        },
-        "from": "rsses",
-        "pipeline": [{
-          "$match": {
-            "$expr": {
-              "$eq": ["$_id", "$$rssObjID"]
-            }
-          }
-        }],
-        "as": "rssDetails"
-      }
-    },
-    {
-      "$unwind": "$rssDetails"
-    },
-    {
-      "$lookup": {
-        "let": {
-          "siteObjID": {
-            "$toObjectId": "$rssDetails.site"
-          }
-        },
-        "from": "news_sites",
-        "pipeline": [{
-          "$match": {
-            "$expr": {
-              "$eq": ["$_id", "$$siteObjID"]
-            }
-          }
-        }],
-        "as": "siteDetails"
-      }
-    },
-    {
-      $unwind: "$siteDetails"
-    },
-    {
-      "$lookup": {
-        "let": {
-          "categoryObjID": {
-            "$toObjectId": "$rssDetails.category"
-          }
-        },
-        "from": "categories",
-        "pipeline": [{
-          "$match": {
-            "$expr": {
-              "$eq": ["$_id", "$$categoryObjID"]
-            }
-          }
-        }],
-        "as": "categoryDetails"
-      }
-    },
-    {
-      $unwind: "$categoryDetails"
-    },
+  const constantQuery = constants.constantQueryPart
+  var aggregateQuery = [constantQuery[0], constantQuery[1], constantQuery[2], constantQuery[3], constantQuery[4], constantQuery[5],
     {
       "$match": {
 
@@ -920,24 +548,12 @@ router.get("/news/favorite", auth.auth, async (req, res) => {
 
 
   const allNews = News.aggregate(aggregateQuery)
-
-
   const data = []
 
-  for await (const news of allNews) {
-
-    delete news.__v
-    delete news.rss
-    delete news.siteDetails.__v
-    delete news.rssDetails.__v
-    delete news.rssDetails.site
-    delete news.rssDetails.category
-    delete news.categoryDetails.__v
+  for await (const news of allNews) {    
     const likes = news.likes.length
     const dislikes = news.dislikes.length
     const uniqueViews = news.viewers_unique == undefined ? 0 : news.viewers_unique.length
-    delete news.viewers_unique
-
     var isLiked = false, isDisliked = false, isFavorited = false
 
     if (user != undefined)
@@ -947,23 +563,26 @@ router.get("/news/favorite", auth.auth, async (req, res) => {
       isFavorited = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString()).length > 0 ? true : false
     }
 
+    delete news.__v
+    delete news.rss
+    delete news.siteDetails.__v
+    delete news.rssDetails.__v
+    delete news.rssDetails.site
+    delete news.rssDetails.category
+    delete news.categoryDetails.__v
+    delete news.viewers_unique
     delete news.likes
     delete news.dislikes
+
     news["likes"] = likes
     news["dislikes"] = dislikes
-
-
     news["isLiked"] = isLiked
     news["isDisliked"] = isDisliked
     news["isFavorited"] = isFavorited
     news["uniqueViews"] = uniqueViews
 
-
-
     news.date = moment.unix(news.date).format("LLLL")
     data.push(news)
-
-
   }
   res.send(data)
 }
@@ -982,8 +601,6 @@ router.get("/news/anonymous_favorite", async (req, res) => {
   if (selectedFavorites != undefined && selectedFavorites.length > 0) {
     var splitFavorites = selectedFavorites.split(',')
     for (const favorite of splitFavorites) {
-
-    
       try {
         allFavoriteNews.push(mongoose.Types.ObjectId(favorite))
       } catch (e) {
@@ -991,74 +608,10 @@ router.get("/news/anonymous_favorite", async (req, res) => {
       }
     }
   } 
-
-  var aggregateQuery = [{
-      "$lookup": {
-        "let": {
-          "rssObjID": {
-            "$toObjectId": "$rss"
-          }
-        },
-        "from": "rsses",
-        "pipeline": [{
-          "$match": {
-            "$expr": {
-              "$eq": ["$_id", "$$rssObjID"]
-            }
-          }
-        }],
-        "as": "rssDetails"
-      }
-    },
-    {
-      "$unwind": "$rssDetails"
-    },
-    {
-      "$lookup": {
-        "let": {
-          "siteObjID": {
-            "$toObjectId": "$rssDetails.site"
-          }
-        },
-        "from": "news_sites",
-        "pipeline": [{
-          "$match": {
-            "$expr": {
-              "$eq": ["$_id", "$$siteObjID"]
-            }
-          }
-        }],
-        "as": "siteDetails"
-      }
-    },
-    {
-      $unwind: "$siteDetails"
-    },
-    {
-      "$lookup": {
-        "let": {
-          "categoryObjID": {
-            "$toObjectId": "$rssDetails.category"
-          }
-        },
-        "from": "categories",
-        "pipeline": [{
-          "$match": {
-            "$expr": {
-              "$eq": ["$_id", "$$categoryObjID"]
-            }
-          }
-        }],
-        "as": "categoryDetails"
-      }
-    },
-    {
-      $unwind: "$categoryDetails"
-    },
+  const constantQuery = constants.constantQueryPart
+  var aggregateQuery = [constantQuery[0], constantQuery[1], constantQuery[2], constantQuery[3], constantQuery[4], constantQuery[5],
     {
       "$match": {
-
-        
           "_id": {
             "$in": allFavoriteNews,
           }
@@ -1071,15 +624,21 @@ router.get("/news/anonymous_favorite", async (req, res) => {
     },
   ]
 
-
-
-
   const allNews = News.aggregate(aggregateQuery)
-
-
   const data = []
 
   for await (const news of allNews) {
+
+    const likes = news.likes.length
+    const dislikes = news.dislikes.length
+    const uniqueViews = news.viewers_unique == undefined ? 0 : news.viewers_unique.length
+
+    news["likes"] = likes
+    news["dislikes"] = dislikes
+    news["isLiked"] = false
+    news["isDisliked"] = false
+    news["isFavorited"] = true
+    news["uniqueViews"] = uniqueViews
 
     delete news.__v
     delete news.rss
@@ -1088,26 +647,12 @@ router.get("/news/anonymous_favorite", async (req, res) => {
     delete news.rssDetails.site
     delete news.rssDetails.category
     delete news.categoryDetails.__v
-    const likes = news.likes.length
-    const dislikes = news.dislikes.length
-    const uniqueViews = news.viewers_unique == undefined ? 0 : news.viewers_unique.length
-    delete news.viewers_unique
-
     delete news.likes
     delete news.dislikes
-    news["likes"] = likes
-    news["dislikes"] = dislikes
-
-
-    news["isLiked"] = false
-    news["isDisliked"] = false
-    news["isFavorited"] = true
-    news["uniqueViews"] = uniqueViews
+    delete news.viewers_unique
 
     news.date = moment.unix(news.date).format("LLLL")
     data.push(news)
-
-
   }
   res.send(data)
 }
@@ -1133,70 +678,9 @@ router.get("/news/likes", auth.auth, async (req, res) => {
   const searchWord = req.query.search
   let page = (Math.abs(req.query.page) || 1) - 1;
 
+  const constantQuery = constants.constantQueryPart
+  var aggregateQuery = [constantQuery[0], constantQuery[1], constantQuery[2], constantQuery[3], constantQuery[4], constantQuery[5],
 
-  var aggregateQuery = [{
-      "$lookup": {
-        "let": {
-          "rssObjID": {
-            "$toObjectId": "$rss"
-          }
-        },
-        "from": "rsses",
-        "pipeline": [{
-          "$match": {
-            "$expr": {
-              "$eq": ["$_id", "$$rssObjID"]
-            }
-          }
-        }],
-        "as": "rssDetails"
-      }
-    },
-    {
-      "$unwind": "$rssDetails"
-    },
-    {
-      "$lookup": {
-        "let": {
-          "siteObjID": {
-            "$toObjectId": "$rssDetails.site"
-          }
-        },
-        "from": "news_sites",
-        "pipeline": [{
-          "$match": {
-            "$expr": {
-              "$eq": ["$_id", "$$siteObjID"]
-            }
-          }
-        }],
-        "as": "siteDetails"
-      }
-    },
-    {
-      $unwind: "$siteDetails"
-    },
-    {
-      "$lookup": {
-        "let": {
-          "categoryObjID": {
-            "$toObjectId": "$rssDetails.category"
-          }
-        },
-        "from": "categories",
-        "pipeline": [{
-          "$match": {
-            "$expr": {
-              "$eq": ["$_id", "$$categoryObjID"]
-            }
-          }
-        }],
-        "as": "categoryDetails"
-      }
-    },
-    {
-      $unwind: "$categoryDetails"
-    },
     {
       "$match": {
         "likes": {
@@ -1220,18 +704,9 @@ router.get("/news/likes", auth.auth, async (req, res) => {
   const data = []
 
   for await (const news of allNews) {
-
-    delete news.__v
-    delete news.rss
-    delete news.siteDetails.__v
-    delete news.rssDetails.__v
-    delete news.rssDetails.site
-    delete news.rssDetails.category
-    delete news.categoryDetails.__v
     const likes = news.likes.length
     const dislikes = news.dislikes.length
     const uniqueViews = news.viewers_unique == undefined ? 0 : news.viewers_unique.length
-    delete news.viewers_unique
 
     var isLiked = false,
       isDisliked = false,
@@ -1243,12 +718,19 @@ router.get("/news/likes", auth.auth, async (req, res) => {
       isFavorited = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString()).length > 0 ? true : false
     }
 
+    delete news.__v
+    delete news.rss
+    delete news.siteDetails.__v
+    delete news.rssDetails.__v
+    delete news.rssDetails.site
+    delete news.rssDetails.category
+    delete news.categoryDetails.__v
+    delete news.viewers_unique
     delete news.likes
     delete news.dislikes
+
     news["likes"] = likes
     news["dislikes"] = dislikes
-
-
     news["isLiked"] = isLiked
     news["isDisliked"] = isDisliked
     news["isFavorited"] = isFavorited
@@ -1269,9 +751,7 @@ router.get("/news/likes", auth.auth, async (req, res) => {
 // @route    GET news/dislikes
 // @desc     Gets all disliked posts by user
 router.get("/news/dislikes", auth.auth, async (req, res) => {
-
   const user = req.user
-
   if (!user) {
     res.send({
       "error": true,
@@ -1280,76 +760,13 @@ router.get("/news/dislikes", auth.auth, async (req, res) => {
     return
   }
 
-
   let limit = 10; //news per page
 
   const searchWord = req.query.search
   let page = (Math.abs(req.query.page) || 1) - 1;
 
-
-  var aggregateQuery = [{
-      "$lookup": {
-        "let": {
-          "rssObjID": {
-            "$toObjectId": "$rss"
-          }
-        },
-        "from": "rsses",
-        "pipeline": [{
-          "$match": {
-            "$expr": {
-              "$eq": ["$_id", "$$rssObjID"]
-            }
-          }
-        }],
-        "as": "rssDetails"
-      }
-    },
-    {
-      "$unwind": "$rssDetails"
-    },
-    {
-      "$lookup": {
-        "let": {
-          "siteObjID": {
-            "$toObjectId": "$rssDetails.site"
-          }
-        },
-        "from": "news_sites",
-        "pipeline": [{
-          "$match": {
-            "$expr": {
-              "$eq": ["$_id", "$$siteObjID"]
-            }
-          }
-        }],
-        "as": "siteDetails"
-      }
-    },
-    {
-      $unwind: "$siteDetails"
-    },
-    {
-      "$lookup": {
-        "let": {
-          "categoryObjID": {
-            "$toObjectId": "$rssDetails.category"
-          }
-        },
-        "from": "categories",
-        "pipeline": [{
-          "$match": {
-            "$expr": {
-              "$eq": ["$_id", "$$categoryObjID"]
-            }
-          }
-        }],
-        "as": "categoryDetails"
-      }
-    },
-    {
-      $unwind: "$categoryDetails"
-    },
+  const constantQuery = constants.constantQueryPart
+  var aggregateQuery = [constantQuery[0], constantQuery[1], constantQuery[2], constantQuery[3], constantQuery[4], constantQuery[5],
     {
       "$match": {
         "dislikes": {
@@ -1372,18 +789,10 @@ router.get("/news/dislikes", auth.auth, async (req, res) => {
   const data = []
 
   for await (const news of allNews) {
-
-    delete news.__v
-    delete news.rss
-    delete news.siteDetails.__v
-    delete news.rssDetails.__v
-    delete news.rssDetails.site
-    delete news.rssDetails.category
-    delete news.categoryDetails.__v
     const likes = news.likes.length
     const dislikes = news.dislikes.length
     const uniqueViews = news.viewers_unique == undefined ? 0 : news.viewers_unique.length
-    delete news.viewers_unique
+
 
     var isLiked = false,
       isDisliked = false,
@@ -1395,11 +804,21 @@ router.get("/news/dislikes", auth.auth, async (req, res) => {
       isFavorited = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString()).length > 0 ? true : false
     }
 
+
+
+    delete news.__v
+    delete news.rss
+    delete news.siteDetails.__v
+    delete news.rssDetails.__v
+    delete news.rssDetails.site
+    delete news.rssDetails.category
+    delete news.categoryDetails.__v
+    delete news.viewers_unique
     delete news.likes
     delete news.dislikes
+    
     news["likes"] = likes
     news["dislikes"] = dislikes
-
     news["isLiked"] = isLiked
     news["isDisliked"] = isDisliked
     news["isFavorited"] = isFavorited

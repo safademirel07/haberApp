@@ -8,6 +8,7 @@ import 'package:haber/widgets/news/news_favorite.dart';
 import 'package:haber/widgets/news/news_home.dart';
 import 'package:haber/widgets/user/login.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'user/profile.dart';
 
@@ -24,6 +25,7 @@ class _HomeState extends State<Home> {
     _c = new PageController(
       initialPage: _page,
     );
+
     super.initState();
   }
 
@@ -73,6 +75,8 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.init(context, allowFontScaling: true);
+
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(

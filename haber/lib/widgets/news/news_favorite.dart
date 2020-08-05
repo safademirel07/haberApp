@@ -19,7 +19,6 @@ class NewsFavorite extends StatefulWidget {
 class _NewsFavoriteState extends State<NewsFavorite>
     with SingleTickerProviderStateMixin {
   Future<void> refreshNews() async {
-    print("burasi 1" + Constants.anonymousLoggedIn.toString());
     if (Constants.anonymousLoggedIn == true) {
       String favorites = await SharedPreferenceHelper.getFavorites;
       return Provider.of<NewsProvider>(context, listen: false)
@@ -36,7 +35,6 @@ class _NewsFavoriteState extends State<NewsFavorite>
   }
 
   Future<void> loadMoreNews() async {
-    print("burasi 3");
     if (Constants.anonymousLoggedIn == true) {
       String favorites = await SharedPreferenceHelper.getFavorites;
       return Provider.of<NewsProvider>(context, listen: false)
@@ -63,11 +61,13 @@ class _NewsFavoriteState extends State<NewsFavorite>
           WidgetsBinding.instance.addPostFrameCallback((_) {
             refreshNews();
           });
-        } else
+        } else {
+          Provider.of<NewsProvider>(context, listen: false).clearFavorites();
           Provider.of<NewsProvider>(context, listen: false).fetchFavoriteNews(
             "",
             false,
           );
+        }
       }
     });
 
@@ -76,8 +76,9 @@ class _NewsFavoriteState extends State<NewsFavorite>
 
   @override
   void didChangeDependencies() {
-    if (Provider.of<NewsProvider>(context, listen: false)
+    if (Provider.of<NewsProvider>(context, listen: true)
         .requiredToFetchAgainFavorites) {
+      print("required to fetch???");
       Future.microtask(() {
         Provider.of<NewsProvider>(context, listen: false)
             .setLoadingFavoriteNews = true;
@@ -88,9 +89,10 @@ class _NewsFavoriteState extends State<NewsFavorite>
           WidgetsBinding.instance.addPostFrameCallback((_) {
             refreshNews();
           });
-        } else
+        } else {
           Provider.of<NewsProvider>(context, listen: false)
               .fetchFavoriteNews("", false);
+        }
       });
     }
 
@@ -112,6 +114,8 @@ class _NewsFavoriteState extends State<NewsFavorite>
         .loadingFavoriteNewsMore;
     bool isLoading =
         Provider.of<NewsProvider>(context, listen: true).loadingFavoriteNews;
+
+    print("isLoading build " + isLoading.toString());
 
     return Scaffold(
       body: Column(
@@ -150,7 +154,7 @@ class _NewsFavoriteState extends State<NewsFavorite>
           Divider(
             color: Colors.black,
           ),
-          isLoading == true
+          (isLoading == true)
               ? Expanded(
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey[300],
@@ -158,7 +162,7 @@ class _NewsFavoriteState extends State<NewsFavorite>
                     enabled: true,
                     child: ListView.builder(
                       padding: EdgeInsets.zero,
-                      itemCount: 10,
+                      itemCount: 5,
                       itemBuilder: (BuildContext context, int index) {
                         return NewsShimmer();
                         // return NewsListElement(news, 0, 0, true);

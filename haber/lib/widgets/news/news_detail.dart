@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:haber/app_theme.dart';
 import 'package:haber/data/constants.dart';
@@ -215,12 +216,6 @@ class _NewsDetailState extends State<NewsDetail> {
 
     final News news = listNews[index];
 
-    print("news isliked " + news.isLiked.toString());
-    print("news isDisliked " + news.isDisliked.toString());
-    print("news isFavorited " + news.isFavorited.toString());
-    print("news likes " + news.likes.toString());
-    print("news dislikes " + news.dislikes.toString());
-    print("news uniqueViews " + news.uniqueViews.toString());
     return SafeArea(
       child: Scaffold(
         key: _scaffoldKey,
@@ -332,7 +327,7 @@ class _NewsDetailState extends State<NewsDetail> {
                                 ),
                                 Text(
                                   news.siteDetails.name,
-                                  style: AppTheme.caption2,
+                                  style: AppTheme.caption2Adaptive,
                                 ),
                               ],
                             ),
@@ -347,7 +342,7 @@ class _NewsDetailState extends State<NewsDetail> {
                                 ),
                                 Text(
                                   news.uniqueViews.toString(),
-                                  style: AppTheme.caption2,
+                                  style: AppTheme.caption2Adaptive,
                                 ),
                               ],
                             ),
@@ -380,7 +375,7 @@ class _NewsDetailState extends State<NewsDetail> {
                                 ),
                                 Text(
                                   news.likes.toString(),
-                                  style: AppTheme.caption2,
+                                  style: AppTheme.caption2Adaptive,
                                 ),
                               ],
                             ),
@@ -413,7 +408,7 @@ class _NewsDetailState extends State<NewsDetail> {
                                 ),
                                 Text(
                                   news.dislikes.toString(),
-                                  style: AppTheme.caption2,
+                                  style: AppTheme.caption2Adaptive,
                                 ),
                               ],
                             ),
@@ -428,7 +423,7 @@ class _NewsDetailState extends State<NewsDetail> {
                                 ),
                                 Text(
                                   news.date,
-                                  style: AppTheme.caption2,
+                                  style: AppTheme.caption2Adaptive,
                                 ),
                               ],
                             )
