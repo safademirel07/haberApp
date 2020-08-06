@@ -28,8 +28,9 @@ class UserProvider with ChangeNotifier {
   bool loading = true;
   bool adding = false;
   bool loadingMore = false;
-  int sliderPage = 1;
-  int listPage = 1;
+  int likedPage = 1;
+  int dislikedPage = 1;
+  int commentPage = 1;
 
   int getNewsLikedListIndex(String id) {
     return _likedNews == null
@@ -147,9 +148,9 @@ class UserProvider with ChangeNotifier {
       setLoadingLikedNews = true;
 
     try {
-      if (!isMore) sliderPage = 1;
+      if (!isMore) likedPage = 1;
       UserRequest()
-          .fetchLikedNews((isMore ? (sliderPage + 1) : sliderPage), search)
+          .fetchLikedNews((isMore ? (likedPage + 1) : likedPage), search)
           .then((data) {
         if (data.statusCode == 200) {
           //LogPrint("databody " + data.body);
@@ -159,7 +160,7 @@ class UserProvider with ChangeNotifier {
 
           if (isMore) {
             if (news.length > 0) {
-              ++sliderPage;
+              ++likedPage;
             }
             _likedNews.addAll(news);
             setLoadingLikedNewsMore = false;
@@ -230,9 +231,10 @@ class UserProvider with ChangeNotifier {
       setLoadingDislikedNews = true;
 
     try {
-      if (!isMore) listPage = 1;
+      if (!isMore) dislikedPage = 1;
       UserRequest()
-          .fetchDislikedNews((isMore ? (listPage + 1) : listPage), search)
+          .fetchDislikedNews(
+              (isMore ? (dislikedPage + 1) : dislikedPage), search)
           .then((data) {
         if (data.statusCode == 200) {
           List<News> news = (json.decode(data.body) as List)
@@ -241,7 +243,7 @@ class UserProvider with ChangeNotifier {
 
           if (isMore) {
             if (news.length > 0) {
-              ++listPage;
+              ++dislikedPage;
             }
             _dislikedNews.addAll(news);
             setLoadingDislikedNewsMore = false;
@@ -293,9 +295,10 @@ class UserProvider with ChangeNotifier {
       setLoadingCommentedNews = true;
 
     try {
-      if (!isMore) listPage = 1;
+      if (!isMore) commentPage = 1;
       UserRequest()
-          .fetchCommentedNews((isMore ? (listPage + 1) : listPage), search)
+          .fetchCommentedNews(
+              (isMore ? (commentPage + 1) : commentPage), search)
           .then((data) {
         if (data.statusCode == 200) {
           List<News> news = (json.decode(data.body) as List)
@@ -303,7 +306,7 @@ class UserProvider with ChangeNotifier {
               .toList();
           if (isMore) {
             if (news.length > 0) {
-              ++listPage;
+              ++commentPage;
             }
             _commentedNews.addAll(news);
             setLoadingCommentedNewsMore = false;

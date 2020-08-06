@@ -36,6 +36,7 @@ class NewsProvider with ChangeNotifier {
   bool loadingMore = false;
   int sliderPage = 1;
   int listPage = 1;
+  int favoritePage = 1;
 
   bool _isAnonymous = true;
   bool get isAnonymous => _isAnonymous;
@@ -273,9 +274,10 @@ class NewsProvider with ChangeNotifier {
       setLoadingFavoriteNews = true;
 
     try {
-      if (!isMore) listPage = 1;
+      if (!isMore) favoritePage = 1;
       NewsRequest()
-          .fetchNewsFavorite((isMore ? (listPage + 1) : listPage), search)
+          .fetchNewsFavorite(
+              (isMore ? (favoritePage + 1) : favoritePage), search)
           .then((data) {
         if (data.statusCode == 200) {
           List<News> news = (json.decode(data.body) as List)
@@ -283,7 +285,7 @@ class NewsProvider with ChangeNotifier {
               .toList();
           if (isMore) {
             if (news.length > 0) {
-              ++listPage;
+              ++favoritePage;
             }
             _favoriteNews.addAll(news);
             setLoadingFavoriteNewsMore = false;
