@@ -613,7 +613,7 @@ router.get("/news/favorite", auth.auth, async (req, res) => {
     delete news.rssDetails.site
     delete news.rssDetails.category
     delete news.categoryDetails.__v
-    //delete news.viewers_unique
+    delete news.viewers_unique
     delete news.likes
     delete news.dislikes
 

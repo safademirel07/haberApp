@@ -18,6 +18,11 @@ class SearchProvider with ChangeNotifier {
   bool get loadingSearchNews => _loadingSearchNews;
   bool get loadingSearchNewsMore => _loadingSearchNewsMore;
 
+  void clearSearchNews() {
+    _searchNews = List<News>();
+    notifyListeners();
+  }
+
   int searchPage = 1;
 
   set setLoadingSearchNews(bool value) {

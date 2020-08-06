@@ -6,6 +6,7 @@ import 'package:haber/models/Firebase.dart';
 import 'package:haber/providers/user_provider.dart';
 import 'package:haber/widgets/news/news_favorite.dart';
 import 'package:haber/widgets/news/news_home.dart';
+import 'package:haber/widgets/search/search.dart';
 import 'package:haber/widgets/user/login.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -33,12 +34,14 @@ class _HomeState extends State<Home> {
 
   final List<Widget> _childrenLoggedIn = [
     NewsHome(),
+    Search(),
     NewsFavorite(),
     Profile(),
   ];
 
   final List<Widget> _childrenLoggedOut = [
     NewsHome(),
+    Search(),
     NewsFavorite(),
     Login(),
   ];
@@ -46,6 +49,7 @@ class _HomeState extends State<Home> {
   void onTabTapped(int index) {
     this._c.animateToPage(index,
         duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+    print("index degisti");
 
     setState(() {
       _currentIndex = index;
@@ -96,6 +100,7 @@ class _HomeState extends State<Home> {
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _page,
           onTap: (index) {
+            print("index degisti");
             this._c.animateToPage(index,
                 duration: const Duration(milliseconds: 500),
                 curve: Curves.easeInOut);
@@ -105,6 +110,10 @@ class _HomeState extends State<Home> {
             new BottomNavigationBarItem(
               icon: Icon(Icons.comment),
               title: Text('Haberler'),
+            ),
+            new BottomNavigationBarItem(
+              icon: Icon(Icons.search),
+              title: Text('Arama'),
             ),
             new BottomNavigationBarItem(
               icon: Icon(Icons.favorite),

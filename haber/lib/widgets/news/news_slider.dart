@@ -53,22 +53,6 @@ class NewsSlider implements SliverPersistentHeaderDelegate {
                   style: AppTheme.headline,
                 ),
               ),
-              Row(
-                children: <Widget>[
-                  IconButton(
-                    icon: Icon(
-                      Icons.search,
-                      color: Colors.black,
-                    ),
-                    onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        "/search",
-                      );
-                    },
-                  ),
-                ],
-              )
             ],
           ),
         ),
