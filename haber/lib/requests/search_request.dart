@@ -14,13 +14,31 @@ class SearchRequest {
     String typeQuery = "&type=$type";
     dynamic token = await SharedPreferenceHelper.getAuthToken;
 
-    return http.get(
-      Constants.api_url +
-          "/news/search?page=$page&search=$searchQuery$sortQuery$typeQuery",
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer ${token.toString()}',
-      },
-    );
+    switch (type) {
+      case Constants.newsTypeFavorites:
+        {
+          return http.get(
+            Constants.api_url +
+                "/news/favorite?page=$page$searchQuery$sortQuery$typeQuery",
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+              'Authorization': 'Bearer ${token.toString()}',
+            },
+          );
+        }
+        break;
+      default:
+        {
+          return http.get(
+            Constants.api_url +
+                "/news/search?page=$page&search=$searchQuery$sortQuery$typeQuery",
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+              'Authorization': 'Bearer ${token.toString()}',
+            },
+          );
+        }
+        break;
+    }
   }
 }

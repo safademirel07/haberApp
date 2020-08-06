@@ -520,6 +520,7 @@ router.get("/news/favorite", auth.auth, async (req, res) => {
   let limit = 10; //news per page
 
   const searchWord = req.query.search
+  const sort = req.query.sort
   let page = (Math.abs(req.query.page) || 1) - 1;
 
   var allFavoriteNews = []
@@ -528,16 +529,58 @@ router.get("/news/favorite", auth.auth, async (req, res) => {
     allFavoriteNews.push(mongoose.Types.ObjectId(favorite.news))
   })
 
+  const search = searchWord == undefined ? "" : searchWord
+
+
+  var sortMethod = {date : -1}
+
+  if (sort == 0) { // newest to old
+      sortMethod = {date : -1}
+  } else if (sort == 1) {
+      sortMethod = {date : 1}
+  }
+  else if (sort == 2) { // newest to old
+      sortMethod = {uniqueViewerLength : -1}
+  } else if (sort == 3) {
+      sortMethod = {uniqueViewerLength : 1}
+  }
+
+
   const constantQuery = constants.constantQueryPart
   var aggregateQuery = [constantQuery[0], constantQuery[1], constantQuery[2], constantQuery[3], constantQuery[4], constantQuery[5],
+
     {
       "$match": {
 
-        
-          "_id": {
-            "$in": allFavoriteNews,
+
+        "_id": {
+          "$in": allFavoriteNews,
+        },
+
+        $or: [{
+          "title": {
+            '$regex': search,
+            '$options': 'i'
           }
+        }, ],
+
+
+      }
+    },
+    {
+      $addFields: {
+        "viewers_unique": {
+          $ifNull: [
+            0,
+            {
+              $size: "$viewers_unique"
+            },
+          ]
         }
+      },
+    },
+    {
+      "$sort": sortMethod
     },
     {
       "$skip": limit * page
@@ -553,7 +596,7 @@ router.get("/news/favorite", auth.auth, async (req, res) => {
   for await (const news of allNews) {    
     const likes = news.likes.length
     const dislikes = news.dislikes.length
-    const uniqueViews = news.viewers_unique == undefined ? 0 : news.viewers_unique.length
+    const uniqueViews = news.viewers_unique
     var isLiked = false, isDisliked = false, isFavorited = false
 
     if (user != undefined)
@@ -570,7 +613,7 @@ router.get("/news/favorite", auth.auth, async (req, res) => {
     delete news.rssDetails.site
     delete news.rssDetails.category
     delete news.categoryDetails.__v
-    delete news.viewers_unique
+    //delete news.viewers_unique
     delete news.likes
     delete news.dislikes
 
