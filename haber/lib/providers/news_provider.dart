@@ -6,6 +6,7 @@ import 'package:haber/data/constants.dart';
 import 'dart:convert';
 
 import 'package:haber/models/News.dart';
+import 'package:haber/providers/search_provider.dart';
 import 'package:haber/providers/user_provider.dart';
 import 'package:haber/requests/news_request.dart';
 import 'package:provider/provider.dart';
@@ -499,6 +500,9 @@ class NewsProvider with ChangeNotifier {
     }
 
     Provider.of<UserProvider>(context, listen: false)
+        .updateAllLists(id, returnData);
+
+    Provider.of<SearchProvider>(context, listen: false)
         .updateAllLists(id, returnData);
 
     notifyListeners();

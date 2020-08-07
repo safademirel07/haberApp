@@ -87,13 +87,18 @@ async function parseRSS(rssURL, rssID, rssCategory) {
             const onlyJson = $('[type="application/ld+json"]')
 
             var unixTimeStamp = moment(item.pubDate[0]).unix();
+
+            var body = JSON.parse(onlyJson.get()[0].children[0].data).articleBody.trim();
+
+            if (body == undefined)
+                body = ""
             
             try {
                 const createNews = new News({
                     rss: rssID,
                     title: item.title[0],
                     description: striptags(item.description[0], [], ' ').trim(),
-                    body: JSON.parse(onlyJson.get()[0].children[0].data).articleBody.trim(),
+                    body: body,
                     date: unixTimeStamp,
                     link: newsItemUrl,
                     image: item.enclosure[0]["$"].url,

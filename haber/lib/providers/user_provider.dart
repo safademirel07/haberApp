@@ -399,16 +399,11 @@ class UserProvider with ChangeNotifier {
 
   Future<void> changeProfilePhoto(String url) async {
     try {
-      UserRequest().changeProfilePhoto(url).then((data) async {
+      Random random = new Random();
+      String newUrl = url + "&new=id_" + random.nextInt(100000).toString();
+      UserRequest().changeProfilePhoto(newUrl).then((data) async {
         if (data.statusCode == 200) {
           _user = User.fromJson(json.decode(data.body), "");
-          await DefaultCacheManager()
-              .removeFile(_user.photoUrl); //invalidate old image
-          Random random = new Random();
-          _user.photoUrl += "&new=id_" +
-              random
-                  .nextInt(100000)
-                  .toString(); //give random id , because if it's same url it doesnt rebuild.
           notifyListeners();
         } else {
           print("error2" + data.statusCode.toString());

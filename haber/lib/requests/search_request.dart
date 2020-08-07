@@ -27,6 +27,54 @@ class SearchRequest {
           );
         }
         break;
+      case Constants.newsTypeSlider:
+        {
+          return http.get(
+            Constants.api_url +
+                "/news/slider?page=$page$searchQuery$sortQuery$typeQuery",
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+              'Authorization': 'Bearer ${token.toString()}',
+            },
+          );
+        }
+        break;
+      case Constants.newsTypeList:
+        {
+          return http.get(
+            Constants.api_url +
+                "/news/get?page=$page$searchQuery$sortQuery$typeQuery",
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+              'Authorization': 'Bearer ${token.toString()}',
+            },
+          );
+        }
+        break;
+      case Constants.newsTypeLiked:
+        {
+          return http.get(
+            Constants.api_url +
+                "/news/likes?page=$page$searchQuery$sortQuery$typeQuery",
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+              'Authorization': 'Bearer ${token.toString()}',
+            },
+          );
+        }
+        break;
+      case Constants.newsTypeDisliked:
+        {
+          return http.get(
+            Constants.api_url +
+                "/news/dislikes?page=$page$searchQuery$sortQuery$typeQuery",
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+              'Authorization': 'Bearer ${token.toString()}',
+            },
+          );
+        }
+        break; 
       default:
         {
           return http.get(

@@ -48,7 +48,7 @@ class _NewsListElementState extends State<NewsListElement> {
               flex: 40,
               child: Material(
                 child: Hero(
-                  tag: "list_" +
+                  tag: "type_" + widget.type.toString() +
                       widget.news.image +
                       "_id" +
                       widget.index.toString(),

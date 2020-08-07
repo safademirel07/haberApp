@@ -11,6 +11,7 @@ import 'package:haber/models/Firebase.dart';
 import 'package:haber/models/News.dart';
 import 'package:haber/models/NewsDetails.dart';
 import 'package:haber/providers/news_provider.dart';
+import 'package:haber/providers/search_provider.dart';
 import 'package:haber/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
@@ -160,6 +161,10 @@ class _NewsDetailState extends State<NewsDetail> {
           listNews = Provider.of<UserProvider>(context, listen: false)
               .getCommentedNews();
           break;
+        case Constants.newsTypeSearch:
+          listNews = Provider.of<SearchProvider>(context, listen: false)
+              .getSearchNews();
+          break;
 
         default:
       }
@@ -209,6 +214,10 @@ class _NewsDetailState extends State<NewsDetail> {
       case Constants.newsTypecommented:
         listNews =
             Provider.of<UserProvider>(context, listen: true).getCommentedNews();
+        break;
+      case Constants.newsTypeSearch:
+        listNews =
+            Provider.of<SearchProvider>(context, listen: true).getSearchNews();
         break;
 
       default:
@@ -274,7 +283,7 @@ class _NewsDetailState extends State<NewsDetail> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: Hero(
-                      tag: (isSlider ? "slider_" : "list_") +
+                      tag: "type_" + type.toString() +
                           news.image +
                           "_id$index",
                       child: CachedNetworkImage(

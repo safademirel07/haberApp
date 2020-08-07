@@ -15,8 +15,25 @@ class SearchProvider with ChangeNotifier {
 
   bool _loadingSearchNews = false, _loadingSearchNewsMore = false;
 
+  String _filterType = Constants.searchList;
+  String _sortType = Constants.searchSortNewToOld;
+
   bool get loadingSearchNews => _loadingSearchNews;
   bool get loadingSearchNewsMore => _loadingSearchNewsMore;
+
+  String get getFilterType => _filterType;
+
+  set setFilterType(String type) {
+    _filterType = type;
+    notifyListeners();
+  }
+
+  String get getSortType => _sortType;
+
+  set setSortType(String type) {
+    _sortType = type;
+    notifyListeners();
+  }
 
   void clearSearchNews() {
     _searchNews = List<News>();
@@ -35,8 +52,38 @@ class SearchProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  int getNewsSearchListIndex(String id) {
+    return _searchNews == null
+        ? -1
+        : _searchNews.indexWhere((news) => news.sId == id);
+  }
+
+  void updateAllLists(String id, News returnNews) {
+    News fromSearch;
+
+    if (getNewsSearchListIndex(id) != -1) {
+      fromSearch = _searchNews[getNewsSearchListIndex(id)];
+    }
+
+    if (fromSearch != null) {
+      print("uniqueViews " + returnNews.uniqueViews.toString());
+
+      fromSearch.likes = returnNews.likes;
+      fromSearch.dislikes = returnNews.dislikes;
+      fromSearch.viewers = returnNews.viewers;
+      fromSearch.isLiked = returnNews.isLiked;
+      fromSearch.isDisliked = returnNews.isDisliked;
+      fromSearch.uniqueViews = returnNews.uniqueViews;
+      fromSearch.isFavorited = returnNews.isFavorited;
+    }
+
+    notifyListeners();
+  }
+
   Future<void> fetchSearchNews(
       String search, String sort, int type, bool isMore) async {
+    if (loadingSearchNewsMore) return;
+
     if (isMore)
       setLoadingSearchNewsMore = true;
     else
@@ -52,6 +99,8 @@ class SearchProvider with ChangeNotifier {
           List<News> news = (json.decode(data.body) as List)
               .map((data) => News.fromJson(data))
               .toList();
+
+          print("search page ne" + searchPage.toString());
 
           if (isMore) {
             if (news.length > 0) {

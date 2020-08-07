@@ -31,6 +31,21 @@ class Constants {
   static const int newsTypeLiked = 4;
   static const int newsTypeDisliked = 5;
   static const int newsTypecommented = 6;
+  static const int newsTypeSearch = 7;
+
+  static const String searchSortNewToOld = "Yeniden Eskiye"; //0
+  static const String searchSortOldToNew = "Eskiden Yeniye"; //1
+  static const String searchSortReaderDesc = "En çok okunandan En aza"; //2
+  static const String searchSortReaderAsc = "En az okunandan En çoka"; //3
+  static const String searchSortCommentDesc =  "En çok yorumdan En aza"; //4
+  static const String searchSortCommentAsc =  "En az yorumdan En çoka"; //55
+
+  static const String searchSlider = "Manşet";
+  static const String searchList = "Tüm Haberler";
+  static const String searchFavorite = "Favorilerim";
+  static const String searchLiked = "Beğendiklerim";
+  static const String searchDisliked = "Beğenmediklerim";
+  static const String searchCommented = "Yorum yaptıklarım";
 
   static bool loggedIn = false;
   static bool anonymousLoggedIn = false;

@@ -21,7 +21,6 @@ router.get("/news/get", auth.auth_test, async (req, res) => {
   let limit = 10; //news per page
   const newsSites = req.query.news_sites
   const categories = req.query.categories
-  const searchWord = req.query.search
   let page = (Math.abs(req.query.page) || 1) - 1;
 
   var filterSites = []
@@ -40,12 +39,50 @@ router.get("/news/get", auth.auth_test, async (req, res) => {
     });
   }
 
+  const searchWord = req.query.search
+  const sort = req.query.sort
+  const search = searchWord == undefined ? "" : searchWord
+  var sortMethod = {date : -1}
+
+  console.log("sort ne geliyor?" + sort)
+
+  if (sort == 0) { // newest to old
+      sortMethod = {date : -1}
+  } else if (sort == 1) {
+      sortMethod = {date : 1}
+  }
+  else if (sort == 2) { // newest to old
+      sortMethod = {viewers_unique : -1}
+  } else if (sort == 3) {
+      sortMethod = {viewers_unique : 1}
+  }
+
   const constantQuery = constants.constantQueryPart
-  var aggregateQuery = [constantQuery[0],constantQuery[1],constantQuery[2],constantQuery[3],constantQuery[4],constantQuery[5],
+  var aggregateQuery = [constantQuery[0], constantQuery[1], constantQuery[2], constantQuery[3], constantQuery[4], constantQuery[5],
     {
-      "$sort": {
-        date: -1
+      "$match": {
+        $or: [{
+          "title": {
+            '$regex': search,
+            '$options': 'i'
+          }, 
+          "description": {
+            '$regex': search,
+            '$options': 'i'
+          }, 
+          "body": {
+            '$regex': search,
+            '$options': 'i'
+          }
+        }, ],
       }
+    },
+
+    {
+      $addFields: {uniqueViews : { $cond: { if: { $isArray: "$viewers_unique" }, then: { $size: "$viewers_unique" }, else:0} }},
+    }
+    , {
+      "$sort": sortMethod
     },
     {
       "$skip": limit * page
@@ -84,6 +121,9 @@ router.get("/news/get", auth.auth_test, async (req, res) => {
         }
       },
       {
+        $addFields: {uniqueViews : { $cond: { if: { $isArray: "$viewers_unique" }, then: { $size: "$viewers_unique" }, else:0} }},
+      },
+      {
         "$sort": {
           date: -1
         }
@@ -104,7 +144,6 @@ router.get("/news/get", auth.auth_test, async (req, res) => {
 
     const likes = news.likes.length
     const dislikes = news.dislikes.length
-    const uniqueViews = news.viewers_unique == undefined ? 0 : news.viewers_unique.length
     var isLiked = false, isDisliked = false, isFavorited = false
 
     if (user != undefined)
@@ -113,6 +152,8 @@ router.get("/news/get", auth.auth_test, async (req, res) => {
       isDisliked = news.dislikes.filter(dislike => dislike.users.toString() == user._id.toString()).length > 0 ? true : false
       isFavorited = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString()).length > 0 ? true : false
     }
+
+    console.log("uniqueViews siralama " + news.uniqueViews)
 
     delete news.__v
     delete news.rss
@@ -130,7 +171,7 @@ router.get("/news/get", auth.auth_test, async (req, res) => {
     news["isLiked"] = isLiked
     news["isDisliked"] = isDisliked
     news["isFavorited"] = isFavorited
-    news["uniqueViews"] = uniqueViews
+
 
     news.date = moment.unix(news.date).format("LLLL")
     data.push(news)
@@ -158,6 +199,24 @@ router.get("/news/slider", auth.auth_test, async (req, res) => {
   var latestID = mongoose.Types.ObjectId("5f135127c961bd0bb0ba82b7")
   var homeID = mongoose.Types.ObjectId("5f135136c961bd0bb0ba82b8")
 
+  const searchWord = req.query.search
+  const sort = req.query.sort
+  const search = searchWord == undefined ? "" : searchWord
+  var sortMethod = {date : -1}
+
+  if (sort == 0) { // newest to old
+      sortMethod = {date : -1}
+  } else if (sort == 1) {
+      sortMethod = {date : 1}
+  }
+  else if (sort == 2) { // newest to old
+      sortMethod = {uniqueViews : -1}
+  } else if (sort == 3) {
+      sortMethod = {uniqueViews : 1}
+  }
+
+  console.log("sortmethod " + sortMethod)
+
   const constantQuery = constants.constantQueryPart
 
   var aggregateQuery = [constantQuery[0],constantQuery[1],constantQuery[2],constantQuery[3],constantQuery[4],constantQuery[5],
@@ -165,13 +224,29 @@ router.get("/news/slider", auth.auth_test, async (req, res) => {
       "$match": {
         "rssDetails.category": {
           "$in": [latestID, homeID]
-        }
+        },
+        
+          $or: [{
+            "title": {
+              '$regex': search,
+              '$options': 'i'
+            }, 
+            "description": {
+              '$regex': search,
+              '$options': 'i'
+            }, 
+            "body": {
+              '$regex': search,
+              '$options': 'i'
+            }
+          }, ],
+        
       }
     },
     {
-      "$sort": {
-        date: -1 //date by Descending
-      }
+      $addFields: {uniqueViews: { $cond: { if: { $isArray: "$viewers_unique" }, then: { $size: "$viewers_unique" }, else:0} }},
+    }, {
+      "$sort": sortMethod
     },
     {
       "$skip": limit * page
@@ -182,11 +257,44 @@ router.get("/news/slider", auth.auth_test, async (req, res) => {
 
   if (filterSites.length > 0) {
     aggregateQuery = [constantQuery[0], constantQuery[1], constantQuery[2], constantQuery[3], constantQuery[4], constantQuery[5],
-      {
-        "$sort": {
-          date: -1 //date by Descending
-        }
-      },
+    {
+      "$match": {
+
+        "$and": [{
+            "rssDetails.category": {
+              "$in": [latestID, homeID]
+            }
+          },
+          {
+            "rssDetails.site": {
+              "$in": filterSites
+            }
+          },
+          {
+            $or: [{
+              "title": {
+                '$regex': search,
+                '$options': 'i'
+              }, 
+              "description": {
+                '$regex': search,
+                '$options': 'i'
+              }, 
+              "body": {
+                '$regex': search,
+                '$options': 'i'
+              }
+            }, ],
+          }
+        ]
+      }
+
+    },
+    {
+      $addFields: {uniqueViews: { $cond: { if: { $isArray: "$viewers_unique" }, then: { $size: "$viewers_unique" }, else:0} }},
+    }, {
+      "$sort": sortMethod
+    },
 
       {
         "$skip": limit * page
@@ -202,7 +310,6 @@ router.get("/news/slider", auth.auth_test, async (req, res) => {
   for await (const news of allNews) {
     const likes = news.likes.length
     const dislikes = news.dislikes.length
-    const uniqueViews = news.viewers_unique == undefined ? 0 : news.viewers_unique.length
     var isLiked = false, isDisliked = false, isFavorited = false
 
     if (user != undefined)
@@ -228,7 +335,6 @@ router.get("/news/slider", auth.auth_test, async (req, res) => {
     news["isLiked"] = isLiked
     news["isDisliked"] = isDisliked
     news["isFavorited"] = isFavorited
-    news["uniqueViews"] = uniqueViews
 
     news.date = moment.unix(news.date).format("LLLL")
     data.push(news)
@@ -519,8 +625,6 @@ router.get("/news/favorite", auth.auth, async (req, res) => {
   const user = req.user
   let limit = 10; //news per page
 
-  const searchWord = req.query.search
-  const sort = req.query.sort
   let page = (Math.abs(req.query.page) || 1) - 1;
 
   var allFavoriteNews = []
@@ -529,9 +633,9 @@ router.get("/news/favorite", auth.auth, async (req, res) => {
     allFavoriteNews.push(mongoose.Types.ObjectId(favorite.news))
   })
 
+  const searchWord = req.query.search
+  const sort = req.query.sort
   const search = searchWord == undefined ? "" : searchWord
-
-
   var sortMethod = {date : -1}
 
   if (sort == 0) { // newest to old
@@ -540,9 +644,9 @@ router.get("/news/favorite", auth.auth, async (req, res) => {
       sortMethod = {date : 1}
   }
   else if (sort == 2) { // newest to old
-      sortMethod = {uniqueViewerLength : -1}
+      sortMethod = {uniqueViews : -1}
   } else if (sort == 3) {
-      sortMethod = {uniqueViewerLength : 1}
+      sortMethod = {uniqueViews : 1}
   }
 
 
@@ -568,16 +672,7 @@ router.get("/news/favorite", auth.auth, async (req, res) => {
       }
     },
     {
-      $addFields: {
-        "viewers_unique": {
-          $ifNull: [
-            0,
-            {
-              $size: "$viewers_unique"
-            },
-          ]
-        }
-      },
+      $addFields: {uniqueViews : { $cond: { if: { $isArray: "$viewers_unique" }, then: { $size: "$viewers_unique" }, else:0} }},
     },
     {
       "$sort": sortMethod
@@ -596,7 +691,6 @@ router.get("/news/favorite", auth.auth, async (req, res) => {
   for await (const news of allNews) {    
     const likes = news.likes.length
     const dislikes = news.dislikes.length
-    const uniqueViews = news.viewers_unique
     var isLiked = false, isDisliked = false, isFavorited = false
 
     if (user != undefined)
@@ -622,7 +716,6 @@ router.get("/news/favorite", auth.auth, async (req, res) => {
     news["isLiked"] = isLiked
     news["isDisliked"] = isDisliked
     news["isFavorited"] = isFavorited
-    news["uniqueViews"] = uniqueViews
 
     news.date = moment.unix(news.date).format("LLLL")
     data.push(news)
@@ -661,6 +754,9 @@ router.get("/news/anonymous_favorite", async (req, res) => {
         }
     },
     {
+      $addFields: {uniqueViews : { $cond: { if: { $isArray: "$viewers_unique" }, then: { $size: "$viewers_unique" }, else:0} }},
+    },
+    {
       "$skip": limit * page
     }, {
       "$limit": limit
@@ -674,14 +770,12 @@ router.get("/news/anonymous_favorite", async (req, res) => {
 
     const likes = news.likes.length
     const dislikes = news.dislikes.length
-    const uniqueViews = news.viewers_unique == undefined ? 0 : news.viewers_unique.length
 
     news["likes"] = likes
     news["dislikes"] = dislikes
     news["isLiked"] = false
     news["isDisliked"] = false
     news["isFavorited"] = true
-    news["uniqueViews"] = uniqueViews
 
     delete news.__v
     delete news.rss
@@ -718,8 +812,23 @@ router.get("/news/likes", auth.auth, async (req, res) => {
 
   let limit = 10; //news per page
 
-  const searchWord = req.query.search
   let page = (Math.abs(req.query.page) || 1) - 1;
+
+  const searchWord = req.query.search
+  const sort = req.query.sort
+  const search = searchWord == undefined ? "" : searchWord
+  var sortMethod = {date : -1}
+
+  if (sort == 0) { // newest to old
+      sortMethod = {date : -1}
+  } else if (sort == 1) {
+      sortMethod = {date : 1}
+  }
+  else if (sort == 2) { // newest to old
+      sortMethod = {uniqueViews : -1}
+  } else if (sort == 3) {
+      sortMethod = {uniqueViews : 1}
+  }
 
   const constantQuery = constants.constantQueryPart
   var aggregateQuery = [constantQuery[0], constantQuery[1], constantQuery[2], constantQuery[3], constantQuery[4], constantQuery[5],
@@ -730,8 +839,29 @@ router.get("/news/likes", auth.auth, async (req, res) => {
           "$elemMatch": {
             users: user._id
           }
-        }
+        },
+        
+          $or: [{
+            "title": {
+              '$regex': search,
+              '$options': 'i'
+            }, 
+            "description": {
+              '$regex': search,
+              '$options': 'i'
+            }, 
+            "body": {
+              '$regex': search,
+              '$options': 'i'
+            }
+          }, ],
+        
       }
+    },
+    {
+      $addFields: {uniqueViews : { $cond: { if: { $isArray: "$viewers_unique" }, then: { $size: "$viewers_unique" }, else:0} }},
+    }, {
+      "$sort": sortMethod
     },
 
     {
@@ -749,7 +879,6 @@ router.get("/news/likes", auth.auth, async (req, res) => {
   for await (const news of allNews) {
     const likes = news.likes.length
     const dislikes = news.dislikes.length
-    const uniqueViews = news.viewers_unique == undefined ? 0 : news.viewers_unique.length
 
     var isLiked = false,
       isDisliked = false,
@@ -777,7 +906,6 @@ router.get("/news/likes", auth.auth, async (req, res) => {
     news["isLiked"] = isLiked
     news["isDisliked"] = isDisliked
     news["isFavorited"] = isFavorited
-    news["uniqueViews"] = uniqueViews
 
     news.date = moment.unix(news.date).format("LLLL")
 
@@ -806,6 +934,21 @@ router.get("/news/dislikes", auth.auth, async (req, res) => {
   let limit = 10; //news per page
 
   const searchWord = req.query.search
+  const sort = req.query.sort
+  const search = searchWord == undefined ? "" : searchWord
+  var sortMethod = {date : -1}
+
+  if (sort == 0) { // newest to old
+      sortMethod = {date : -1}
+  } else if (sort == 1) {
+      sortMethod = {date : 1}
+  }
+  else if (sort == 2) { // newest to old
+      sortMethod = {uniqueViews : -1}
+  } else if (sort == 3) {
+      sortMethod = {uniqueViews : 1}
+  }
+  
   let page = (Math.abs(req.query.page) || 1) - 1;
 
   const constantQuery = constants.constantQueryPart
@@ -816,9 +959,31 @@ router.get("/news/dislikes", auth.auth, async (req, res) => {
           "$elemMatch": {
             users: user._id
           }
-        }
+        },
+        
+          $or: [{
+            "title": {
+              '$regex': search,
+              '$options': 'i'
+            }, 
+            "description": {
+              '$regex': search,
+              '$options': 'i'
+            }, 
+            "body": {
+              '$regex': search,
+              '$options': 'i'
+            }
+          }, ],
+        
       }
     },
+    {
+      $addFields: {uniqueViews : { $cond: { if: { $isArray: "$viewers_unique" }, then: { $size: "$viewers_unique" }, else:0} }},
+    },
+     {
+      "$sort": sortMethod
+    }, 
     {
       "$skip": limit * page
     }, {
@@ -834,7 +999,6 @@ router.get("/news/dislikes", auth.auth, async (req, res) => {
   for await (const news of allNews) {
     const likes = news.likes.length
     const dislikes = news.dislikes.length
-    const uniqueViews = news.viewers_unique == undefined ? 0 : news.viewers_unique.length
 
 
     var isLiked = false,
@@ -865,7 +1029,6 @@ router.get("/news/dislikes", auth.auth, async (req, res) => {
     news["isLiked"] = isLiked
     news["isDisliked"] = isDisliked
     news["isFavorited"] = isFavorited
-    news["uniqueViews"] = uniqueViews
 
     news.date = moment.unix(news.date).format("LLLL")
     data.push(news)
