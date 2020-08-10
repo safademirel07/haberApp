@@ -17,10 +17,9 @@ import 'package:haber/widgets/news/news_slider.dart';
 import 'package:haber/widgets/others/multi_select_checkbox.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
+
 import 'dart:async';
 
-import 'package:webview_flutter/webview_flutter.dart';
 
 class NewsHome extends StatefulWidget {
   @override

@@ -31,6 +31,11 @@ class SharedPreferenceHelper {
     return setBool(Constants.init_pref, value);
   }
 
+  static Future<bool> get getLanding => getBool(Constants.landing_token);
+  static Future setLanding(bool value) {
+    return setBool(Constants.landing_token, value);
+  }
+
   static Future<bool> get getSabah => getBool(Constants.sabah_pref);
   static Future setSabah(bool value) {
     return setBool(Constants.sabah_pref, value);

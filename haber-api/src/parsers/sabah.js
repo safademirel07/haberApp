@@ -91,7 +91,7 @@ async function parseRSS(rssURL, rssID, rssCategory) {
             var body = JSON.parse(onlyJson.get()[0].children[0].data).articleBody.trim();
 
             if (body == undefined)
-                body = ""
+                body = "No data."
             
             try {
                 const createNews = new News({

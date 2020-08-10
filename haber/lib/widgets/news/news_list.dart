@@ -3,6 +3,7 @@ import 'package:haber/app_theme.dart';
 import 'package:haber/data/constants.dart';
 import 'package:haber/models/News.dart';
 import 'package:haber/providers/news_provider.dart';
+import 'package:haber/providers/search_provider.dart';
 import 'package:haber/providers/user_provider.dart';
 import 'package:haber/widgets/news/news_list_element.dart';
 import 'package:haber/widgets/news/news_shimmer.dart';
@@ -33,10 +34,14 @@ class _NewsListState extends State<NewsList>
       false,
     );
 
+    String sort = Provider.of<SearchProvider>(context, listen: false)
+        .getSelectedSort()
+        .toString();
     Provider.of<NewsProvider>(context, listen: false).fetchListNews(
       "",
       widget.categories,
       widget.news_sites,
+      sort,
       false,
     );
 
@@ -44,6 +49,7 @@ class _NewsListState extends State<NewsList>
       "",
       widget.categories,
       widget.news_sites,
+      sort,
       false,
     );
   }
@@ -55,10 +61,13 @@ class _NewsListState extends State<NewsList>
       Future.microtask(() {
         widget.news_sites = Provider.of<NewsProvider>(context, listen: false)
             .getSelectedNewsSites();
+        String sort = Provider.of<SearchProvider>(context, listen: false)
+            .getSelectedSort()
+            .toString();
         Provider.of<NewsProvider>(context, listen: false)
             .setrequiredToFetchAgain = false;
-        Provider.of<NewsProvider>(context, listen: false)
-            .fetchListNews("", widget.categories, widget.news_sites, false);
+        Provider.of<NewsProvider>(context, listen: false).fetchListNews(
+            "", widget.categories, widget.news_sites, sort, false);
       });
     }
 
@@ -68,11 +77,14 @@ class _NewsListState extends State<NewsList>
   Future<void> loadMoreNews() {
     widget.news_sites = Provider.of<NewsProvider>(context, listen: false)
         .getSelectedNewsSites();
-
+    String sort = Provider.of<SearchProvider>(context, listen: false)
+        .getSelectedSort()
+        .toString();
     return Provider.of<NewsProvider>(context, listen: false).fetchListNews(
       "",
       widget.categories,
       widget.news_sites,
+      sort,
       true,
     );
   }
@@ -83,10 +95,14 @@ class _NewsListState extends State<NewsList>
       if (context != null) {
         widget.news_sites = Provider.of<NewsProvider>(context, listen: false)
             .getSelectedNewsSites();
+        String sort = Provider.of<SearchProvider>(context, listen: false)
+            .getSelectedSort()
+            .toString();
         Provider.of<NewsProvider>(context, listen: false).fetchListNews(
           "",
           widget.categories,
           widget.news_sites,
+          sort,
           false,
         );
 

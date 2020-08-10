@@ -16,8 +16,7 @@ import 'package:haber/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
 import 'package:swipedetector/swipedetector.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:haber/widgets/others/full_screen_image.dart';
 
 class NewsDetail extends StatefulWidget {
   @override
@@ -32,7 +31,6 @@ class _NewsDetailState extends State<NewsDetail> {
         .showSnackBar(new SnackBar(content: new Text(value)));
   }
 
-  WebViewController _controller;
   bool favoritedAsAnonymous = false;
 
   Future<void> getMoreNews(int type, [List<String> categories]) {
@@ -43,8 +41,11 @@ class _NewsDetailState extends State<NewsDetail> {
               Provider.of<NewsProvider>(context, listen: false)
                   .getSelectedNewsSites();
 
+          String sort = Provider.of<SearchProvider>(context, listen: false)
+              .getSelectedSort()
+              .toString();
           Provider.of<NewsProvider>(context, listen: false)
-              .fetchListNews("", categories, news_sites, true);
+              .fetchListNews("", categories, news_sites, sort, true);
         }
         break;
       case Constants.newsTypeSlider:
@@ -282,30 +283,44 @@ class _NewsDetailState extends State<NewsDetail> {
                   ),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
-                    child: Hero(
-                      tag: "type_" + type.toString() +
-                          news.image +
-                          "_id$index",
-                      child: CachedNetworkImage(
-                        errorWidget: (context, url, error) => Container(
-                            padding: EdgeInsets.all(4.0),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => FullScreenImage(
+                                    news.image,
+                                    "type_" +
+                                        type.toString() +
+                                        news.image +
+                                        "_id$index")));
+                      },
+                      child: Hero(
+                        tag: "type_" +
+                            type.toString() +
+                            news.image +
+                            "_id$index",
+                        child: CachedNetworkImage(
+                          errorWidget: (context, url, error) => Container(
+                              padding: EdgeInsets.all(4.0),
+                              child: Center(
+                                child: Text(
+                                  "Haber fotoğrafı yüklenemedi.",
+                                  textAlign: TextAlign.center,
+                                  style: AppTheme.caption,
+                                ),
+                              )),
+                          placeholder: (context, url) => Container(
                             child: Center(
-                              child: Text(
-                                "Haber fotoğrafı yüklenemedi.",
-                                textAlign: TextAlign.center,
-                                style: AppTheme.caption,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1.0,
                               ),
-                            )),
-                        placeholder: (context, url) => Container(
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 1.0,
                             ),
+                            padding: EdgeInsets.all(4.0),
                           ),
-                          padding: EdgeInsets.all(4.0),
+                          imageUrl: news.image,
+                          fit: BoxFit.fill,
                         ),
-                        imageUrl: news.image,
-                        fit: BoxFit.cover,
                       ),
                     ),
                   ),

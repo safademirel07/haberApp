@@ -58,6 +58,32 @@ class SearchProvider with ChangeNotifier {
         : _searchNews.indexWhere((news) => news.sId == id);
   }
 
+  int getSelectedSort() {
+    int value = 0;
+    switch (getSortType) {
+      case Constants.searchSortNewToOld:
+        value = 0;
+        break;
+      case Constants.searchSortOldToNew:
+        value = 1;
+        break;
+      case Constants.searchSortReaderDesc:
+        value = 2;
+        break;
+      case Constants.searchSortReaderAsc:
+        value = 3;
+        break;
+      case Constants.searchSortCommentDesc:
+        value = 4;
+        break;
+      case Constants.searchSortCommentAsc:
+        value = 5;
+        break;
+      default:
+    }
+    return value;
+  }
+
   void updateAllLists(String id, News returnNews) {
     News fromSearch;
 

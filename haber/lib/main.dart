@@ -14,6 +14,7 @@ import 'package:haber/widgets/news/news_home.dart';
 import 'package:haber/widgets/news/news_search.dart';
 import 'package:haber/widgets/news/news_slider.dart';
 import 'package:haber/widgets/others/connection.dart';
+import 'package:haber/widgets/others/landing.dart';
 import 'package:haber/widgets/others/webview.dart';
 import 'package:haber/widgets/user/login.dart';
 import 'package:haber/widgets/user/profile.dart';
@@ -28,17 +29,54 @@ import 'package:http/http.dart' as http;
 
 import 'package:connectivity/connectivity.dart';
 
+Future<bool> checkApi() async {
+  bool response = false;
+  final http.Response responseHttp = await http
+      .post(
+    Constants.api_url,
+  )
+      .timeout(Duration(seconds: 3), onTimeout: () {
+    return null;
+  }).then((value) {
+    print("value ne" + value.toString());
+    if (value == null) {
+      response = false;
+    } else {
+      response = true;
+      print("value.statusCode " + value.statusCode.toString());
+    }
+  });
+
+  return response;
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
 
   var connectivityResult = await (Connectivity().checkConnectivity());
 
+  bool apiResult = await checkApi();
+  print("apiresult " + apiResult.toString());
+
   if (connectivityResult == ConnectivityResult.none) {
     runApp(
       MaterialApp(
         home: Scaffold(
-          body: Connection(),
+          body: Connection("İnternet Bağlantısı",
+              "İnternet bağlantısı yok, lütfen bağlandıktan sonra tekrar deneyin."),
+        ),
+      ),
+    );
+    return;
+  }
+
+  if (!apiResult) {
+    runApp(
+      MaterialApp(
+        home: Scaffold(
+          body: Connection("Sunucu Bağlantısı",
+              "Sunucuyla bağlantı kurulamadı, lütfen daha sonra tekrar deneyin."),
         ),
       ),
     );
@@ -124,7 +162,9 @@ void main() async {
       await SharedPreferenceHelper.setAnonymousID(authResult.user.uid);
       firebase.setUser(authResult.user, true);
       Constants.anonymousLoggedIn = true;
-      print("No auth. Anonymous ID " + authResult.user.uid);
+      print("response.statuscode " + response.body);
+
+      print("a No auth. Anonymous ID " + authResult.user.uid);
     }
   });
 
@@ -144,6 +184,11 @@ void main() async {
   });
 
   FirebaseAnalytics analytics = FirebaseAnalytics();
+
+  bool landing = await SharedPreferenceHelper.getLanding;
+  if (landing == false) {
+    await SharedPreferenceHelper.setLanding(true);
+  }
 
   if (connectivityResult == ConnectivityResult.wifi ||
       connectivityResult == ConnectivityResult.mobile) {
@@ -170,7 +215,7 @@ void main() async {
         ],
         debugShowCheckedModeBanner: false,
         title: 'haberApp',
-        initialRoute: '/home',
+        initialRoute: landing ? '/home' : '/landing',
         routes: {
           '/home': (context) => Home(),
           '/news': (context) => NewsHome(),
@@ -180,6 +225,7 @@ void main() async {
           '/search': (context) => NewsSearch(),
           '/profile': (context) => Profile(),
           '/browser': (context) => Browser(),
+          '/landing': (context) => Landing(),
         },
       ),
     ));

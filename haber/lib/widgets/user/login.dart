@@ -129,7 +129,7 @@ class _LoginState extends State<Login> {
               Container(
                 margin: EdgeInsets.all(32),
                 child: Text(
-                  "Login",
+                  "Giriş",
                   textAlign: TextAlign.center,
                   style: AppTheme.display1,
                 ),
@@ -148,7 +148,7 @@ class _LoginState extends State<Login> {
                         initialValue: "",
                         decoration: InputDecoration(
                           filled: true,
-                          hintText: "Mail Address",
+                          hintText: "Mail Adresiniz",
                           errorStyle: TextStyle(color: Colors.white),
                           hintStyle: TextStyle(color: Colors.grey),
                           fillColor: Colors.white,
@@ -179,7 +179,7 @@ class _LoginState extends State<Login> {
                         maxLines: 1,
                         decoration: InputDecoration(
                           filled: true,
-                          hintText: "Password",
+                          hintText: "Şifreniz",
                           errorStyle: TextStyle(color: Colors.white),
                           hintStyle: TextStyle(color: Colors.grey),
                           fillColor: Colors.white,
@@ -220,7 +220,7 @@ class _LoginState extends State<Login> {
                                 );
                               },
                               child: Text(
-                                "REGISTER",
+                                "Kaydol",
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.white,
@@ -246,7 +246,7 @@ class _LoginState extends State<Login> {
                               child: clickedLogin
                                   ? CircularProgressIndicator()
                                   : Text(
-                                      "LOGIN",
+                                      "Giriş Yap",
                                       style: TextStyle(
                                         fontSize: 16,
                                         color: Colors.black,

@@ -193,7 +193,7 @@ class NewsProvider with ChangeNotifier {
   }
 
   Future<void> fetchListNews(String search, List<String> categories,
-      List<String> sites, bool isMore) async {
+      List<String> sites, String sort, bool isMore) async {
     if (loadingListNewsMore) return;
 
     if (isMore)
@@ -204,8 +204,8 @@ class NewsProvider with ChangeNotifier {
     try {
       if (!isMore) listPage = 1;
       NewsRequest()
-          .fetchNewsList(
-              (isMore ? (listPage + 1) : listPage), search, categories, sites)
+          .fetchNewsList((isMore ? (listPage + 1) : listPage), search,
+              categories, sites, sort)
           .then((data) {
         if (data.statusCode == 200) {
           List<News> news = (json.decode(data.body) as List)

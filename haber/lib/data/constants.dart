@@ -19,6 +19,8 @@ class Constants {
   static const String password_token = "passToken";
   static const String anonymous_token = "anonymousToken";
 
+  static const String landing_token = "landingPage";
+
   static const String sabahID = "5f1351a1c961bd0bb0ba82bf";
   static const String milliyetID = "5f1351c3c961bd0bb0ba82c0";
   static const String cnnTurkID = "5f13521fc961bd0bb0ba82c1";
@@ -37,8 +39,8 @@ class Constants {
   static const String searchSortOldToNew = "Eskiden Yeniye"; //1
   static const String searchSortReaderDesc = "En çok okunandan En aza"; //2
   static const String searchSortReaderAsc = "En az okunandan En çoka"; //3
-  static const String searchSortCommentDesc =  "En çok yorumdan En aza"; //4
-  static const String searchSortCommentAsc =  "En az yorumdan En çoka"; //55
+  static const String searchSortCommentDesc = "En çok yorumdan En aza"; //4
+  static const String searchSortCommentAsc = "En az yorumdan En çoka"; //55
 
   static const String searchSlider = "Manşet";
   static const String searchList = "Tüm Haberler";

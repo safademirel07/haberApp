@@ -23,12 +23,15 @@ class CustomCircleAvatar extends StatelessWidget {
         maxWidth: radius,
       ),
       child: ClipOval(
-        child: CachedNetworkImage(
-          placeholder: (context, url) => CircularProgressIndicator(),
-          errorWidget: (context, url, error) =>
-              Image.asset("assets/images/default.png"),
-          fit: BoxFit.cover,
-          imageUrl: imagePath,
+        child: Hero(
+          tag: "profilFotografi",
+          child: CachedNetworkImage(
+            placeholder: (context, url) => CircularProgressIndicator(),
+            errorWidget: (context, url, error) =>
+                Image.asset("assets/images/default.png"),
+            fit: BoxFit.cover,
+            imageUrl: imagePath,
+          ),
         ),
       ),
     );

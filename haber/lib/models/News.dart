@@ -41,11 +41,23 @@ class News {
     this.uniqueViews,
   });
 
+  static List<String> coded = [
+    "&#39;",
+    "&#40;",
+    "&#41;",
+    "&#44;",
+    "&#58;",
+    "&#59;"
+  ];
+  static List<String> decoded = ["'", "(", ")", ",", ":", ";"];
+  Map<String, String> map = new Map.fromIterables(coded, decoded);
+
   News.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     viewers = json['viewers'];
     title = json['title'];
     description = json['description'];
+
     body = json['body'];
     date = json['date'];
     link = json['link'];
@@ -53,6 +65,20 @@ class News {
     isLiked = json['isLiked'];
     isDisliked = json['isDisliked'];
     isFavorited = json['isFavorited'];
+
+    if (title != null) {
+      title =
+          map.entries.fold(title, (prev, e) => prev.replaceAll(e.key, e.value));
+    }
+
+    if (body != null) {
+      body =
+          map.entries.fold(body, (prev, e) => prev.replaceAll(e.key, e.value));
+    }
+    if (description != null) {
+      description = map.entries
+          .fold(description, (prev, e) => prev.replaceAll(e.key, e.value));
+    }
 
     rssDetails = json['rssDetails'] != null
         ? new RssDetails.fromJson(json['rssDetails'])

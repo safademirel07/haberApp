@@ -44,7 +44,6 @@ router.get("/news/get", auth.auth_test, async (req, res) => {
   const search = searchWord == undefined ? "" : searchWord
   var sortMethod = {date : -1}
 
-  console.log("sort ne geliyor?" + sort)
 
   if (sort == 0) { // newest to old
       sortMethod = {date : -1}
@@ -124,9 +123,7 @@ router.get("/news/get", auth.auth_test, async (req, res) => {
         $addFields: {uniqueViews : { $cond: { if: { $isArray: "$viewers_unique" }, then: { $size: "$viewers_unique" }, else:0} }},
       },
       {
-        "$sort": {
-          date: -1
-        }
+        "$sort": sortMethod
       },
 
       {
@@ -152,8 +149,6 @@ router.get("/news/get", auth.auth_test, async (req, res) => {
       isDisliked = news.dislikes.filter(dislike => dislike.users.toString() == user._id.toString()).length > 0 ? true : false
       isFavorited = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString()).length > 0 ? true : false
     }
-
-    console.log("uniqueViews siralama " + news.uniqueViews)
 
     delete news.__v
     delete news.rss
@@ -215,7 +210,6 @@ router.get("/news/slider", auth.auth_test, async (req, res) => {
       sortMethod = {uniqueViews : 1}
   }
 
-  console.log("sortmethod " + sortMethod)
 
   const constantQuery = constants.constantQueryPart
 

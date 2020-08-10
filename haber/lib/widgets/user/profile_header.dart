@@ -9,27 +9,18 @@ import 'package:haber/app_theme.dart';
 import 'package:haber/data/constants.dart';
 import 'package:haber/data/sharedpref/shared_preference_helper.dart';
 import 'package:haber/models/Firebase.dart';
-import 'package:haber/models/NewsTest.dart';
 import 'package:haber/models/User.dart';
 import 'package:haber/providers/news_provider.dart';
 import 'package:haber/providers/user_provider.dart';
-import 'package:haber/widgets/news/careousel_slider.dart';
-import 'package:haber/widgets/news/category_list.dart';
-import 'package:haber/widgets/news/news_detail.dart';
-import 'package:haber/widgets/news/news_list.dart';
-import 'package:haber/widgets/news/news_list_element.dart';
 import 'package:haber/widgets/others/custom_circle_avatar.dart';
 import 'package:haber/widgets/user/edit_profile.dart';
 import 'package:haber/widgets/user/edit_profile_image.dart';
+import 'package:haber/widgets/others/full_screen_image.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
+
 import 'dart:async';
-
-import 'package:webview_flutter/webview_flutter.dart';
-
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -93,15 +84,25 @@ class ProfileHeader implements SliverPersistentHeaderDelegate {
                     Stack(
                       alignment: Alignment.topRight,
                       children: <Widget>[
-                        Container(
-                          margin: EdgeInsets.all(10.0),
-                          child: CustomCircleAvatar(
-                              animationDuration: 300,
-                              radius: MediaQuery.of(context).size.height * 0.22,
-                              imagePath: (user == null ||
-                                      user.photoUrl.length <= 0)
-                                  ? 'https://s3.amazonaws.com/37assets/svn/765-default-avatar.png'
-                                  : user.photoUrl),
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        FullScreenImage(user.photoUrl)));
+                          },
+                          child: Container(
+                            margin: EdgeInsets.all(10.0),
+                            child: CustomCircleAvatar(
+                                animationDuration: 300,
+                                radius:
+                                    MediaQuery.of(context).size.height * 0.22,
+                                imagePath: (user == null ||
+                                        user.photoUrl.length <= 0)
+                                    ? 'https://s3.amazonaws.com/37assets/svn/765-default-avatar.png'
+                                    : user.photoUrl),
+                          ),
                         ),
                         InkWell(
                           onTap: () async {

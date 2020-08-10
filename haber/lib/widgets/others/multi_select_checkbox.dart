@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:haber/data/constants.dart';
+import 'package:haber/providers/search_provider.dart';
+import 'package:provider/provider.dart';
+
+import '../../app_theme.dart';
 
 class MultiSelectDialogItem<V> {
   const MultiSelectDialogItem(this.value, this.label);
@@ -20,6 +25,16 @@ class MultiSelectDialog<V> extends StatefulWidget {
 
 class _MultiSelectDialogState<V> extends State<MultiSelectDialog<V>> {
   final _selectedValues = Set<V>();
+  String valueSort = Constants.searchSortNewToOld;
+
+  final List<String> _itemsSort = [
+    Constants.searchSortNewToOld,
+    Constants.searchSortOldToNew,
+    Constants.searchSortReaderDesc,
+    Constants.searchSortReaderAsc,
+    Constants.searchSortCommentDesc,
+    Constants.searchSortCommentAsc
+  ].toList();
 
   void initState() {
     super.initState();
@@ -48,16 +63,63 @@ class _MultiSelectDialogState<V> extends State<MultiSelectDialog<V>> {
 
   @override
   Widget build(BuildContext context) {
+    final dropdownMenuOptionsSort = _itemsSort
+        .map((String item) =>
+            new DropdownMenuItem<String>(value: item, child: new Text(item)))
+        .toList();
+
+    String sortType =
+        Provider.of<SearchProvider>(context, listen: true).getSortType;
+    valueSort = sortType;
+
     return AlertDialog(
       title: Text("Haber Kaynaklarını seç"),
       contentPadding: EdgeInsets.only(top: 12.0),
-      content: SingleChildScrollView(
-        child: ListTileTheme(
-          contentPadding: EdgeInsets.fromLTRB(14.0, 0.0, 24.0, 0.0),
-          child: ListBody(
-            children: widget.items.map(_buildItem).toList(),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          ListTileTheme(
+            contentPadding: EdgeInsets.fromLTRB(14.0, 0.0, 24.0, 0.0),
+            child: ListBody(
+              children: widget.items.map(_buildItem).toList(),
+            ),
           ),
-        ),
+          Center(
+            child: Container(
+              margin: EdgeInsets.only(left: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    "Sıralama:",
+                    style: AppTheme.caption,
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  DropdownButton<String>(
+                    iconSize: 24,
+                    elevation: 16,
+                    style: AppTheme.caption,
+                    underline: Container(
+                      height: 2,
+                      color: Colors.black,
+                    ),
+                    onChanged: (s) {
+                      Provider.of<SearchProvider>(context, listen: false)
+                          .setSortType = s;
+                      setState(() {
+                        valueSort = s;
+                      });
+                    },
+                    value: valueSort,
+                    items: dropdownMenuOptionsSort,
+                  ),
+                ],
+              ),
+            ),
+          )
+        ],
       ),
       actions: <Widget>[
         FlatButton(
