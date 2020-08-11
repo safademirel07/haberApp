@@ -1,20 +1,22 @@
 const mongoose = require("mongoose")
-const User = require("./User")
-const News = require("./News")
 
 const commentSchema = mongoose.Schema({
     user : {
         type: mongoose.Schema.Types.ObjectId,
-        ref: User
+        ref: "User"
     },
     news : {
         type: mongoose.Schema.Types.ObjectId,
-        ref: News
+        ref: "News"
     },
     text : {
         type : String,
         text: true,
         required: true,
+    },
+    date : {
+        type : Date,
+        default : Date.now(),
     }
 
 })

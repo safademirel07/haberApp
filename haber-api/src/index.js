@@ -8,6 +8,7 @@ const newsSiteRouter = require("./routers/news_site")
 const rssRouter = require("./routers/rss")
 const newsRouter = require("./routers/news")
 const userRouter = require("./routers/user")
+const commentRouter = require("./routers/comment")
 
 const sabahParser = require("./parsers/sabah")
 const milliyetParser = require("./parsers/milliyet")
@@ -31,6 +32,7 @@ app.use(newsSiteRouter)
 app.use(rssRouter)
 app.use(newsRouter)
 app.use(userRouter)
+app.use(commentRouter)
 
 
 moment.locale("tr")

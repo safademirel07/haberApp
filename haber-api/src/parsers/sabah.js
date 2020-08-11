@@ -65,7 +65,7 @@ async function parseRSS(rssURL, rssID, rssCategory) {
     var createdNewsCount = 0
     var failedNewsCount = 0
 
-    if (allNews.length == 0) {
+    if (allNews == undefined) {
         return
     }
 
