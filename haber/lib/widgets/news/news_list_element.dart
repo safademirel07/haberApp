@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:haber/app_theme.dart';
 import 'package:haber/models/News.dart';
 import 'package:haber/models/NewsDetails.dart';
+import 'package:haber/providers/comment_provider.dart';
 import 'package:haber/providers/news_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -34,6 +35,8 @@ class _NewsListElementState extends State<NewsListElement> {
         onTap: () async {
           await Provider.of<NewsProvider>(context, listen: false)
               .viewNews(widget.news.sId, context);
+          await Provider.of<CommentProvider>(context, listen: false)
+              .fetchListNews(widget.news.sId, false);
 
           Navigator.pushNamed(
             context,
@@ -48,7 +51,8 @@ class _NewsListElementState extends State<NewsListElement> {
               flex: 40,
               child: Material(
                 child: Hero(
-                  tag: "type_" + widget.type.toString() +
+                  tag: "type_" +
+                      widget.type.toString() +
                       widget.news.image +
                       "_id" +
                       widget.index.toString(),

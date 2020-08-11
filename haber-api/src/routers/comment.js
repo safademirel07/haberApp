@@ -7,7 +7,7 @@ var auth = require("../middleware/auth")
 const moment = require("moment")
 const User = require("../models/user")
 
-router .post("/comment/get", async(req,res) => {
+router.get("/comment/get", async(req,res) => {
     try {
         const newsID = req.query.news
         const news = await News.findById(newsID)

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:haber/data/sharedpref/shared_preference_helper.dart';
 import 'package:haber/models/NewsTest.dart';
+import 'package:haber/providers/comment_provider.dart';
 import 'package:haber/providers/news_provider.dart';
 import 'package:haber/providers/search_provider.dart';
 import 'package:haber/providers/user_provider.dart';
@@ -202,6 +203,9 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => SearchProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => CommentProvider(),
         ),
       ],
       child: MaterialApp(

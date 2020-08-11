@@ -7,12 +7,16 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:haber/app_theme.dart';
 import 'package:haber/data/constants.dart';
 import 'package:haber/data/sharedpref/shared_preference_helper.dart';
+import 'package:haber/models/Comment.dart';
 import 'package:haber/models/Firebase.dart';
 import 'package:haber/models/News.dart';
 import 'package:haber/models/NewsDetails.dart';
+import 'package:haber/providers/comment_provider.dart';
 import 'package:haber/providers/news_provider.dart';
 import 'package:haber/providers/search_provider.dart';
 import 'package:haber/providers/user_provider.dart';
+import 'package:haber/widgets/comment/add_comment.dart';
+import 'package:haber/widgets/comment/comment_element.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
 import 'package:swipedetector/swipedetector.dart';
@@ -225,6 +229,11 @@ class _NewsDetailState extends State<NewsDetail> {
     }
 
     final News news = listNews[index];
+
+    final List<Comment> comments =
+        Provider.of<CommentProvider>(context, listen: true).anyComment()
+            ? Provider.of<CommentProvider>(context, listen: true).getComments()
+            : List<Comment>();
 
     return SafeArea(
       child: Scaffold(
@@ -611,6 +620,40 @@ class _NewsDetailState extends State<NewsDetail> {
                         ],
                       )
                     ],
+                  ),
+                  Divider(
+                    color: Colors.black,
+                    height: 1,
+                  ),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      AddComment(news.sId),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      if (comments.length == 0)
+                        Text(
+                          "Bu habere yorum yapılmamış.",
+                          style: AppTheme.body2,
+                        )
+                      else
+                        ListView.builder(
+                          shrinkWrap: true,
+                          primary: false,
+                          padding: EdgeInsets.zero,
+                          itemCount: comments.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return CommentElement(comments[index]);
+                          },
+                        ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 8,
                   ),
                 ],
               ),
