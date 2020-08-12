@@ -6,10 +6,13 @@ import 'package:http/http.dart' as http;
 
 class CommentRequest {
   Future<http.Response> getComment(int page, String newsID) async {
+    dynamic token = await SharedPreferenceHelper.getAuthToken;
+
     return http.get(
       Constants.api_url + "/comment/get?page=$page&news=$newsID",
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ${token.toString()}',
       },
     );
   }

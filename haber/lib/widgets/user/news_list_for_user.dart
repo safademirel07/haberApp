@@ -86,6 +86,7 @@ class _NewsListForUserState extends State<NewsListForUser>
             false,
           );
         } else if (widget.newsType == 3) {
+          print("fetch commented");
           return Provider.of<UserProvider>(context, listen: false)
               .fetchCommentedNews(
             "",

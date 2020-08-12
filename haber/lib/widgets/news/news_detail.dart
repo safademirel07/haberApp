@@ -181,6 +181,16 @@ class _NewsDetailState extends State<NewsDetail> {
     super.initState();
   }
 
+  Future<void> refreshComments(String newsID) {
+    return Provider.of<CommentProvider>(context, listen: false)
+        .fetchComments(newsID, true);
+  }
+
+  Future<void> loadMoreComment(String newsID) {
+    Provider.of<CommentProvider>(context, listen: false)
+        .fetchComments(newsID, true);
+  }
+
   @override
   Widget build(BuildContext context) {
     NewsDetails details = ModalRoute.of(context).settings.arguments;
@@ -235,6 +245,11 @@ class _NewsDetailState extends State<NewsDetail> {
             ? Provider.of<CommentProvider>(context, listen: true).getComments()
             : List<Comment>();
 
+    bool isLoadingComment =
+        Provider.of<CommentProvider>(context, listen: true).isLoading;
+    bool isLoadingCommentMore =
+        Provider.of<CommentProvider>(context, listen: true).isLoadingMore;
+
     return SafeArea(
       child: Scaffold(
         key: _scaffoldKey,
@@ -247,8 +262,12 @@ class _NewsDetailState extends State<NewsDetail> {
                 getMoreNews(type, listType);
                 return;
               }
-              News previousNews = listNews[index + 1];
-              if (previousNews != null) {
+              News nextNews = listNews[index + 1];
+              if (nextNews != null) {
+                Provider.of<NewsProvider>(context, listen: false)
+                    .viewNews(nextNews.sId, context);
+                Provider.of<CommentProvider>(context, listen: false)
+                    .fetchComments(nextNews.sId, false);
                 Navigator.pushReplacementNamed(
                   context,
                   "/detail",
@@ -259,7 +278,7 @@ class _NewsDetailState extends State<NewsDetail> {
               }
             });
           },
-          onSwipeRight: () {
+          onSwipeRight: () async {
             setState(() {
               if (index - 1 < 0) {
                 showInSnackBar("Daha fazla geriye gidemezsin.");
@@ -267,6 +286,11 @@ class _NewsDetailState extends State<NewsDetail> {
               }
               News previousNews = listNews[index - 1];
               if (previousNews != null) {
+                Provider.of<NewsProvider>(context, listen: false)
+                    .viewNews(previousNews.sId, context);
+                Provider.of<CommentProvider>(context, listen: false)
+                    .fetchComments(previousNews.sId, false);
+
                 Navigator.pushReplacementNamed(
                   context,
                   "/detail",
@@ -277,383 +301,411 @@ class _NewsDetailState extends State<NewsDetail> {
               }
             });
           },
-          child: SingleChildScrollView(
-            child: Container(
-              padding: EdgeInsets.only(left: 8, right: 8, top: 8),
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
+          child: RefreshIndicator(
+            onRefresh: () async {
+              refreshComments(news.sId);
+            },
+            child: NotificationListener(
+              onNotification: (ScrollNotification scrollInfo) {
+                if (scrollInfo.metrics.pixels ==
+                        scrollInfo.metrics.maxScrollExtent &&
+                    !isLoadingComment &&
+                    !isLoadingCommentMore) {
+                  loadMoreComment(news.sId);
+                }
+              },
+              child: ListView(
                 children: <Widget>[
-                  Text(
-                    news.title,
-                    style: AppTheme.title,
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => FullScreenImage(
-                                    news.image,
-                                    "type_" +
-                                        type.toString() +
-                                        news.image +
-                                        "_id$index")));
-                      },
-                      child: Hero(
-                        tag: "type_" +
-                            type.toString() +
-                            news.image +
-                            "_id$index",
-                        child: CachedNetworkImage(
-                          errorWidget: (context, url, error) => Container(
-                              padding: EdgeInsets.all(4.0),
-                              child: Center(
-                                child: Text(
-                                  "Haber fotoğrafı yüklenemedi.",
-                                  textAlign: TextAlign.center,
-                                  style: AppTheme.caption,
+                  Container(
+                    padding: EdgeInsets.only(left: 8, right: 8, top: 8),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      children: <Widget>[
+                        Text(
+                          news.title,
+                          style: AppTheme.title,
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => FullScreenImage(
+                                          news.image,
+                                          "type_" +
+                                              type.toString() +
+                                              news.image +
+                                              "_id$index")));
+                            },
+                            child: Hero(
+                              tag: "type_" +
+                                  type.toString() +
+                                  news.image +
+                                  "_id$index",
+                              child: CachedNetworkImage(
+                                errorWidget: (context, url, error) => Container(
+                                    padding: EdgeInsets.all(4.0),
+                                    child: Center(
+                                      child: Text(
+                                        "Haber fotoğrafı yüklenemedi.",
+                                        textAlign: TextAlign.center,
+                                        style: AppTheme.caption,
+                                      ),
+                                    )),
+                                placeholder: (context, url) => Container(
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 1.0,
+                                    ),
+                                  ),
+                                  padding: EdgeInsets.all(4.0),
                                 ),
-                              )),
-                          placeholder: (context, url) => Container(
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                strokeWidth: 1.0,
+                                imageUrl: news.image,
+                                fit: BoxFit.fill,
                               ),
                             ),
-                            padding: EdgeInsets.all(4.0),
                           ),
-                          imageUrl: news.image,
-                          fit: BoxFit.fill,
                         ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Divider(
-                    color: Colors.black,
-                    height: 1,
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Column(
-                    children: <Widget>[
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        SizedBox(
+                          height: 8,
+                        ),
+                        Divider(
+                          color: Colors.black,
+                          height: 1,
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        Column(
+                          children: <Widget>[
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Row(
+                                    children: <Widget>[
+                                      Icon(
+                                        FontAwesomeIcons.newspaper,
+                                      ),
+                                      SizedBox(
+                                        width: 6,
+                                      ),
+                                      Text(
+                                        news.siteDetails.name,
+                                        style: AppTheme.caption2Adaptive,
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: <Widget>[
+                                      SizedBox(
+                                        width: 4,
+                                      ),
+                                      Icon(Icons.remove_red_eye),
+                                      SizedBox(
+                                        width: 2,
+                                      ),
+                                      Text(
+                                        news.uniqueViews.toString(),
+                                        style: AppTheme.caption2Adaptive,
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: <Widget>[
+                                      SizedBox(
+                                        width: 4,
+                                      ),
+                                      InkWell(
+                                          onTap: () {
+                                            if (Constants.loggedIn &&
+                                                Constants.anonymousLoggedIn ==
+                                                    false &&
+                                                Firebase().getUser() != null) {
+                                              Provider.of<NewsProvider>(context,
+                                                      listen: false)
+                                                  .likeNews(news.sId, context);
+                                            } else {
+                                              showInSnackBar(
+                                                  "Lütfen giriş yapın.");
+                                            }
+                                          },
+                                          child: Icon(
+                                            Icons.thumb_up,
+                                            color: news.isLiked
+                                                ? Colors.green[700]
+                                                : Colors.black,
+                                          )),
+                                      SizedBox(
+                                        width: 2,
+                                      ),
+                                      Text(
+                                        news.likes.toString(),
+                                        style: AppTheme.caption2Adaptive,
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: <Widget>[
+                                      SizedBox(
+                                        width: 4,
+                                      ),
+                                      InkWell(
+                                        onTap: () {
+                                          if (Constants.loggedIn &&
+                                              Constants.anonymousLoggedIn ==
+                                                  false &&
+                                              Firebase().getUser() != null) {
+                                            Provider.of<NewsProvider>(context,
+                                                    listen: false)
+                                                .dislikeNews(news.sId, context);
+                                          } else {
+                                            showInSnackBar(
+                                                "Lütfen giriş yapın.");
+                                          }
+                                        },
+                                        child: Icon(
+                                          Icons.thumb_down,
+                                          color: news.isDisliked
+                                              ? Colors.red
+                                              : Colors.black,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 2,
+                                      ),
+                                      Text(
+                                        news.dislikes.toString(),
+                                        style: AppTheme.caption2Adaptive,
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: <Widget>[
+                                      SizedBox(
+                                        width: 4,
+                                      ),
+                                      Icon(Icons.access_time),
+                                      SizedBox(
+                                        width: 2,
+                                      ),
+                                      Text(
+                                        news.date,
+                                        style: AppTheme.caption2Adaptive,
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 8,
+                            ),
+                            Divider(
+                              color: Colors.black,
+                              height: 1,
+                            ),
+                            SizedBox(
+                              height: 8,
+                            ),
+                            Container(
+                              child: Text(
+                                news.body,
+                                style: AppTheme.captionMont,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.zero,
+                          child: Divider(
+                            color: Colors.black,
+                            height: 1,
+                          ),
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             Row(
                               children: <Widget>[
-                                Icon(
-                                  FontAwesomeIcons.newspaper,
-                                ),
-                                SizedBox(
-                                  width: 6,
-                                ),
-                                Text(
-                                  news.siteDetails.name,
-                                  style: AppTheme.caption2Adaptive,
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: <Widget>[
-                                SizedBox(
-                                  width: 4,
-                                ),
-                                Icon(Icons.remove_red_eye),
-                                SizedBox(
-                                  width: 2,
-                                ),
-                                Text(
-                                  news.uniqueViews.toString(),
-                                  style: AppTheme.caption2Adaptive,
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: <Widget>[
-                                SizedBox(
-                                  width: 4,
-                                ),
-                                InkWell(
-                                    onTap: () {
-                                      if (Constants.loggedIn &&
-                                          Constants.anonymousLoggedIn ==
-                                              false &&
-                                          Firebase().getUser() != null) {
-                                        Provider.of<NewsProvider>(context,
-                                                listen: false)
-                                            .likeNews(news.sId, context);
+                                RaisedButton(
+                                  elevation: 6,
+                                  textColor: Colors.white,
+                                  color: Colors.black,
+                                  child: Row(
+                                    children: <Widget>[
+                                      Icon(
+                                        news.isFavorited
+                                            ? Icons.favorite
+                                            : Icons.favorite_border,
+                                        size: 18,
+                                      ),
+                                      SizedBox(
+                                        width: 3,
+                                      ),
+                                      Text(
+                                        Constants.anonymousLoggedIn == true
+                                            ? (favoritedAsAnonymous
+                                                ? "Favorilerden Çıkar"
+                                                : "Favorilere Ekle")
+                                            : (news.isFavorited
+                                                ? "Favorilerden Çıkar"
+                                                : "Favorilere Ekle"),
+                                        style: AppTheme.captionWhite,
+                                      ),
+                                    ],
+                                  ),
+                                  onPressed: () async {
+                                    if (Constants.anonymousLoggedIn == true &&
+                                        Firebase().getUser() != null) {
+                                      bool isExist =
+                                          await favoriteExists(news.sId);
+                                      if (isExist) {
+                                        removeFromFavoritesAsAnonymous(
+                                            news.sId);
+                                        showInSnackBar(
+                                            "Anonim olarak silindi.");
                                       } else {
-                                        showInSnackBar("Lütfen giriş yapın.");
+                                        addToFavoritesAsAnonymous(news.sId);
+                                        showInSnackBar(
+                                            "Anonim olarak eklendi.");
                                       }
-                                    },
-                                    child: Icon(
-                                      Icons.thumb_up,
-                                      color: news.isLiked
-                                          ? Colors.green[700]
-                                          : Colors.black,
-                                    )),
-                                SizedBox(
-                                  width: 2,
-                                ),
-                                Text(
-                                  news.likes.toString(),
-                                  style: AppTheme.caption2Adaptive,
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: <Widget>[
-                                SizedBox(
-                                  width: 4,
-                                ),
-                                InkWell(
-                                  onTap: () {
-                                    if (Constants.loggedIn &&
+                                    } else if (Constants.loggedIn &&
                                         Constants.anonymousLoggedIn == false &&
                                         Firebase().getUser() != null) {
                                       Provider.of<NewsProvider>(context,
                                               listen: false)
-                                          .dislikeNews(news.sId, context);
+                                          .favoriteNews(news.sId, context);
                                     } else {
                                       showInSnackBar("Lütfen giriş yapın.");
                                     }
                                   },
-                                  child: Icon(
-                                    Icons.thumb_down,
-                                    color: news.isDisliked
-                                        ? Colors.red
-                                        : Colors.black,
+                                  shape: new RoundedRectangleBorder(
+                                    borderRadius:
+                                        new BorderRadius.circular(16.0),
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 2,
+                                  width: 5,
                                 ),
-                                Text(
-                                  news.dislikes.toString(),
-                                  style: AppTheme.caption2Adaptive,
+                                RaisedButton(
+                                  elevation: 6,
+                                  textColor: Colors.white,
+                                  color: Colors.black,
+                                  child: Row(
+                                    children: <Widget>[
+                                      Icon(
+                                        Icons.open_in_browser,
+                                        size: 18,
+                                      ),
+                                      SizedBox(
+                                        width: 3,
+                                      ),
+                                      Text(
+                                        "Aç",
+                                        style: AppTheme.captionWhite,
+                                      ),
+                                    ],
+                                  ),
+                                  onPressed: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      "/browser",
+                                      arguments: news,
+                                    );
+                                  },
+                                  shape: new RoundedRectangleBorder(
+                                    borderRadius:
+                                        new BorderRadius.circular(16.0),
+                                  ),
                                 ),
-                              ],
-                            ),
-                            Row(
-                              children: <Widget>[
                                 SizedBox(
-                                  width: 4,
+                                  width: 5,
                                 ),
-                                Icon(Icons.access_time),
-                                SizedBox(
-                                  width: 2,
-                                ),
-                                Text(
-                                  news.date,
-                                  style: AppTheme.caption2Adaptive,
+                                RaisedButton(
+                                  elevation: 6,
+                                  textColor: Colors.white,
+                                  color: Colors.black,
+                                  child: Row(
+                                    children: <Widget>[
+                                      Icon(
+                                        Icons.share,
+                                        size: 18,
+                                      ),
+                                      SizedBox(
+                                        width: 3,
+                                      ),
+                                      Text(
+                                        "Paylaş",
+                                        style: AppTheme.captionWhite,
+                                      ),
+                                    ],
+                                  ),
+                                  onPressed: () {
+                                    Share.share(
+                                        news.body +
+                                            " Haber Kaynağı: " +
+                                            news.siteDetails.name +
+                                            " Haber Adresi: " +
+                                            news.link,
+                                        subject: news.title);
+                                  },
+                                  shape: new RoundedRectangleBorder(
+                                    borderRadius:
+                                        new BorderRadius.circular(16.0),
+                                  ),
                                 ),
                               ],
                             )
                           ],
                         ),
-                      ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      Divider(
-                        color: Colors.black,
-                        height: 1,
-                      ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      Container(
-                        child: Text(
-                          news.body,
-                          style: AppTheme.captionMont,
+                        Divider(
+                          color: Colors.black,
+                          height: 1,
                         ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.zero,
-                    child: Divider(
-                      color: Colors.black,
-                      height: 1,
+                        SizedBox(
+                          height: 8,
+                        ),
+                        Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            AddComment(news.sId),
+                            SizedBox(
+                              height: 8,
+                            ),
+                            if (comments.length == 0)
+                              Text(
+                                "Bu habere yorum yapılmamış.",
+                                style: AppTheme.body2,
+                              )
+                            else
+                              ListView.builder(
+                                shrinkWrap: true,
+                                primary: false,
+                                padding: EdgeInsets.zero,
+                                itemCount: comments.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return CommentElement(comments[index]);
+                                },
+                              ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                      ],
                     ),
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          RaisedButton(
-                            elevation: 6,
-                            textColor: Colors.white,
-                            color: Colors.black,
-                            child: Row(
-                              children: <Widget>[
-                                Icon(
-                                  news.isFavorited
-                                      ? Icons.favorite
-                                      : Icons.favorite_border,
-                                  size: 18,
-                                ),
-                                SizedBox(
-                                  width: 3,
-                                ),
-                                Text(
-                                  Constants.anonymousLoggedIn == true
-                                      ? (favoritedAsAnonymous
-                                          ? "Favorilerden Çıkar"
-                                          : "Favorilere Ekle")
-                                      : (news.isFavorited
-                                          ? "Favorilerden Çıkar"
-                                          : "Favorilere Ekle"),
-                                  style: AppTheme.captionWhite,
-                                ),
-                              ],
-                            ),
-                            onPressed: () async {
-                              if (Constants.anonymousLoggedIn == true &&
-                                  Firebase().getUser() != null) {
-                                bool isExist = await favoriteExists(news.sId);
-                                if (isExist) {
-                                  removeFromFavoritesAsAnonymous(news.sId);
-                                  showInSnackBar("Anonim olarak silindi.");
-                                } else {
-                                  addToFavoritesAsAnonymous(news.sId);
-                                  showInSnackBar("Anonim olarak eklendi.");
-                                }
-                              } else if (Constants.loggedIn &&
-                                  Constants.anonymousLoggedIn == false &&
-                                  Firebase().getUser() != null) {
-                                Provider.of<NewsProvider>(context,
-                                        listen: false)
-                                    .favoriteNews(news.sId, context);
-                              } else {
-                                showInSnackBar("Lütfen giriş yapın.");
-                              }
-                            },
-                            shape: new RoundedRectangleBorder(
-                              borderRadius: new BorderRadius.circular(16.0),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          RaisedButton(
-                            elevation: 6,
-                            textColor: Colors.white,
-                            color: Colors.black,
-                            child: Row(
-                              children: <Widget>[
-                                Icon(
-                                  Icons.open_in_browser,
-                                  size: 18,
-                                ),
-                                SizedBox(
-                                  width: 3,
-                                ),
-                                Text(
-                                  "Aç",
-                                  style: AppTheme.captionWhite,
-                                ),
-                              ],
-                            ),
-                            onPressed: () {
-                              Navigator.pushNamed(
-                                context,
-                                "/browser",
-                                arguments: news,
-                              );
-                            },
-                            shape: new RoundedRectangleBorder(
-                              borderRadius: new BorderRadius.circular(16.0),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          RaisedButton(
-                            elevation: 6,
-                            textColor: Colors.white,
-                            color: Colors.black,
-                            child: Row(
-                              children: <Widget>[
-                                Icon(
-                                  Icons.share,
-                                  size: 18,
-                                ),
-                                SizedBox(
-                                  width: 3,
-                                ),
-                                Text(
-                                  "Paylaş",
-                                  style: AppTheme.captionWhite,
-                                ),
-                              ],
-                            ),
-                            onPressed: () {
-                              Share.share(
-                                  news.body +
-                                      " Haber Kaynağı: " +
-                                      news.siteDetails.name +
-                                      " Haber Adresi: " +
-                                      news.link,
-                                  subject: news.title);
-                            },
-                            shape: new RoundedRectangleBorder(
-                              borderRadius: new BorderRadius.circular(16.0),
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                  Divider(
-                    color: Colors.black,
-                    height: 1,
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      AddComment(news.sId),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      if (comments.length == 0)
-                        Text(
-                          "Bu habere yorum yapılmamış.",
-                          style: AppTheme.body2,
-                        )
-                      else
-                        ListView.builder(
-                          shrinkWrap: true,
-                          primary: false,
-                          padding: EdgeInsets.zero,
-                          itemCount: comments.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return CommentElement(comments[index]);
-                          },
-                        ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 8,
                   ),
                 ],
               ),

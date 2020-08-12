@@ -31,7 +31,7 @@ class CommentProvider with ChangeNotifier {
 
   int page = 1;
 
-  Future<void> fetchListNews(String newsID, bool isMore) async {
+  Future<void> fetchComments(String newsID, bool isMore) async {
     if (isLoadingMore) return;
 
     if (isMore)
@@ -39,6 +39,7 @@ class CommentProvider with ChangeNotifier {
     else
       setLoading = true;
 
+    print("comment calisiyor");
     try {
       if (!isMore) page = 1;
       CommentRequest()
@@ -98,7 +99,7 @@ class CommentProvider with ChangeNotifier {
       CommentRequest().addComment(newsID, comment).then((data) {
         if (data.statusCode == 200) {
           Comment returnData = Comment.fromJson(json.decode(data.body));
-          _comments.add(returnData);
+          _comments.insert(0, returnData);
           notifyListeners();
         } else {
           print("error2" + data.statusCode.toString());

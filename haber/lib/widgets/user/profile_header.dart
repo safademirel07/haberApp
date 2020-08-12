@@ -39,6 +39,9 @@ class ProfileHeader implements SliverPersistentHeaderDelegate {
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     User user = Provider.of<UserProvider>(context, listen: true).getUser();
 
+    String photoUrl =
+        user.photoUrl == null ? Constants.defaultPhotoUrl : user.photoUrl;
+
     return user == null
         ? Center(
             child: CircularProgressIndicator(),
@@ -90,18 +93,16 @@ class ProfileHeader implements SliverPersistentHeaderDelegate {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        FullScreenImage(user.photoUrl)));
+                                        FullScreenImage(photoUrl)));
                           },
                           child: Container(
                             margin: EdgeInsets.all(10.0),
                             child: CustomCircleAvatar(
-                                animationDuration: 300,
-                                radius:
-                                    MediaQuery.of(context).size.height * 0.22,
-                                imagePath: (user == null ||
-                                        user.photoUrl.length <= 0)
-                                    ? 'https://s3.amazonaws.com/37assets/svn/765-default-avatar.png'
-                                    : user.photoUrl),
+                              heroTag: "profilFotografi",
+                              animationDuration: 300,
+                              radius: MediaQuery.of(context).size.height * 0.22,
+                              imagePath: photoUrl,
+                            ),
                           ),
                         ),
                         InkWell(

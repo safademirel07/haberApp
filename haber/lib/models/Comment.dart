@@ -4,6 +4,7 @@ class Comment {
   String user;
   String news;
   String text;
+  bool isOwner;
   String userName;
   String userPhoto;
 
@@ -13,6 +14,7 @@ class Comment {
       this.user,
       this.news,
       this.text,
+      this.isOwner,
       this.userName,
       this.userPhoto});
 
@@ -22,6 +24,7 @@ class Comment {
     user = json['user'];
     news = json['news'];
     text = json['text'];
+    isOwner = json['isOwner'];
     userName = json['userName'];
     userPhoto = json['userPhoto'];
   }
@@ -33,6 +36,7 @@ class Comment {
     data['user'] = this.user;
     data['news'] = this.news;
     data['text'] = this.text;
+    data['isOwner'] = this.isOwner;
     data['userName'] = this.userName;
     data['userPhoto'] = this.userPhoto;
     return data;

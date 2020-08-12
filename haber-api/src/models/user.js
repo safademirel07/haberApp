@@ -29,6 +29,7 @@ const userSchema = new mongoose.Schema({
     },
     profilePhoto: {
         type: String,
+        default: "https://firebasestorage.googleapis.com/v0/b/haberapp-54a0c.appspot.com/o/images%2Fdefault_avatar.png?alt=media",
     },
     date: {
         type: Date,

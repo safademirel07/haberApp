@@ -287,12 +287,14 @@ class UserProvider with ChangeNotifier {
   //Commented News
 
   Future<void> fetchCommentedNews(String search, bool isMore) async {
-    if (loadingCommentedNews || loadingCommentedNewsMore) return;
+    if (loadingCommentedNewsMore) return;
 
     if (isMore)
       setLoadingCommentedNewsMore = true;
     else
       setLoadingCommentedNews = true;
+
+    print("fetchCommentedNews");
 
     try {
       if (!isMore) commentPage = 1;
@@ -300,6 +302,7 @@ class UserProvider with ChangeNotifier {
           .fetchCommentedNews(
               (isMore ? (commentPage + 1) : commentPage), search)
           .then((data) {
+        print("data stt" + data.statusCode.toString());
         if (data.statusCode == 200) {
           List<News> news = (json.decode(data.body) as List)
               .map((data) => News.fromJson(data))

@@ -7,8 +7,14 @@ var auth = require("../middleware/auth")
 const moment = require("moment")
 const User = require("../models/user")
 
-router.get("/comment/get", async(req,res) => {
+router.get("/comment/get", auth.auth_test,  async(req,res) => {
     try {
+
+        let limit = 5; 
+        let page = (Math.abs(req.query.page) || 1) - 1;
+    
+        const user = req.user
+
         const newsID = req.query.news
         const news = await News.findById(newsID)
 
@@ -16,7 +22,7 @@ router.get("/comment/get", async(req,res) => {
             res.status(400).send({error : "News not found."})
         }
 
-        const comments = await Comment.find({news : newsID})
+        const comments = await Comment.find({news : newsID}).sort({date : -1}).limit(limit).skip(limit * page)
 
         var data = []
 
@@ -33,9 +39,15 @@ router.get("/comment/get", async(req,res) => {
                 res.status(400).send({error : "User not found."})
                 continue
             }
+
+            var isOwner = false
+
+            if (user !=undefined && (user._id.toString() === userOfObject._id.toString())) {
+                isOwner = true
+            }
     
     
-            data.push({...object, "userName" : userOfObject.name, "userPhoto" : userOfObject.profilePhoto})
+            data.push({...object, isOwner, "userName" : userOfObject.name, "userPhoto" : userOfObject.profilePhoto})
     
         }
 
@@ -83,10 +95,13 @@ router.post("/comment/add", auth.auth, async(req,res) => {
 
         delete object["__v"]
 
+        var isOwner = true
+
+
         object["date"] = moment(date).unix();
 
 
-        res.send({...object, "userName" : user.name, "userPhoto" : user.profilePhoto})
+        res.send({...object, isOwner, "userName" : user.name, "userPhoto" : user.profilePhoto})
         
     } catch (e) {
         console.log("error " + e)

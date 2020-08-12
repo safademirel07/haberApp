@@ -21,6 +21,7 @@ import 'package:haber/widgets/user/login.dart';
 import 'package:haber/widgets/user/profile.dart';
 import 'package:haber/widgets/user/register.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'app_theme.dart';
 import 'data/constants.dart';
@@ -216,6 +217,13 @@ void main() async {
         ),
         navigatorObservers: [
           FirebaseAnalyticsObserver(analytics: analytics),
+        ],
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
+        supportedLocales: [
+          const Locale('tr', 'TR'),
         ],
         debugShowCheckedModeBanner: false,
         title: 'haberApp',

@@ -36,7 +36,7 @@ class _NewsListElementState extends State<NewsListElement> {
           await Provider.of<NewsProvider>(context, listen: false)
               .viewNews(widget.news.sId, context);
           await Provider.of<CommentProvider>(context, listen: false)
-              .fetchListNews(widget.news.sId, false);
+              .fetchComments(widget.news.sId, false);
 
           Navigator.pushNamed(
             context,

@@ -54,6 +54,9 @@ class Constants {
 
   static List<String> selectedNewsSites = List<String>();
 
+  static const String defaultPhotoUrl =
+      "https://firebasestorage.googleapis.com/v0/b/haberapp-54a0c.appspot.com/o/images%2Fdefault_avatar.png?alt=media";
+
   static List<SiteDetails> newsSites = [
     SiteDetails(
         image: "https://isbh.tmgrup.com.tr/sbh/v5/i/logoBig.png",

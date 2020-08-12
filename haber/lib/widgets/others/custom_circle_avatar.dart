@@ -5,9 +5,14 @@ class CustomCircleAvatar extends StatelessWidget {
   final int animationDuration;
   final double radius;
   final String imagePath;
+  final String heroTag;
 
   const CustomCircleAvatar(
-      {Key key, this.animationDuration, this.radius, this.imagePath})
+      {Key key,
+      this.animationDuration,
+      this.radius,
+      this.imagePath,
+      this.heroTag})
       : super(key: key);
 
   @override
@@ -24,7 +29,7 @@ class CustomCircleAvatar extends StatelessWidget {
       ),
       child: ClipOval(
         child: Hero(
-          tag: "profilFotografi",
+          tag: heroTag,
           child: CachedNetworkImage(
             placeholder: (context, url) => CircularProgressIndicator(),
             errorWidget: (context, url, error) =>

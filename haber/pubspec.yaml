@@ -23,6 +23,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   flutter_native_splash: ^0.1.9
   carousel_slider: ^2.2.1
   http: ^0.12.1
