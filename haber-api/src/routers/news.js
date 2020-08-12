@@ -431,9 +431,9 @@ router.post("/news/dislike", auth.auth, async (req, res) => {
 
     if (news) {
       //If user clicks like, check before if it's disliked it?
-      const likeResult = news.likes.filter(like => like.users.toString() == news._id.toString());
+      const likeResult = news.likes.filter(like => like.users.toString() == user._id.toString());
       if (likeResult.length > 0) {
-          const removeIndex = news.likes.map(item => item.users.toString()).indexOf(news._id.toString());
+          const removeIndex = news.likes.map(item => item.users.toString()).indexOf(user._id.toString());
           news.likes.splice(removeIndex, 1);
       } 
 
@@ -448,9 +448,9 @@ router.post("/news/dislike", auth.auth, async (req, res) => {
 
     await news.save()
 
-    const userLikeResult = user.likes.filter(like => like.news.toString() == user._id.toString());
+    const userLikeResult = user.likes.filter(like => like.news.toString() == news._id.toString());
     if (userLikeResult.length > 0) {
-        const removeIndexUserLike = user.likes.map(like => like.news.toString()).indexOf(user._id.toString());
+        const removeIndexUserLike = user.likes.map(like => like.news.toString()).indexOf(news._id.toString());
         user.likes.splice(removeIndexUserLike, 1);
     } 
 
@@ -1112,6 +1112,216 @@ router.get("/news/comment", auth.auth, async (req, res) => {
 
         "_id": {
           "$in": allCommentedNews,
+        },
+
+        $or: [{
+          "title": {
+            '$regex': search,
+            '$options': 'i'
+          }
+        }, ],
+
+
+      }
+    },
+    {
+      $addFields: {uniqueViews : { $cond: { if: { $isArray: "$viewers_unique" }, then: { $size: "$viewers_unique" }, else:0} }},
+    },
+    {
+      "$sort": sortMethod
+    },
+    {
+      "$skip": limit * page
+    }, {
+      "$limit": limit
+    },
+  ]
+
+
+  const allNews = News.aggregate(aggregateQuery)
+  const data = []
+
+  for await (const news of allNews) {    
+    const likes = news.likes.length
+    const dislikes = news.dislikes.length
+    var isLiked = false, isDisliked = false, isFavorited = false
+
+    if (user != undefined)
+    {
+      isLiked = news.likes.filter(like => like.users.toString() == user._id.toString()).length > 0 ? true : false
+      isDisliked = news.dislikes.filter(dislike => dislike.users.toString() == user._id.toString()).length > 0 ? true : false
+      isFavorited = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString()).length > 0 ? true : false
+    }
+
+    delete news.__v
+    delete news.rss
+    delete news.siteDetails.__v
+    delete news.rssDetails.__v
+    delete news.rssDetails.site
+    delete news.rssDetails.category
+    delete news.categoryDetails.__v
+    delete news.viewers_unique
+    delete news.likes
+    delete news.dislikes
+
+    news["likes"] = likes
+    news["dislikes"] = dislikes
+    news["isLiked"] = isLiked
+    news["isDisliked"] = isDisliked
+    news["isFavorited"] = isFavorited
+
+    news.date = moment.unix(news.date).format("LLLL")
+    data.push(news)
+  }
+  res.send(data)
+}
+)
+
+
+router.get("/news/likes_v2", auth.auth, async (req, res) => {
+
+  const user = req.user
+  let limit = 10; //news per page
+
+  let page = (Math.abs(req.query.page) || 1) - 1;
+
+  var allLikedNews = []
+
+  user.likes.forEach(like => {
+    allLikedNews.push(mongoose.Types.ObjectId(like.news))
+  })
+
+  const searchWord = req.query.search
+  const sort = req.query.sort
+  const search = searchWord == undefined ? "" : searchWord
+  var sortMethod = {date : -1}
+
+  if (sort == 0) { // newest to old
+      sortMethod = {date : -1}
+  } else if (sort == 1) {
+      sortMethod = {date : 1}
+  }
+  else if (sort == 2) { // newest to old
+      sortMethod = {uniqueViews : -1}
+  } else if (sort == 3) {
+      sortMethod = {uniqueViews : 1}
+  }
+
+
+  const constantQuery = constants.constantQueryPart
+  var aggregateQuery = [constantQuery[0], constantQuery[1], constantQuery[2], constantQuery[3], constantQuery[4], constantQuery[5],
+
+    {
+      "$match": {
+
+
+        "_id": {
+          "$in": allLikedNews,
+        },
+
+        $or: [{
+          "title": {
+            '$regex': search,
+            '$options': 'i'
+          }
+        }, ],
+
+
+      }
+    },
+    {
+      $addFields: {uniqueViews : { $cond: { if: { $isArray: "$viewers_unique" }, then: { $size: "$viewers_unique" }, else:0} }},
+    },
+    {
+      "$sort": sortMethod
+    },
+    {
+      "$skip": limit * page
+    }, {
+      "$limit": limit
+    },
+  ]
+
+
+  const allNews = News.aggregate(aggregateQuery)
+  const data = []
+
+  for await (const news of allNews) {    
+    const likes = news.likes.length
+    const dislikes = news.dislikes.length
+    var isLiked = false, isDisliked = false, isFavorited = false
+
+    if (user != undefined)
+    {
+      isLiked = news.likes.filter(like => like.users.toString() == user._id.toString()).length > 0 ? true : false
+      isDisliked = news.dislikes.filter(dislike => dislike.users.toString() == user._id.toString()).length > 0 ? true : false
+      isFavorited = user.favorites.filter(favorite => favorite.news.toString() == news._id.toString()).length > 0 ? true : false
+    }
+
+    delete news.__v
+    delete news.rss
+    delete news.siteDetails.__v
+    delete news.rssDetails.__v
+    delete news.rssDetails.site
+    delete news.rssDetails.category
+    delete news.categoryDetails.__v
+    delete news.viewers_unique
+    delete news.likes
+    delete news.dislikes
+
+    news["likes"] = likes
+    news["dislikes"] = dislikes
+    news["isLiked"] = isLiked
+    news["isDisliked"] = isDisliked
+    news["isFavorited"] = isFavorited
+
+    news.date = moment.unix(news.date).format("LLLL")
+    data.push(news)
+  }
+  res.send(data)
+}
+)
+
+
+
+router.get("/news/dislikes_v2", auth.auth, async (req, res) => {
+
+  const user = req.user
+  let limit = 10; //news per page
+
+  let page = (Math.abs(req.query.page) || 1) - 1;
+
+  var allDislikedNews = []
+
+  user.dislikes.forEach(dislike => {
+    allDislikedNews.push(mongoose.Types.ObjectId(dislike.news))
+  })
+  const searchWord = req.query.search
+  const sort = req.query.sort
+  const search = searchWord == undefined ? "" : searchWord
+  var sortMethod = {date : -1}
+
+  if (sort == 0) { // newest to old
+      sortMethod = {date : -1}
+  } else if (sort == 1) {
+      sortMethod = {date : 1}
+  }
+  else if (sort == 2) { // newest to old
+      sortMethod = {uniqueViews : -1}
+  } else if (sort == 3) {
+      sortMethod = {uniqueViews : 1}
+  }
+
+
+  const constantQuery = constants.constantQueryPart
+  var aggregateQuery = [constantQuery[0], constantQuery[1], constantQuery[2], constantQuery[3], constantQuery[4], constantQuery[5],
+
+    {
+      "$match": {
+
+
+        "_id": {
+          "$in": allDislikedNews,
         },
 
         $or: [{

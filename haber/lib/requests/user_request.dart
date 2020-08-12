@@ -11,7 +11,7 @@ class UserRequest {
     dynamic token = await SharedPreferenceHelper.getAuthToken;
 
     return http.get(
-      Constants.api_url + "/news/likes?page=$page$searchQuery",
+      Constants.api_url + "/news/likes_v2?page=$page$searchQuery",
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer ${token.toString()}',
@@ -27,7 +27,7 @@ class UserRequest {
     dynamic token = await SharedPreferenceHelper.getAuthToken;
 
     return http.get(
-      Constants.api_url + "/news/dislikes?page=$page$searchQuery",
+      Constants.api_url + "/news/dislikes_v2?page=$page$searchQuery",
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer ${token.toString()}',
