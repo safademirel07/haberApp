@@ -33,11 +33,6 @@ class _NewsListElementState extends State<NewsListElement> {
       padding: EdgeInsets.all(8),
       child: InkWell(
         onTap: () async {
-          await Provider.of<NewsProvider>(context, listen: false)
-              .viewNews(widget.news.sId, context);
-          await Provider.of<CommentProvider>(context, listen: false)
-              .fetchComments(widget.news.sId, false);
-
           Navigator.pushNamed(
             context,
             "/detail",

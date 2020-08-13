@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:haber/models/Comment.dart';
+import 'package:haber/providers/comment_provider.dart';
 import 'package:haber/widgets/others/custom_circle_avatar.dart';
 import 'package:haber/widgets/others/full_screen_image.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class CommentElement extends StatelessWidget {
   final Comment comment;
@@ -33,10 +35,19 @@ class CommentElement extends StatelessWidget {
                   actions: [
                     FlatButton(
                       child: Text("Evet"),
+                      textColor: Colors.black,
+                      onPressed: () {
+                        Provider.of<CommentProvider>(context, listen: false)
+                            .removeComment(comment.sId);
+                        Navigator.of(context, rootNavigator: true).pop();
+                      },
                     ),
                     FlatButton(
-                      child: Text("Hayır"),
-                    )
+                        child: Text("Hayır"),
+                        textColor: Colors.black,
+                        onPressed: () {
+                          Navigator.of(context, rootNavigator: true).pop();
+                        })
                   ],
                 );
               });

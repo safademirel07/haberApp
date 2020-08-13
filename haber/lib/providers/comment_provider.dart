@@ -94,6 +94,12 @@ class CommentProvider with ChangeNotifier {
     return _comments != null ? _comments.length : 0;
   }
 
+  int getCommentIndex(String id) {
+    return _comments == null
+        ? -1
+        : _comments.indexWhere((news) => news.sId == id);
+  }
+
   Future<void> addComment(String newsID, String comment) async {
     try {
       CommentRequest().addComment(newsID, comment).then((data) {
@@ -102,7 +108,28 @@ class CommentProvider with ChangeNotifier {
           _comments.insert(0, returnData);
           notifyListeners();
         } else {
-          print("error2" + data.statusCode.toString());
+          print("error2" + data.body.toString());
+        }
+      });
+    } catch (e) {
+      print("error");
+    }
+  }
+
+  Future<void> removeComment(String commentID) async {
+    try {
+      CommentRequest().removeComment(commentID).then((data) {
+        if (data.statusCode == 200) {
+          Map<String, dynamic> result = json.decode(data.body);
+          print("sid " + result["_id"]);
+          int index = getCommentIndex(result["_id"]);
+          if (index != -1) {
+            _comments.removeAt(index);
+            notifyListeners();
+          }
+          print("sildim mi" + index.toString());
+        } else {
+          print("silinemedi " + data.body.toString());
         }
       });
     } catch (e) {

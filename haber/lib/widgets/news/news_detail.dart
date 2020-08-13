@@ -175,6 +175,14 @@ class _NewsDetailState extends State<NewsDetail> {
       }
 
       final News news = listNews[index];
+
+      print("initstate geldim" + news.sId);
+
+      Provider.of<NewsProvider>(context, listen: false)
+          .viewNews(news.sId, context);
+      Provider.of<CommentProvider>(context, listen: false)
+          .fetchComments(news.sId, false);
+
       changeFavoriteStatus(news.sId);
     });
 
@@ -254,52 +262,39 @@ class _NewsDetailState extends State<NewsDetail> {
       child: Scaffold(
         key: _scaffoldKey,
         body: SwipeDetector(
-          onSwipeLeft: () {
-            setState(() {
-              if (index + 1 >= listNews.length) {
-                showInSnackBar(
-                    "Daha fazla haber yükleniyor, birazdan tekrar dene.");
-                getMoreNews(type, listType);
-                return;
-              }
-              News nextNews = listNews[index + 1];
-              if (nextNews != null) {
-                Provider.of<NewsProvider>(context, listen: false)
-                    .viewNews(nextNews.sId, context);
-                Provider.of<CommentProvider>(context, listen: false)
-                    .fetchComments(nextNews.sId, false);
-                Navigator.pushReplacementNamed(
-                  context,
-                  "/detail",
-                  arguments: NewsDetails(index + 1, true, type, listType),
-                );
-              } else {
-                showInSnackBar("Daha fazla ileriye gidemezsin.");
-              }
-            });
+          onSwipeLeft: () async {
+            if (index + 1 >= listNews.length) {
+              showInSnackBar(
+                  "Daha fazla haber yükleniyor, birazdan tekrar dene.");
+              getMoreNews(type, listType);
+              return;
+            }
+            News nextNews = listNews[index + 1];
+            if (nextNews != null) {
+              Navigator.pushReplacementNamed(
+                context,
+                "/detail",
+                arguments: NewsDetails(index + 1, true, type, listType),
+              );
+            } else {
+              showInSnackBar("Daha fazla ileriye gidemezsin.");
+            }
           },
           onSwipeRight: () async {
-            setState(() {
-              if (index - 1 < 0) {
-                showInSnackBar("Daha fazla geriye gidemezsin.");
-                return;
-              }
-              News previousNews = listNews[index - 1];
-              if (previousNews != null) {
-                Provider.of<NewsProvider>(context, listen: false)
-                    .viewNews(previousNews.sId, context);
-                Provider.of<CommentProvider>(context, listen: false)
-                    .fetchComments(previousNews.sId, false);
-
-                Navigator.pushReplacementNamed(
-                  context,
-                  "/detail",
-                  arguments: NewsDetails(index - 1, true, type, listType),
-                );
-              } else {
-                showInSnackBar("Daha fazla geriye gidemezsin.");
-              }
-            });
+            if (index - 1 < 0) {
+              showInSnackBar("Daha fazla geriye gidemezsin.");
+              return;
+            }
+            News previousNews = listNews[index - 1];
+            if (previousNews != null) {
+              Navigator.pushReplacementNamed(
+                context,
+                "/detail",
+                arguments: NewsDetails(index - 1, true, type, listType),
+              );
+            } else {
+              showInSnackBar("Daha fazla geriye gidemezsin.");
+            }
           },
           child: RefreshIndicator(
             onRefresh: () async {
@@ -680,7 +675,25 @@ class _NewsDetailState extends State<NewsDetail> {
                         Column(
                           mainAxisSize: MainAxisSize.max,
                           children: [
-                            AddComment(news.sId),
+                            (Constants.loggedIn &&
+                                    Constants.anonymousLoggedIn == false &&
+                                    Firebase().getUser() != null)
+                                ? AddComment(news.sId)
+                                : Container(
+                                    decoration: BoxDecoration(
+                                        border: Border.all(color: Colors.black),
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: Container(
+                                      margin: EdgeInsets.all(8),
+                                      child: Center(
+                                        child: Text(
+                                          "Haberlere yorum yapabilmek için lütfen giriş yapın.",
+                                          style: AppTheme.captionMont,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                             SizedBox(
                               height: 8,
                             ),

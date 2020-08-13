@@ -34,4 +34,16 @@ class CommentRequest {
       ),
     );
   }
+
+  Future<http.Response> removeComment(String commentID) async {
+    dynamic token = await SharedPreferenceHelper.getAuthToken;
+
+    return http.post(
+      Constants.api_url + "/comment/delete?comment=$commentID",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ${token.toString()}',
+      },
+    );
+  }
 }

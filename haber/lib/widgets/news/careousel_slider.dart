@@ -193,11 +193,6 @@ class _CareouselSliderState extends State<CareouselSlider> {
                 .map((item) => InkWell(
                       onTap: () async {
                         var index = listNews.indexOf(item);
-                        await Provider.of<NewsProvider>(context, listen: false)
-                            .viewNews(item.sId, context);
-                        Provider.of<CommentProvider>(context, listen: false)
-                            .fetchComments(item.sId, false);
-
                         Navigator.pushNamed(
                           context,
                           "/detail",

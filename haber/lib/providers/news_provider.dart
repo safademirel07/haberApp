@@ -444,7 +444,9 @@ class NewsProvider with ChangeNotifier {
       NewsRequest().viewNews(id).then((data) {
         if (data.statusCode == 200) {
           News returnData = News.fromJson(json.decode(data.body));
-          updateAllLists(id, returnData, context);
+          if (context != null) {
+            updateAllLists(id, returnData, context);
+          }
         } else {
           print("error2" + data.statusCode.toString());
         }
@@ -499,11 +501,13 @@ class NewsProvider with ChangeNotifier {
       favoriteList.isLiked = returnData.isLiked;
     }
 
-    Provider.of<UserProvider>(context, listen: false)
-        .updateAllLists(id, returnData);
+    if (context != null) {
+      Provider.of<UserProvider>(context, listen: false)
+          .updateAllLists(id, returnData);
 
-    Provider.of<SearchProvider>(context, listen: false)
-        .updateAllLists(id, returnData);
+      Provider.of<SearchProvider>(context, listen: false)
+          .updateAllLists(id, returnData);
+    }
 
     notifyListeners();
   }
