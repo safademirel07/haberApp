@@ -76,6 +76,9 @@ async function parseRSS(rssURL, rssID, rssCategory) {
         var createdNewsCount = 0
         var failedNewsCount = 0
 
+        if (allNews == undefined) {
+            return
+        }
 
         for await (const item of allNews) {
             const newsItemUrl = item.link[0]
@@ -98,12 +101,23 @@ async function parseRSS(rssURL, rssID, rssCategory) {
 
                 var unixTimeStamp = (moment(item.pubDate[0]).unix())-10800;
 
+                var newBody = "Haber içeriği yüklenemedi."
+                try {
+                    newBody = JSON.parse(onlyJson.get()[1].children[0].data).articleBody.trim()
+                } catch {
+                    newBody = "Haber içeriği yüklenemedi."
+                }
+    
+                if (newBody == undefined)
+                    newBody = "Haber içeriği yüklenemedi."
+    
+
                 try {
                     const createNews = new News({
                         rss: rssID,
                         title : item.title[0],
                         description : striptags(item.description[0],[], ' '),
-                        body : JSON.parse(onlyJson.get()[1].children[0].data).articleBody.trim(),
+                        body : newBody,
                         date : unixTimeStamp,
                         link : item.link[0],
                         image : item.image[0],

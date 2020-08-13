@@ -85,7 +85,6 @@ async function parseRSS(rssURL, rssID, rssCategory) {
             const title = item.title[0]["_"]
             const description = item.summary[0]["_"].trim()
             const datePublished = item.published[0]
-            const body = striptags(item.content[0]["_"], [], ' ').trim()
 
             const imageHtml = cheerio.load(item.content[0]["_"], {
                 xmlMode: true
@@ -94,7 +93,15 @@ async function parseRSS(rssURL, rssID, rssCategory) {
 
             var unixTimeStamp = moment(datePublished).unix();
 
+            var newBody = "Haber içeriği yüklenemedi."
+            try {
+                newBody = striptags(item.content[0]["_"], [], ' ').trim()
+            } catch {
+                newBody = "Haber içeriği yüklenemedi."
+            }
 
+            if (newBody == undefined)
+            newBody = "Haber içeriği yüklenemedi."
             
 
             try {
@@ -102,7 +109,7 @@ async function parseRSS(rssURL, rssID, rssCategory) {
                     rss: rssID,
                     title: title,
                     description: description,
-                    body: body,
+                    body: newBody,
                     date: unixTimeStamp,
                     link: newsItemUrl,
                     image: itemImage,

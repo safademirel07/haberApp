@@ -25,7 +25,7 @@ const newsSchema = new mongoose.Schema({
     },
     body: {
         type: String,
-        required: true,
+        default : "Haber içeriği yüklenemedi",
         text: true,
     },
     date: {

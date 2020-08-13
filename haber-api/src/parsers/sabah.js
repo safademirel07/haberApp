@@ -92,22 +92,22 @@ async function parseRSS(rssURL, rssID, rssCategory) {
 
             var unixTimeStamp = moment(item.pubDate[0]).unix();
             
-            var body = "Haber içeriği yüklenemedi."
+            var newBody = "Haber içeriği yüklenemedi."
             try {
-                body = JSON.parse(onlyJson.get()[0].children[0].data).articleBody.trim();
+                newBody = JSON.parse(onlyJson.get()[0].children[0].data).articleBody.trim();
             } catch (e) {
-                body = "Haber içeriği yüklenemedi."
+                newBody = "Haber içeriği yüklenemedi."
             }
 
-            if (body == undefined)
-                body = "Haber içeriği yüklenemedi."
+            if (newBody == undefined)
+                newBody = "Haber içeriği yüklenemedi."
             
             try {
                 const createNews = new News({
                     rss: rssID,
                     title: item.title[0],
                     description: striptags(item.description[0], [], ' ').trim(),
-                    body: body,
+                    body: newBody,
                     date: unixTimeStamp,
                     link: newsItemUrl,
                     image: item.enclosure[0]["$"].url,

@@ -291,7 +291,7 @@ void main() async {
         ],
         debugShowCheckedModeBanner: false,
         title: 'haberApp',
-        initialRoute: landing ? '/landing' : '/landing',
+        initialRoute: landing ? '/home' : '/landing',
         routes: {
           '/home': (context) => Home(),
           '/news': (context) => NewsHome(),
