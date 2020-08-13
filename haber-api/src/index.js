@@ -10,6 +10,7 @@ const newsRouter = require("./routers/news")
 const userRouter = require("./routers/user")
 const commentRouter = require("./routers/comment")
 const logRouter = require("./routers/log")
+const landingRouter = require("./routers/landing")
 
 const sabahParser = require("./parsers/sabah")
 const milliyetParser = require("./parsers/milliyet")
@@ -35,6 +36,7 @@ app.use(newsRouter)
 app.use(userRouter)
 app.use(commentRouter)
 app.use(logRouter)
+app.use(landingRouter)
 
 
 moment.locale("tr")
