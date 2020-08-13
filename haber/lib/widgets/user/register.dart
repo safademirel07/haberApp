@@ -4,12 +4,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:haber/data/constants.dart';
 import 'package:haber/data/sharedpref/shared_preference_helper.dart';
 import 'package:haber/models/Firebase.dart';
 import 'package:haber/models/User.dart';
+import 'package:haber/providers/news_provider.dart';
+import 'package:haber/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+
+import '../../app_theme.dart';
 
 class Register extends StatefulWidget {
   @override
@@ -58,7 +63,17 @@ class _RegisterState extends State<Register> {
 
       print("Register and login success. Email " + signIn.email);
 
+      Constants.anonymousLoggedIn = false;
       Constants.loggedIn = true;
+
+      User loggedInUser = User.fromJson(json.decode(response.body), signIn.uid);
+
+      Provider.of<UserProvider>(context, listen: false).setUser(loggedInUser);
+      Provider.of<NewsProvider>(context, listen: false)
+          .setrequiredToFetchAgain = true;
+      Provider.of<NewsProvider>(context, listen: false)
+          .setRequiredToFetchAgainFavorites = true;
+      Provider.of<NewsProvider>(context, listen: false).setAnonymous = false;
 
       return User.fromJson(json.decode(response.body), signIn.uid);
     } else {
@@ -69,6 +84,16 @@ class _RegisterState extends State<Register> {
   bool _isCurrent = false;
 
   bool clickedLogin = false;
+
+  bool _isObscure = true;
+
+  get isObscure => _isObscure;
+
+  set setObscure(value) {
+    setState(() {
+      _isObscure = value;
+    });
+  }
 
   void submitForm() async {
     if (_fbKey.currentState.saveAndValidate()) {
@@ -122,185 +147,199 @@ class _RegisterState extends State<Register> {
 
     return Scaffold(
       key: _scaffoldKey,
-      body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              colors: [Colors.blueGrey, Colors.grey],
+      body: Center(
+          child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.all(32),
+              child: Text(
+                "Kaydol",
+                textAlign: TextAlign.center,
+                style: AppTheme.display1,
+              ),
             ),
-          ),
-          child: Center(
-              child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              children: <Widget>[
-                Container(
-                  margin: EdgeInsets.only(top: 3),
-                  child: Text(
-                    "Register",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16),
+            FormBuilder(
+              key: _fbKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    margin: EdgeInsets.only(bottom: 5),
+                    child: FormBuilderTextField(
+                      attribute: "name",
+                      initialValue: "",
+                      decoration: InputDecoration(
+                        filled: true,
+                        hintText: "Kullanıcı adınız (*)",
+                        errorStyle: GoogleFonts.montserrat(color: Colors.black),
+                        hintStyle: GoogleFonts.montserrat(color: Colors.grey),
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide:
+                              BorderSide(color: Colors.white, width: 10),
+                        ),
+                      ),
+                      validators: [
+                        FormBuilderValidators.required(
+                            errorText: "Bu alanı boş bırakamazsınız."),
+                        FormBuilderValidators.minLength(3,
+                            errorText: "En az 3 karakter girmelisiniz"),
+                        FormBuilderValidators.maxLength(24,
+                            errorText: "En fazla 24 karakter girebilirsiniz"),
+                      ],
+                    ),
                   ),
-                ),
-                FormBuilder(
-                  key: _fbKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: <Widget>[
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        margin: EdgeInsets.only(bottom: 5),
-                        child: FormBuilderTextField(
-                          attribute: "name",
-                          initialValue: "",
-                          decoration: InputDecoration(
-                            filled: true,
-                            hintText: "Name",
-                            errorStyle: TextStyle(color: Colors.white),
-                            hintStyle: TextStyle(color: Colors.grey),
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                              borderSide:
-                                  BorderSide(color: Colors.white, width: 10),
-                            ),
-                          ),
-                          validators: [
-                            FormBuilderValidators.required(),
-                            FormBuilderValidators.minLength(1),
-                            FormBuilderValidators.maxLength(40),
-                          ],
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    margin: EdgeInsets.only(bottom: 5),
+                    child: FormBuilderTextField(
+                      attribute: "email",
+                      initialValue: "",
+                      decoration: InputDecoration(
+                        filled: true,
+                        hintText: "Mail adresiniz (*)",
+                        errorStyle: GoogleFonts.montserrat(color: Colors.black),
+                        hintStyle: GoogleFonts.montserrat(color: Colors.grey),
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide:
+                              BorderSide(color: Colors.white, width: 10),
                         ),
                       ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        margin: EdgeInsets.only(bottom: 5),
-                        child: FormBuilderTextField(
-                          attribute: "email",
-                          initialValue: "",
-                          decoration: InputDecoration(
-                            filled: true,
-                            hintText: "Mail Address",
-                            errorStyle: TextStyle(color: Colors.white),
-                            hintStyle: TextStyle(color: Colors.grey),
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                              borderSide:
-                                  BorderSide(color: Colors.white, width: 10),
-                            ),
-                          ),
-                          validators: [
-                            FormBuilderValidators.required(),
-                            FormBuilderValidators.email(),
-                            FormBuilderValidators.minLength(1),
-                            FormBuilderValidators.maxLength(24),
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        margin: EdgeInsets.only(bottom: 5),
-                        child: FormBuilderTextField(
-                          attribute: "password",
-                          obscureText: true,
-                          initialValue: "",
-                          maxLines: 1,
-                          decoration: InputDecoration(
-                            filled: true,
-                            hintText: "Password",
-                            errorStyle: TextStyle(color: Colors.white),
-                            hintStyle: TextStyle(color: Colors.grey),
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                              borderSide:
-                                  BorderSide(color: Colors.white, width: 10),
-                            ),
-                          ),
-                          validators: [
-                            FormBuilderValidators.required(),
-                            FormBuilderValidators.minLength(1),
-                            FormBuilderValidators.maxLength(24),
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        margin: EdgeInsets.only(bottom: 5),
-                        child: FormBuilderTextField(
-                          attribute: "password2",
-                          obscureText: true,
-                          initialValue: "",
-                          maxLines: 1,
-                          decoration: InputDecoration(
-                            filled: true,
-                            hintText: "Re-password",
-                            errorStyle: TextStyle(color: Colors.white),
-                            hintStyle: TextStyle(color: Colors.grey),
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                              borderSide:
-                                  BorderSide(color: Colors.white, width: 10),
-                            ),
-                          ),
-                          validators: [
-                            FormBuilderValidators.required(),
-                            FormBuilderValidators.minLength(1),
-                            FormBuilderValidators.maxLength(24),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(top: 10),
-                        padding: EdgeInsets.symmetric(horizontal: 8),
-                        height: 50,
-                        child: RaisedButton(
-                          elevation: 3,
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            side: BorderSide(color: Colors.grey[600], width: 1),
-                          ),
+                      validators: [
+                        FormBuilderValidators.required(
+                            errorText: "Bu alanı boş bırakamazsınız."),
+                        FormBuilderValidators.email(
+                            errorText: "Bir mail adresi girin."),
+                        FormBuilderValidators.minLength(3,
+                            errorText: "En az 3 karakter girmelisiniz"),
+                        FormBuilderValidators.maxLength(120,
+                            errorText: "En fazla 120 karakter girebilirsiniz"),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    margin: EdgeInsets.only(bottom: 5),
+                    child: FormBuilderTextField(
+                      attribute: "password",
+                      obscureText: _isObscure,
+                      initialValue: "",
+                      maxLines: 1,
+                      decoration: InputDecoration(
+                        suffixIcon: IconButton(
+                          tooltip: "Şifreyi göster",
+                          color: Colors.black,
                           onPressed: () {
-                            submitForm();
+                            setObscure = !isObscure;
                           },
-                          child: clickedLogin
-                              ? CircularProgressIndicator()
-                              : Text(
-                                  "REGISTER",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
+                          icon: Icon(Icons.remove_red_eye),
+                        ),
+                        filled: true,
+                        hintText: "Şifreniz (*)",
+                        errorStyle: GoogleFonts.montserrat(color: Colors.black),
+                        hintStyle: GoogleFonts.montserrat(color: Colors.grey),
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide:
+                              BorderSide(color: Colors.white, width: 10),
                         ),
                       ),
-                    ],
+                      validators: [
+                        FormBuilderValidators.required(
+                            errorText: "Bu alanı boş bırakamazsınız."),
+                        FormBuilderValidators.minLength(3,
+                            errorText: "En az 3 karakter girmelisiniz"),
+                        FormBuilderValidators.maxLength(24,
+                            errorText: "En fazla 24 karakter girebilirsiniz"),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    margin: EdgeInsets.only(bottom: 5),
+                    child: FormBuilderTextField(
+                      attribute: "password2",
+                      obscureText: _isObscure,
+                      initialValue: "",
+                      maxLines: 1,
+                      decoration: InputDecoration(
+                        suffixIcon: IconButton(
+                          tooltip: "Şifreyi göster",
+                          color: Colors.black,
+                          onPressed: () {
+                            setObscure = !isObscure;
+                          },
+                          icon: Icon(Icons.remove_red_eye),
+                        ),
+                        filled: true,
+                        hintText: "Şifreniz (Tekrar) (*)",
+                        errorStyle: GoogleFonts.montserrat(color: Colors.black),
+                        hintStyle: GoogleFonts.montserrat(color: Colors.grey),
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide:
+                              BorderSide(color: Colors.white, width: 10),
+                        ),
+                      ),
+                      validators: [
+                        FormBuilderValidators.required(
+                            errorText: "Bu alanı boş bırakamazsınız."),
+                        FormBuilderValidators.minLength(3,
+                            errorText: "En az 3 karakter girmelisiniz"),
+                        FormBuilderValidators.maxLength(24,
+                            errorText: "En fazla 24 karakter girebilirsiniz"),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top: 10, bottom: 10),
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    height: 50,
+                    child: RaisedButton(
+                      elevation: 3,
+                      color: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        side: BorderSide(color: Colors.grey[600], width: 1),
+                      ),
+                      onPressed: () {
+                        submitForm();
+                      },
+                      child: clickedLogin
+                          ? CircularProgressIndicator()
+                          : Text(
+                              "Kaydol",
+                              style: GoogleFonts.montserrat(
+                                fontSize: 16,
+                                color: Colors.black,
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ))),
+          ],
+        ),
+      )),
     );
   }
 }

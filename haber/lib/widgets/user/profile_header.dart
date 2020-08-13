@@ -166,12 +166,12 @@ class ProfileHeader implements SliverPersistentHeaderDelegate {
     FirebaseAuth.instance.signOut();
     Provider.of<UserProvider>(context, listen: false).logoutRequest();
     Constants.loggedIn = false;
+    Constants.anonymousLoggedIn = true;
     AuthResult authResult = await FirebaseAuth.instance.signInAnonymously();
     await SharedPreferenceHelper.setAnonymousID(authResult.user.uid);
     var firebase = Firebase();
     firebase.setUser(authResult.user, true);
     Provider.of<NewsProvider>(context, listen: false).setAnonymous = true;
-
     Navigator.pushReplacementNamed(
       context,
       "/home",

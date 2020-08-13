@@ -5,6 +5,7 @@ const router = new express.Router()
 const validator = require("validator")
 
 const firebaseAdmin = require("../firebase/firebase")
+const bcrypt = require("bcryptjs")
 
 
 
@@ -31,6 +32,7 @@ router.post("/users/register", async (req,res) => {
 
     try {
 
+
         firebaseAdmin.auth().createUser({
             email: req.body.email,
             password: req.body.password,
@@ -46,7 +48,8 @@ router.post("/users/register", async (req,res) => {
       
               return res.status(201).send( { 
                   "_id" : user._id,
-                  "name" : user.name,      
+                  "name" : user.name,     
+                  "profilePhoto" : user.profilePhoto,       
                   "email" : user.email,      
                   token 
               })
@@ -135,6 +138,82 @@ router.post("/users/edit_profile", auth.auth, async (req,res) => {
         delete userObject.dislikes
         delete userObject.__v
         res.send(userObject)
+    } catch (e) {
+        console.log(e)
+        res.status(400).send({"error" : "Unable to login."})
+    }
+})
+
+
+router.post("/users/change_password", auth.auth, async (req,res) => {
+    try {
+        const user = req.user;
+        var old_password = req.body.old_password;
+        var new_password = req.body.new_password;
+        var re_password = req.body.re_password;
+        var uid = req.body.uid;
+
+        if (!user) {
+            res.status(400).send({"error" : "Kullanıcı bulunamadı."})
+            return
+        }
+
+        if (old_password == undefined || new_password == undefined || re_password == undefined)
+        {
+            res.status(400).send({"error" : "Eksik bilgi."})
+            return
+        }
+
+        const isMatch = await bcrypt.compare(old_password, user.password)
+
+        if (!isMatch) {
+            res.status(400).send({"error" : "Girdiğiniz eski şifre yanlış."})
+            return
+        }
+
+        if (old_password == new_password ) {
+            res.status(400).send({"error" : "Yeni şifren, eskisiyle aynı olamaz."})
+            return
+
+        }
+
+        if (new_password.length < 6) {
+            res.status(400).send({"error" : "Yeni şifre en az 6 karakter olmalı."})
+            return
+        }
+
+        if (new_password != re_password) {
+            res.status(400).send({"error" : "Yeni şifre ve tekrarı yanlış."})
+            return
+        }
+
+        firebaseAdmin.auth().updateUser(uid,{
+            password: new_password,
+          })
+            .then(async function(userRecord) {
+              console.log('[Firebase] Password changed for user:', userRecord.uid);
+
+
+              user.password = new_password
+              user.tokens = []
+              await user.save()
+      
+             const token = await user.generateAuthToken()
+      
+             res.send( { 
+                "_id" : user._id,
+                "profilePhoto" : user.profilePhoto,      
+                "name" : user.name,      
+                "email" : user.email,  
+                token 
+            })
+      
+            })
+            .catch(function(error) {
+                console.log("gelen error  " + error)
+                return res.status(400).send({"error": "A Firebase eror happened."})
+            });
+
     } catch (e) {
         console.log(e)
         res.status(400).send({"error" : "Unable to login."})

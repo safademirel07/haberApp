@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:haber/app_theme.dart';
 import 'package:haber/data/constants.dart';
 import 'package:haber/data/sharedpref/shared_preference_helper.dart';
@@ -112,6 +113,16 @@ class _LoginState extends State<Login> {
     }
   }
 
+  bool _isObscure = true;
+
+  get isObscure => _isObscure;
+
+  set setObscure(value) {
+    setState(() {
+      _isObscure = value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     var padding = MediaQuery.of(context).padding; //Safe Area
@@ -120,9 +131,8 @@ class _LoginState extends State<Login> {
     return SafeArea(
       child: Scaffold(
         key: _scaffoldKey,
-        body: Container(
-            child: Center(
-                child: SingleChildScrollView(
+        body: Center(
+            child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
@@ -148,9 +158,10 @@ class _LoginState extends State<Login> {
                         initialValue: "",
                         decoration: InputDecoration(
                           filled: true,
-                          hintText: "Mail Adresiniz",
-                          errorStyle: TextStyle(color: Colors.white),
-                          hintStyle: TextStyle(color: Colors.grey),
+                          hintText: "Mail adresiniz",
+                          errorStyle:
+                              GoogleFonts.montserrat(color: Colors.black),
+                          hintStyle: GoogleFonts.montserrat(color: Colors.grey),
                           fillColor: Colors.white,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -159,10 +170,15 @@ class _LoginState extends State<Login> {
                           ),
                         ),
                         validators: [
-                          FormBuilderValidators.required(),
-                          FormBuilderValidators.email(),
-                          FormBuilderValidators.minLength(1),
-                          FormBuilderValidators.maxLength(24),
+                          FormBuilderValidators.required(
+                              errorText: "Bu alanı boş bırakamazsınız."),
+                          FormBuilderValidators.email(
+                              errorText: "Bir mail adresi girin."),
+                          FormBuilderValidators.minLength(3,
+                              errorText: "En az 3 karakter girmelisiniz"),
+                          FormBuilderValidators.maxLength(120,
+                              errorText:
+                                  "En fazla 120 karakter girebilirsiniz"),
                         ],
                       ),
                     ),
@@ -174,14 +190,23 @@ class _LoginState extends State<Login> {
                       margin: EdgeInsets.only(bottom: 5),
                       child: FormBuilderTextField(
                         attribute: "password",
-                        obscureText: true,
+                        obscureText: _isObscure,
                         initialValue: "",
                         maxLines: 1,
                         decoration: InputDecoration(
+                          suffixIcon: IconButton(
+                            tooltip: "Şifreyi göster",
+                            color: Colors.black,
+                            onPressed: () {
+                              setObscure = !isObscure;
+                            },
+                            icon: Icon(Icons.remove_red_eye),
+                          ),
                           filled: true,
                           hintText: "Şifreniz",
-                          errorStyle: TextStyle(color: Colors.white),
-                          hintStyle: TextStyle(color: Colors.grey),
+                          errorStyle:
+                              GoogleFonts.montserrat(color: Colors.black),
+                          hintStyle: GoogleFonts.montserrat(color: Colors.grey),
                           fillColor: Colors.white,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -190,9 +215,12 @@ class _LoginState extends State<Login> {
                           ),
                         ),
                         validators: [
-                          FormBuilderValidators.required(),
-                          FormBuilderValidators.minLength(1),
-                          FormBuilderValidators.maxLength(24),
+                          FormBuilderValidators.required(
+                              errorText: "Bu alanı boş bırakamazsınız."),
+                          FormBuilderValidators.minLength(3,
+                              errorText: "En az 3 karakter girmelisiniz"),
+                          FormBuilderValidators.maxLength(24,
+                              errorText: "En fazla 24 karakter girebilirsiniz"),
                         ],
                       ),
                     ),
@@ -221,7 +249,7 @@ class _LoginState extends State<Login> {
                               },
                               child: Text(
                                 "Kaydol",
-                                style: TextStyle(
+                                style: GoogleFonts.montserrat(
                                   fontSize: 16,
                                   color: Colors.white,
                                 ),
@@ -247,7 +275,7 @@ class _LoginState extends State<Login> {
                                   ? CircularProgressIndicator()
                                   : Text(
                                       "Giriş Yap",
-                                      style: TextStyle(
+                                      style: GoogleFonts.montserrat(
                                         fontSize: 16,
                                         color: Colors.black,
                                       ),
@@ -262,7 +290,7 @@ class _LoginState extends State<Login> {
               ),
             ],
           ),
-        ))),
+        )),
       ),
     );
   }

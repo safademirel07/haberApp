@@ -196,17 +196,19 @@ class _NewsListForUserState extends State<NewsListForUser>
                   : Container(
                       padding: EdgeInsets.all(16),
                       child: Center(
-                        child: Column(
-                          children: <Widget>[
-                            Text(
-                              errorMessage,
-                              style: AppTheme.title,
-                              textAlign: TextAlign.center,
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                          ],
+                        child: Expanded(
+                          child: Column(
+                            children: <Widget>[
+                              Text(
+                                errorMessage,
+                                style: AppTheme.title,
+                                textAlign: TextAlign.center,
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:haber/data/constants.dart';
 import 'package:haber/data/sharedpref/shared_preference_helper.dart';
@@ -10,9 +11,13 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import 'package:haber/models/News.dart';
 import 'package:haber/models/User.dart';
+import 'package:haber/providers/news_provider.dart';
 import 'package:haber/requests/news_request.dart';
 import 'package:haber/requests/user_request.dart';
 import 'dart:math';
+
+import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class UserProvider with ChangeNotifier {
   UserProvider() {
@@ -429,6 +434,65 @@ class UserProvider with ChangeNotifier {
       });
     } catch (e) {
       print("error");
+    }
+  }
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Future<String> changePassword(String oldPassword, String newPassword,
+      String rePassword, BuildContext context) async {
+    try {
+      var firebase = Firebase();
+
+      if (firebase.getUser() == null) {
+        print("firebase user yok..");
+        return "Bilinmeyen bir hata oluştu.";
+      }
+
+      http.Response data = await UserRequest().changePassword(
+          oldPassword, newPassword, rePassword, firebase.getUser().uid);
+
+      if (data.statusCode == 200) {
+        User dataUser = User.fromJson(json.decode(data.body), "");
+
+        await SharedPreferenceHelper.setPassword(newPassword);
+        SharedPreferenceHelper.setAuthToken(dataUser.token);
+        SharedPreferenceHelper.setUID(dataUser.uid);
+
+        await FirebaseAuth.instance.signOut();
+
+        AuthCredential credential = EmailAuthProvider.getCredential(
+            email: dataUser.email.trim(), password: newPassword);
+
+        FirebaseUser signIn =
+            (await _auth.signInWithCredential(credential)).user;
+
+        print("uid.." + signIn.uid);
+
+        firebase.setUser(signIn);
+
+        Constants.anonymousLoggedIn = false;
+        Constants.loggedIn = true;
+
+        dataUser.uid = signIn.uid;
+
+        Provider.of<UserProvider>(context, listen: false).setUser(dataUser);
+        Provider.of<NewsProvider>(context, listen: false)
+            .setrequiredToFetchAgain = true;
+        Provider.of<NewsProvider>(context, listen: false)
+            .setRequiredToFetchAgainFavorites = true;
+        Provider.of<NewsProvider>(context, listen: false).setAnonymous = false;
+
+        notifyListeners();
+        return "OK";
+      } else {
+        print("error2" + data.statusCode.toString());
+        Map<String, dynamic> result = json.decode(data.body);
+        return result["error"];
+      }
+    } catch (e) {
+      print("error");
+      return "Bilinmeyen Hata";
     }
   }
 

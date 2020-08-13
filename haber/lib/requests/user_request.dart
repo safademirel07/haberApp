@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:haber/data/constants.dart';
 import 'package:haber/data/sharedpref/shared_preference_helper.dart';
 import 'package:http/http.dart' as http;
@@ -96,6 +98,27 @@ class UserRequest {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer ${token.toString()}',
       },
+    );
+  }
+
+  Future<http.Response> changePassword(String oldPassword, String newPassword,
+      String rePassword, String uid) async {
+    dynamic token = await SharedPreferenceHelper.getAuthToken;
+
+    return http.post(
+      Constants.api_url + "/users/change_password",
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ${token.toString()}',
+      },
+      body: jsonEncode(
+        <String, String>{
+          "old_password": oldPassword,
+          "new_password": newPassword,
+          "re_password": rePassword,
+          "uid": uid,
+        },
+      ),
     );
   }
 }

@@ -211,7 +211,7 @@ class _CareouselSliderState extends State<CareouselSlider> {
                               child: Stack(
                                 children: <Widget>[
                                   Hero(
-                                    tag: "slider_" +
+                                    tag: "type_1" +
                                         item.image +
                                         "_id" +
                                         listNews.indexOf(item).toString(),
