@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -20,6 +23,7 @@ import 'package:haber/widgets/others/webview.dart';
 import 'package:haber/widgets/user/login.dart';
 import 'package:haber/widgets/user/profile.dart';
 import 'package:haber/widgets/user/register.dart';
+import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -30,6 +34,8 @@ import 'models/Firebase.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:connectivity/connectivity.dart';
+
+import 'package:device_info/device_info.dart';
 
 Future<bool> checkApi() async {
   bool response = false;
@@ -48,6 +54,48 @@ Future<bool> checkApi() async {
       print("value.statusCode " + value.statusCode.toString());
     }
   });
+
+  return response;
+}
+
+Future<bool> sendLog(AndroidDeviceInfo deviceInfo, PackageInfo packageInfo,
+    FirebaseUser user) async {
+  bool response = false;
+
+  IdTokenResult tokenResult = await user.getIdToken();
+  String authToken = tokenResult.token;
+
+  final http.Response responseLog = await http.post(
+    Constants.api_url + "/log/create",
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(
+      <String, String>{
+        "authToken": authToken,
+        "firebaseUID": user.uid,
+        "isAnonymous": user.isAnonymous ? "true" : "false",
+        "firebaseMail": user.isAnonymous ? "anonymous" : user.email,
+        "os": "Android",
+        "appVersion": packageInfo.version,
+        "appBuildNumber": packageInfo.buildNumber,
+        "deviceManufacturer": deviceInfo.manufacturer,
+        "deviceModel": deviceInfo.model,
+        "deviceProduct": deviceInfo.product,
+        "deviceSDK": deviceInfo.version.sdkInt.toString(),
+        "deviceID": deviceInfo.id,
+        "deviceAndroidID": deviceInfo.androidId,
+      },
+    ),
+  );
+
+  if (responseLog.statusCode == 200) {
+    print("Log sent succesfully.");
+    response = true;
+  } else {
+    print("Log couldn't send to server.");
+    response = false;
+  }
 
   return response;
 }
@@ -194,6 +242,22 @@ void main() async {
 
   if (connectivityResult == ConnectivityResult.wifi ||
       connectivityResult == ConnectivityResult.mobile) {
+    //Log start
+
+    DeviceInfoPlugin deviceInfo = await DeviceInfoPlugin();
+    if (Platform.isAndroid) {
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
+      bool result = await sendLog(androidInfo, packageInfo, firebase.getUser());
+      print("SendLog" + result.toString());
+    } else if (Platform.isIOS) {
+      print("ios");
+      //todo
+    }
+
+    //Log start
+
     runApp(MultiProvider(
       providers: [
         ChangeNotifierProvider(

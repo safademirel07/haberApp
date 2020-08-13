@@ -22,7 +22,7 @@ router.get("/comment/get", auth.auth_test,  async(req,res) => {
             res.status(400).send({error : "News not found."})
         }
 
-        const comments = await Comment.find({news : newsID}).sort({date : -1}).limit(limit).skip(limit * page)
+        const comments = await Comment.find({news : newsID, active : true}).sort({date : -1}).limit(limit).skip(limit * page)
 
         var data = []
 
@@ -58,6 +58,43 @@ router.get("/comment/get", auth.auth_test,  async(req,res) => {
 
     }
 })
+
+router.post("/comment/delete", auth.auth, async(req,res) => {
+    try {
+
+        const user = req.user
+        const commentID = mongoose.Types.ObjectId(req.query.comment)
+
+        if (!user) {
+            res.status(400).send({error : "User not found."})
+            return
+        }
+        
+        var comment = await Comment.findById(commentID)
+
+        if (!comment) {
+            res.status(400).send({error : "Comment not found."})
+            return
+        }
+        
+        if (comment.user.toString() != user._id.toString()) {
+            res.status(400).send({error : "User ids not matching."})
+            return
+        }
+
+        comment.active = false
+        await comment.save()
+
+        res.send(comment)
+        
+    } catch (e) {
+        console.log(e)
+        res.status(400).send({error : e})
+
+    }
+})
+
+
 
 router.post("/comment/add", auth.auth, async(req,res) => {
 

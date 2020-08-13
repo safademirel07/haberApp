@@ -5,6 +5,7 @@ import 'package:haber/app_theme.dart';
 import 'package:haber/data/constants.dart';
 import 'package:haber/models/News.dart';
 import 'package:haber/models/NewsDetails.dart';
+import 'package:haber/providers/comment_provider.dart';
 import 'package:haber/providers/news_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -194,6 +195,8 @@ class _CareouselSliderState extends State<CareouselSlider> {
                         var index = listNews.indexOf(item);
                         await Provider.of<NewsProvider>(context, listen: false)
                             .viewNews(item.sId, context);
+                        Provider.of<CommentProvider>(context, listen: false)
+                            .fetchComments(item.sId, false);
 
                         Navigator.pushNamed(
                           context,

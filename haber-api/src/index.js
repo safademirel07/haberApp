@@ -9,6 +9,7 @@ const rssRouter = require("./routers/rss")
 const newsRouter = require("./routers/news")
 const userRouter = require("./routers/user")
 const commentRouter = require("./routers/comment")
+const logRouter = require("./routers/log")
 
 const sabahParser = require("./parsers/sabah")
 const milliyetParser = require("./parsers/milliyet")
@@ -33,6 +34,7 @@ app.use(rssRouter)
 app.use(newsRouter)
 app.use(userRouter)
 app.use(commentRouter)
+app.use(logRouter)
 
 
 moment.locale("tr")
@@ -48,14 +50,17 @@ ntvParser.parseNtvNews()
 */
 
 const job = new CronJob('0 */5 * * * *', function() {
+    /*
     sabahParser.parseSabahNews()
     milliyetParser.parseMilliyetNews()
     haberTurkParser.parseHaberTurkNews()
     cnnTurkParser.parseCNNTurkNews()
     ntvParser.parseNtvNews()
+    */
     const d = new Date();
     console.log('Cron worked at date : ', d);
 });  
+
 
 job.start()
 

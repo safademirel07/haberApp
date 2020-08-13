@@ -17,6 +17,10 @@ const commentSchema = mongoose.Schema({
     date : {
         type : Date,
         default : Date.now(),
+    },
+    active : {
+        type: Boolean,
+        default : true,
     }
 
 })
