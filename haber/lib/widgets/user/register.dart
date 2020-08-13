@@ -245,7 +245,9 @@ class _RegisterState extends State<Register> {
                           onPressed: () {
                             setObscure = !isObscure;
                           },
-                          icon: Icon(Icons.remove_red_eye),
+                          icon: Icon(isObscure
+                              ? Icons.visibility
+                              : Icons.visibility_off),
                         ),
                         filled: true,
                         hintText: "Şifreniz (*)",
@@ -286,7 +288,9 @@ class _RegisterState extends State<Register> {
                           onPressed: () {
                             setObscure = !isObscure;
                           },
-                          icon: Icon(Icons.remove_red_eye),
+                          icon: Icon(isObscure
+                              ? Icons.visibility
+                              : Icons.visibility_off),
                         ),
                         filled: true,
                         hintText: "Şifreniz (Tekrar) (*)",

@@ -200,7 +200,9 @@ class _LoginState extends State<Login> {
                             onPressed: () {
                               setObscure = !isObscure;
                             },
-                            icon: Icon(Icons.remove_red_eye),
+                            icon: Icon(isObscure
+                                ? Icons.visibility
+                                : Icons.visibility_off),
                           ),
                           filled: true,
                           hintText: "Şifreniz",

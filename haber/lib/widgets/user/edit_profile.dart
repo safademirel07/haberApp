@@ -75,9 +75,12 @@ class EditProfileState extends State<EditProfile> {
                   initialValue: widget.user.name,
                   decoration: InputDecoration(labelText: "Kullanıcı Adı (*)"),
                   validators: [
-                    FormBuilderValidators.required(),
-                    FormBuilderValidators.minLength(Constants.minLengthShort),
-                    FormBuilderValidators.maxLength(Constants.maxLengthShort),
+                    FormBuilderValidators.required(
+                        errorText: "Bu alanı boş bırakamazsınız."),
+                    FormBuilderValidators.minLength(3,
+                        errorText: "En az 3 karakter girmelisiniz"),
+                    FormBuilderValidators.maxLength(24,
+                        errorText: "En fazla 24 karakter girebilirsiniz"),
                   ],
                 ),
               ),
@@ -88,7 +91,14 @@ class EditProfileState extends State<EditProfile> {
                   initialValue: widget.user.email,
                   decoration: InputDecoration(labelText: "Email"),
                   validators: [
-                    FormBuilderValidators.maxLength(Constants.maxLengthMiddle),
+                    FormBuilderValidators.required(
+                        errorText: "Bu alanı boş bırakamazsınız."),
+                    FormBuilderValidators.email(
+                        errorText: "Bir mail adresi girin."),
+                    FormBuilderValidators.minLength(3,
+                        errorText: "En az 3 karakter girmelisiniz"),
+                    FormBuilderValidators.maxLength(120,
+                        errorText: "En fazla 120 karakter girebilirsiniz"),
                   ],
                 ),
               ),

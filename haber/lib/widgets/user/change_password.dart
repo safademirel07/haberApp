@@ -18,6 +18,16 @@ class _ChangePasswordState extends State<ChangePassword> {
 
   bool _isCurrent = false;
 
+  bool _isObscure = true;
+
+  get isObscure => _isObscure;
+
+  set setObscure(value) {
+    setState(() {
+      _isObscure = value;
+    });
+  }
+
   void submitForm() async {
     if (_fbKey.currentState.saveAndValidate()) {
       String old_password = _fbKey.currentState.value['oldPassword'];
@@ -94,13 +104,24 @@ class _ChangePasswordState extends State<ChangePassword> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: FormBuilderTextField(
-                  obscureText: true,
+                  obscureText: _isObscure,
                   maxLines: 1,
                   attribute: "oldPassword",
                   initialValue: "",
-                  decoration: InputDecoration(labelText: "Eski Şifre (*)"),
+                  decoration: InputDecoration(
+                      suffixIcon: IconButton(
+                          tooltip: "Şifreyi göster",
+                          color: Colors.black,
+                          onPressed: () {
+                            setObscure = !isObscure;
+                          },
+                          icon: Icon(isObscure
+                              ? Icons.visibility
+                              : Icons.visibility_off)),
+                      labelText: "Eski Şifre (*)"),
                   validators: [
-                    FormBuilderValidators.required(),
+                    FormBuilderValidators.required(
+                        errorText: "Bu alanı boş bırakamazsınız."),
                     FormBuilderValidators.minLength(3,
                         errorText: "En az 6 karakter girmelisiniz"),
                     FormBuilderValidators.maxLength(24,
@@ -111,12 +132,24 @@ class _ChangePasswordState extends State<ChangePassword> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: FormBuilderTextField(
-                  obscureText: true,
+                  obscureText: _isObscure,
                   maxLines: 1,
                   attribute: "newPassword",
-                  decoration: InputDecoration(labelText: "Yeni Şifre (*)"),
+                  decoration: InputDecoration(
+                      suffixIcon: IconButton(
+                        tooltip: "Şifreyi göster",
+                        color: Colors.black,
+                        onPressed: () {
+                          setObscure = !isObscure;
+                        },
+                        icon: Icon(isObscure
+                            ? Icons.visibility
+                            : Icons.visibility_off),
+                      ),
+                      labelText: "Yeni Şifre (*)"),
                   validators: [
-                    FormBuilderValidators.required(),
+                    FormBuilderValidators.required(
+                        errorText: "Bu alanı boş bırakamazsınız."),
                     FormBuilderValidators.minLength(3,
                         errorText: "En az 6 karakter girmelisiniz"),
                     FormBuilderValidators.maxLength(24,
@@ -127,14 +160,25 @@ class _ChangePasswordState extends State<ChangePassword> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: FormBuilderTextField(
-                  obscureText: true,
+                  obscureText: _isObscure,
                   maxLines: 1,
                   attribute: "newRePassword",
                   initialValue: "",
-                  decoration:
-                      InputDecoration(labelText: "Yeni Şifre Tekrar (*)"),
+                  decoration: InputDecoration(
+                      suffixIcon: IconButton(
+                        tooltip: "Şifreyi göster",
+                        color: Colors.black,
+                        onPressed: () {
+                          setObscure = !isObscure;
+                        },
+                        icon: Icon(isObscure
+                            ? Icons.visibility
+                            : Icons.visibility_off),
+                      ),
+                      labelText: "Yeni Şifre Tekrar (*)"),
                   validators: [
-                    FormBuilderValidators.required(),
+                    FormBuilderValidators.required(
+                        errorText: "Bu alanı boş bırakamazsınız."),
                     FormBuilderValidators.minLength(3,
                         errorText: "En az 6 karakter girmelisiniz"),
                     FormBuilderValidators.maxLength(24,
