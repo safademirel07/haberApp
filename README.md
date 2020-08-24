@@ -2,7 +2,7 @@
 günlük gazetelerden haberler
 
 
-#Kurulum ve çalıştırma
+# Kurulum ve çalıştırma
 
 1. https://nodejs.org/en/download/ NodeJs'i indirip kuralım. 
 2. cmd açalım, "cd haber-api" ile klasörün içine girelim.
